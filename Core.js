@@ -7134,7 +7134,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
           if (isBanChat) return reply(mess.bangc);
           A17.sendMessage(from, { react: { text: "✨", key: m.key } })
 
-          reply(`Do you need any help ${pushname} ? Type *${prefix}help* to get my full command list.`)
+          reply(`Tu as besoin d'aide ${pushname} ? Ecris *${prefix}help* pour avoir la liste de mes commandes.`)
         }
 
         break;
@@ -7146,7 +7146,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
           if (isBanChat) return reply(mess.bangc);
           A17.sendMessage(from, { react: { text: "✨", key: m.key } })
 
-          reply(`Do you need any help ${pushname} ? Type *${prefix}help* to get my full command list.`)
+          reply(`Tu as besoin d'aide ${pushname} ? Ecris *${prefix}help* pour avoir la liste de mes commandes.`)
         }
 
         break;
@@ -7159,7 +7159,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
           if (isBanChat) return reply(mess.bangc);
           A17.sendMessage(from, { react: { text: "✨", key: m.key } })
 
-          reply(`Do you need any help ${pushname} ? Type *${prefix}help* to get my full command list.`)
+          reply(`Tu as besoin d'aide ${pushname} ? Ecris *${prefix}help* pour avoir la liste de mes commandes.`)
         }
 
         break;
