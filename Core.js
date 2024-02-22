@@ -187,7 +187,7 @@ var yye = tgel.getYear();
 
 
 //
-module.exports = A17 = async (PelBot, m, chatUpdate, store) => {
+module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
   try {
     var body = (m.mtype === 'conversation') ? m.message.conversation : (m.mtype == 'imageMessage') ? m.message.imageMessage.caption : (m.mtype == 'videoMessage') ? m.message.videoMessage.caption : (m.mtype == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.mtype == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.mtype == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectreply.selectedRowId : (m.mtype == 'templateButtonreplyMessage') ? m.message.templateButtonreplyMessage.selectedId : (m.mtype === 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectreply.selectedRowId || m.text) : ''
     var budy = (typeof m.text == 'string' ? m.text : '')
@@ -442,111 +442,7 @@ module.exports = A17 = async (PelBot, m, chatUpdate, store) => {
 
 
 
-    //-----------------------------------------------------------------------------------------------------------------------------------//
-
-
-
-    //
-    // if (AntiLinkAll)
-    //   var rondonxk = '[-a-zA-Z0-9@:%._+~#=].[-a-zA-Z0-9@:%._+~#=].[-a-zA-Z0-9()@:%_+.~#?&/=]'
-    //   if (budy.includes("https://")) {
-    //     if (!isBotAdmins) return
-    //     bvl = `\`\`\`「  Antilink System  」\`\`\`\n\nLink sent by Admin so no action will be taken!`
-    //     if (isAdmins) return reply(bvl)
-    //     if (m.key.fromMe) return reply(bvl)
-    //     if (isCreator) return reply(bvl)
-    //     kice = m.sender
-    //     await PelBot.sendMessage(
-    //       from,
-    //       {
-    //         delete: {
-    //           remoteJid: from,
-    //           fromMe: false,
-    //           id: m.id,
-    //           participant: m.sender,
-    //         },
-    //       },
-    //       {
-    //         quoted: m,
-    //       }
-    //     );
-    //   //  await PelBot.groupParticipantsUpdate(m.chat, [kice], 'remove')
-    //     PelBot.sendMessage(from, { text: `\`\`\`「  Antilink System  」\`\`\`\n\n*⚠️ Group link detected !*\n\n*🚫@${kice.split("@")[0]} You are not allowed to send any links in this group !*\n`, contextInfo: { mentionedJid: [kice] } }, { quoted: m })
-    //   } else {
-    //   }
-
-    // if (budy.includes("http://")) {
-    //     if (!isBotAdmins) return
-    //     bvl = `\`\`\`「  Antilink System  」\`\`\`\n\nLink sent by Admin so no action will be taken!`
-    //     if (isAdmins) return reply(bvl)
-    //     if (m.key.fromMe) return reply(bvl)
-    //     if (isCreator) return reply(bvl)
-    //     kice = m.sender
-    //     await PelBot.sendMessage(
-    //       from,
-    //       {
-    //         delete: {
-    //           remoteJid: from,
-    //           fromMe: false,
-    //           id: m.id,
-    //           participant: m.sender,
-    //         },
-    //       },
-    //       {
-    //         quoted: m,
-    //       }
-    //     );
-    //   //  await PelBot.groupParticipantsUpdate(m.chat, [kice], 'remove')
-    //     PelBot.sendMessage(from, { text: `\`\`\`「  Antilink System  」\`\`\`\n\n*⚠️ Group link detected !*\n\n*🚫@${kice.split("@")[0]} You are not allowed to send any links in this group !*\n`, contextInfo: { mentionedJid: [kice] } }, { quoted: m })
-    //   } else {
-    //   }
-
-
-    //     const menulist = `
-    //     Konichiwa ${pushname} dear 👋. I am ${global.BotName}, a bot developed by: Kai to take your WhatsApp usage into next level.
-
-    //        「 System Info 」
-
-    //     Speed : ${latensie.toFixed(4)} miliseconds
-    //     Up Time : ${runtime(process.uptime())}
-    //     Bot Name : ${global.BotName}
-    //     Owner Name : ${global.OwnerName}
-    //     𝗣𝗹𝗮𝘁𝗳𝗼𝗿𝗺 : Amazon AWS
-    //     𝗧𝗼𝘁𝗮𝗹 𝗨𝘀𝗲𝗿 : ${Object.keys(global.db.users).length}
-
-
-    //        「 User Info 」
-
-    //     User Level: ${levelMenu}
-    //     User XP : ${xpMenu} \ ${reqXp}
-    //     User Role : ${role}
-
-
-    //        「 User Bank 」
-
-    //     User Balance : ${uangku}
-    //    //Iron : ${getBesi(m.sender)}
-    //     Gold : ${getEmas(m.sender)}
-    //     Emarald : ${getEmerald(m.sender)}
-    //     Potion : ${getPotion(m.sender)}
-
-
-    //     Type *-menu* or press any button below to start using *${global.BotName}*
-
-    //     ©️ *${global.BotName}* All Rights Reserved by: *Kai*
-    //     `
-    //         const qtod = m.quoted? "true":"false"
-
-
-
-    // function pickRandom(list) {
-    // return list[Math.floor(list.length * Math.random())]
-    // }
-
-
-
-    //-------------------------------------------------------------- tictactoe ----------------------------------------------------------------//
-
+    
 
     //
     this.game = this.game ? this.game : {}
@@ -2735,7 +2631,7 @@ break;
       case 'ghstalk': case 'githubstalk': case 'github': {
         PelBot.sendMessage(from, { react: { text: "🔍", key: m.key } })
 
-        if (!q) return reply(`Give me a user name like *${prefix}github Kai0071*`)
+        if (!q) return reply(`Give me a user name like *${prefix}github Pelpav*`)
 
         gitdata = await githubstalk.githubstalk(`${q}`)
         PelBot.sendMessage(m.chat, {
@@ -2778,7 +2674,7 @@ break;
         PelBot.sendMessage(from, { react: { text: "💫", key: m.key } });
 
         if (!args[0]) {
-          return reply(`Please provide the GitHub repository link.\nExample:\n${prefix}${command} https://github.com/Kai0071/PelBot`);
+          return reply(`Please provide the GitHub repository link.\nExample:\n${prefix}${command} https://github.com/Pelpav/PelBot`);
         }
 
         if (!isUrl(args[0]) || !args[0].includes('github.com')) {
@@ -5444,7 +5340,7 @@ _Click the button below to download_`
         if (isBanChat) return reply(mess.bangc);
         PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
-        if (!args.join(" ")) return reply(`Like use -take PelBot|By: Kai`)
+        if (!args.join(" ")) return reply(`Like use -take PelBot|By: Pelpav`)
         const swn = args.join(" ")
         const pcknm = swn.split("|")[0];
         const atnm = swn.split("|")[1];
@@ -5572,7 +5468,7 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         PelBot.sendMessage(from, { react: { text: "😺", key: m.key } })
-        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Kai`)
+        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Pelpav`)
         const gan = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']
         const teng = gan[Math.floor(Math.random() * gan.length)]
         PelBot.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${teng}%*` }, { quoted: m })
@@ -5584,7 +5480,7 @@ _Click the button below to download_`
         if (isBanChat) return reply(mess.bangc);
         PelBot.sendMessage(from, { react: { text: "😺", key: m.key } })
 
-        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Kai`)
+        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Pelpav`)
         const can = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']
         const tik = can[Math.floor(Math.random() * can.length)]
         PelBot.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${tik}%*` }, { quoted: m })
@@ -5605,7 +5501,7 @@ _Click the button below to download_`
         if (isBanChat) return reply(mess.bangc);
         PelBot.sendMessage(from, { react: { text: "😺", key: m.key } })
 
-        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Kai`)
+        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Pelpavpav`)
         const sangeh = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']
         const sange = sangeh[Math.floor(Math.random() * sangeh.length)]
         PelBot.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${sange}%*` }, { quoted: m })
@@ -5617,7 +5513,7 @@ _Click the button below to download_`
         if (isBanChat) return reply(mess.bangc);
         PelBot.sendMessage(from, { react: { text: "🤧", key: m.key } })
 
-        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Kai`)
+        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Pelpavpav`)
         const PelBottttt = ['Compassionate', 'Generous', 'Grumpy', 'Forgiving', 'Obedient', 'Good', 'Simp', 'Kind-Hearted', 'patient', 'UwU', 'top, anyway', 'Helpful']
         const taky = PelBottttt[Math.floor(Math.random() * PelBottttt.length)]
         PelBot.sendMessage(from, { text: `Character Check : ${q}\nAnswer : *${taky}*` }, { quoted: m })
@@ -5701,7 +5597,7 @@ _Click the button below to download_`
           "shout you bastard in front of your mom/papa",
           "change the name to i am idiot for 24 hours",
           "slap urself firmly and send the sound of slap through voice note😂",
-          "say i love the bot owner Kai through voice note",
+          "say i love the bot owner Pelpav through voice note",
           "send your gf/bf pic here",
           "make any tiktok dance challenge video and put it on status, u can delete it after 5hrs",
           "break;up with your best friend for 5hrs without telling him/her that its a dare",
@@ -5795,7 +5691,7 @@ _Click the button below to download_`
           "Mention the incident that makes you hurt that you still remember",
           "what achievements have you got this year?",
           "what was your worst habit at school?",
-          "do you love the bot creator Kai?",
+          "do you love the bot creator Pelpavpav?",
           "have you ever thought of taking revenge from ur teacher?",
           "do you like current prime minister of ur country",
           "you non veg or veg",
@@ -6770,7 +6666,7 @@ _Click the button below to download_`
         PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
         const helpmenu = `Hemlo *${pushname}* Dear...!! ${nowtime} ,
   
-Hemlo, I am "PelBot" a WhatsApp bot create and recode by Kai to do everything that is possible on WhatsApp based on WhatsApp Multi Device(MD) Support.
+Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything that is possible on WhatsApp based on WhatsApp Multi Device(MD) Support.
 
 
   ⌯    *Time* : ${kaitime}
@@ -7071,7 +6967,7 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Kai to do everything th
   ⌯       all NSFW commands.
   ⌯    
   ⌯   『  *${global.BotName}*  』
-  ⌯       Developed By: *Kai*
+  ⌯       Developed By: *Pelpav*
   ⌯    
   ⌯   🍁 To use any of these
   ⌯       commands type.

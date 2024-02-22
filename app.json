@@ -1,7 +1,7 @@
 {
   "name": "PelBot-MD",
   "description": "A WhatsApp bot based on Baileysjs library (Ts+Js) with Multi Device support",
-  "repository": "https://github.com/Kai0071/PelBot",
+  "repository": "https://github.com/Pelpav/PelBot",
   "logo": "https://wallpapercave.com/wp/wp6471201.jpg",
   "keywords": ["nodejs", "bot", "whatsapp bot", "whatsapp automation", "multi device"],
   "buildpacks": [

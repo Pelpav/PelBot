@@ -1,7 +1,7 @@
 {
-    "name": "a17",
+    "name": "pelbot",
     "version": "1.0.0",
-    "description": "A17 is a WhatsApp multiDevice Bot based on Miku and Baileys written in Javascript.",
+    "description": "PelBot est un bot Whatsapp écrit en Javascript.",
     "main": "index.js",
     "directories": {
         "lib": "lib"
@@ -12,17 +12,17 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Kai0071/A17.git"
+        "url": "git+https://github.com/Pelapv/PelBot.git"
     },
     "keywords": [
         "md-bot"
     ],
-    "author": "Kai",
+    "author": "pelpav",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/Kai0071/A17/issues"
+        "url": "https://github.com/Pelpav/PelBot/issues"
     },
-    "homepage": "https://github.com/Kai0071/A17#readme",
+    "homepage": "https://github.com/Pelpav/PelBot/#readme",
     "devDependencies": {
         "@adiwajshing/keyed-db": "^0.2.4",
         "@hapi/boom": "^10.0.1",
