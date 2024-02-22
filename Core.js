@@ -187,7 +187,7 @@ var yye = tgel.getYear();
 
 
 //
-module.exports = A17 = async (A17, m, chatUpdate, store) => {
+module.exports = A17 = async (PelBot, m, chatUpdate, store) => {
   try {
     var body = (m.mtype === 'conversation') ? m.message.conversation : (m.mtype == 'imageMessage') ? m.message.imageMessage.caption : (m.mtype == 'videoMessage') ? m.message.videoMessage.caption : (m.mtype == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.mtype == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.mtype == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectreply.selectedRowId : (m.mtype == 'templateButtonreplyMessage') ? m.message.templateButtonreplyMessage.selectedId : (m.mtype === 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectreply.selectedRowId || m.text) : ''
     var budy = (typeof m.text == 'string' ? m.text : '')
@@ -197,7 +197,7 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
     const command = isCmd ? body.slice(1).trim().split(' ')[0].toLowerCase() : ''
     const args = body.trim().split(/ +/).slice(1)
     const pushname = m.pushName || "No Name"
-    const botNumber = await A17.decodeJid(A17.user.id)
+    const botNumber = await PelBot.decodeJid(PelBot.user.id)
     const isCreator = [botNumber, ...global.Owner].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
     const itsMe = m.sender == botNumber ? true : false
     const text = args.join(" ")
@@ -206,7 +206,7 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
     const mime = (quoted.msg || quoted).mimetype || ''
     const isMedia = /image|video|sticker|audio/.test(mime)
     const messagesD = body.slice(0).trim().split(/ +/).shift().toLowerCase()
-    const groupMetadata = m.isGroup ? await A17.groupMetadata(m.chat).catch(e => { }) : ''
+    const groupMetadata = m.isGroup ? await PelBot.groupMetadata(m.chat).catch(e => { }) : ''
     const groupName = m.isGroup ? groupMetadata.subject : ''
     const participants = m.isGroup ? await groupMetadata.participants : ''
     const groupAdmins = m.isGroup ? await participants.filter(v => v.admin !== null).map(v => v.id) : ''
@@ -240,15 +240,15 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
 
 
     autoreadsw = true;
-    _sewa.expiredCheck(A17, sewa);
+    _sewa.expiredCheck(PelBot, sewa);
 
     const reply = (teks) => {
-      A17.sendMessage(m.chat, { text: teks }, { quoted: m })
+      PelBot.sendMessage(m.chat, { text: teks }, { quoted: m })
     }
 
 
     /* const reply = (teks) => {
-      A17.sendMessage(m.chat, { text: teks }, { quoted: m }); 
+      PelBot.sendMessage(m.chat, { text: teks }, { quoted: m }); 
     }; */
 
 
@@ -286,8 +286,8 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
 
     // if (global.autoreadpmngc) {
     //   if (command) {
-    //     await A17.sendPresenceUpdate("composing", m.chat);
-    //     A17.sendReadReceipt(from, m.sender, [m.key.id]);
+    //     await PelBot.sendPresenceUpdate("composing", m.chat);
+    //     PelBot.sendReadReceipt(from, m.sender, [m.key.id]);
     //   }
     // }
 
@@ -295,21 +295,21 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
     //
     //   if (global.autoReadGc) {
     //   if (m.isGroup) { 
-    //       A17.sendReadReceipt(m.chat, m.sender, [m.key.id]);
+    //       PelBot.sendReadReceipt(m.chat, m.sender, [m.key.id]);
     //   }
     // }
 
 
     // if (global.autoReadAll) {
     //   if (m.chat) {
-    //     A17.sendReadReceipt(m.chat, m.sender, [m.key.id]);
+    //     PelBot.sendReadReceipt(m.chat, m.sender, [m.key.id]);
     //   }
     // }
 
 
     if (global.autoreadgc) {
       if (command) {
-        await A17.sendPresenceUpdate('composing', m.chat);
+        await PelBot.sendPresenceUpdate('composing', m.chat);
 
         // Create an array of message keys to mark as read
         const keysToMarkAsRead = [
@@ -322,26 +322,26 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
         ];
 
         // Use the sock object to read the specified messages
-        await A17.readMessages(keysToMarkAsRead);
+        await PelBot.readMessages(keysToMarkAsRead);
       }
     }
 
 
     if (global.autoRecord) {
       if (m.chat) {
-        A17.sendPresenceUpdate("recording", m.chat);
+        PelBot.sendPresenceUpdate("recording", m.chat);
       }
     }
 
     if (global.autoTyping) {
       if (m.chat) {
-        A17.sendPresenceUpdate("composing", m.chat);
+        PelBot.sendPresenceUpdate("composing", m.chat);
       }
     }
 
     if (global.available) {
       if (m.chat) {
-        A17.sendPresenceUpdate("available", m.chat);
+        PelBot.sendPresenceUpdate("available", m.chat);
       }
     }
 
@@ -367,7 +367,7 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
     for (let anju of kaiaudio) {
       if (budy === anju) {
         result = fs.readFileSync(`./Assets/audio/${anju}.mp3`)
-        A17.sendMessage(m.chat, { audio: result, mimetype: 'audio/mp4', ptt: true }, { quoted: m })
+        PelBot.sendMessage(m.chat, { audio: result, mimetype: 'audio/mp4', ptt: true }, { quoted: m })
       }
     }
 
@@ -425,12 +425,12 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
       const uptimeFormatted = formatTime(uptimeInSeconds);
 
       // const status = `
-      // ㅤㅤ〄ㅤㅤ〘 A17 Personal Edition 〙ㅤㅤ〄ㅤㅤㅤㅤ
+      // ㅤㅤ〄ㅤㅤ〘 PelBot Personal Edition 〙ㅤㅤ〄ㅤㅤㅤㅤ
       // ㅤㅤㅤ〘ㅤ Auto Uptime: ${uptimeFormatted}ㅤ〙`;
 
-      function _0x582b(_0xabb6f8, _0x12cdd8) { const _0x58e890 = _0x58e8(); return _0x582b = function (_0x582b90, _0x4387b3) { _0x582b90 = _0x582b90 - 0x189; let _0x932613 = _0x58e890[_0x582b90]; return _0x932613; }, _0x582b(_0xabb6f8, _0x12cdd8); } function _0x58e8() { const _0x109554 = ['12896370RDSmnX', '3BgvPel', '189HbmdoW', '18854HvEPNh', '11TZHUID', '9125326EcyeIg', '464328lPaAMf', '3400722cbWEOK', '2263175KIczdo', '12TaHNqM', '2521564eqJRHK']; _0x58e8 = function () { return _0x109554; }; return _0x58e8(); } (function (_0x429d7b, _0x532ab5) { const _0x527567 = _0x582b, _0x130eb4 = _0x429d7b(); while (!![]) { try { const _0x75c57a = -parseInt(_0x527567(0x18b)) / 0x1 + -parseInt(_0x527567(0x192)) / 0x2 * (-parseInt(_0x527567(0x189)) / 0x3) + parseInt(_0x527567(0x191)) / 0x4 * (-parseInt(_0x527567(0x190)) / 0x5) + -parseInt(_0x527567(0x18f)) / 0x6 + parseInt(_0x527567(0x18d)) / 0x7 + parseInt(_0x527567(0x18e)) / 0x8 * (-parseInt(_0x527567(0x18a)) / 0x9) + parseInt(_0x527567(0x193)) / 0xa * (parseInt(_0x527567(0x18c)) / 0xb); if (_0x75c57a === _0x532ab5) break; else _0x130eb4['push'](_0x130eb4['shift']()); } catch (_0x19ea04) { _0x130eb4['push'](_0x130eb4['shift']()); } } }(_0x58e8, 0xa8dae)); const status = '\x0a\x20\x20ㅤㅤ〄ㅤㅤ〘\x20A17\x20Personal\x20Edition\x20〙ㅤㅤ〄ㅤㅤㅤㅤ\x0a\x20\x20ㅤㅤㅤ〘ㅤ\x20Auto\x20Uptime:\x20' + uptimeFormatted + 'ㅤ〙';
+      function _0x582b(_0xabb6f8, _0x12cdd8) { const _0x58e890 = _0x58e8(); return _0x582b = function (_0x582b90, _0x4387b3) { _0x582b90 = _0x582b90 - 0x189; let _0x932613 = _0x58e890[_0x582b90]; return _0x932613; }, _0x582b(_0xabb6f8, _0x12cdd8); } function _0x58e8() { const _0x109554 = ['12896370RDSmnX', '3BgvPel', '189HbmdoW', '18854HvEPNh', '11TZHUID', '9125326EcyeIg', '464328lPaAMf', '3400722cbWEOK', '2263175KIczdo', '12TaHNqM', '2521564eqJRHK']; _0x58e8 = function () { return _0x109554; }; return _0x58e8(); } (function (_0x429d7b, _0x532ab5) { const _0x527567 = _0x582b, _0x130eb4 = _0x429d7b(); while (!![]) { try { const _0x75c57a = -parseInt(_0x527567(0x18b)) / 0x1 + -parseInt(_0x527567(0x192)) / 0x2 * (-parseInt(_0x527567(0x189)) / 0x3) + parseInt(_0x527567(0x191)) / 0x4 * (-parseInt(_0x527567(0x190)) / 0x5) + -parseInt(_0x527567(0x18f)) / 0x6 + parseInt(_0x527567(0x18d)) / 0x7 + parseInt(_0x527567(0x18e)) / 0x8 * (-parseInt(_0x527567(0x18a)) / 0x9) + parseInt(_0x527567(0x193)) / 0xa * (parseInt(_0x527567(0x18c)) / 0xb); if (_0x75c57a === _0x532ab5) break; else _0x130eb4['push'](_0x130eb4['shift']()); } catch (_0x19ea04) { _0x130eb4['push'](_0x130eb4['shift']()); } } }(_0x58e8, 0xa8dae)); const status = '\x0a\x20\x20ㅤㅤ〄ㅤㅤ〘\x20PelBot\x20Personal\x20Edition\x20〙ㅤㅤ〄ㅤㅤㅤㅤ\x0a\x20\x20ㅤㅤㅤ〘ㅤ\x20Auto\x20Uptime:\x20' + uptimeFormatted + 'ㅤ〙';
 
-      A17.setStatus(status); // Set the status using A17.setStatus or your equivalent method
+      PelBot.setStatus(status); // Set the status using PelBot.setStatus or your equivalent method
 
       // Update the status randomly within 5 minutes (300000 milliseconds)
       const randomTime = Math.floor(Math.random() * 300000) + 1000; // don't edit.
@@ -456,7 +456,7 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
     //     if (m.key.fromMe) return reply(bvl)
     //     if (isCreator) return reply(bvl)
     //     kice = m.sender
-    //     await A17.sendMessage(
+    //     await PelBot.sendMessage(
     //       from,
     //       {
     //         delete: {
@@ -470,8 +470,8 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
     //         quoted: m,
     //       }
     //     );
-    //   //  await A17.groupParticipantsUpdate(m.chat, [kice], 'remove')
-    //     A17.sendMessage(from, { text: `\`\`\`「  Antilink System  」\`\`\`\n\n*⚠️ Group link detected !*\n\n*🚫@${kice.split("@")[0]} You are not allowed to send any links in this group !*\n`, contextInfo: { mentionedJid: [kice] } }, { quoted: m })
+    //   //  await PelBot.groupParticipantsUpdate(m.chat, [kice], 'remove')
+    //     PelBot.sendMessage(from, { text: `\`\`\`「  Antilink System  」\`\`\`\n\n*⚠️ Group link detected !*\n\n*🚫@${kice.split("@")[0]} You are not allowed to send any links in this group !*\n`, contextInfo: { mentionedJid: [kice] } }, { quoted: m })
     //   } else {
     //   }
 
@@ -482,7 +482,7 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
     //     if (m.key.fromMe) return reply(bvl)
     //     if (isCreator) return reply(bvl)
     //     kice = m.sender
-    //     await A17.sendMessage(
+    //     await PelBot.sendMessage(
     //       from,
     //       {
     //         delete: {
@@ -496,8 +496,8 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
     //         quoted: m,
     //       }
     //     );
-    //   //  await A17.groupParticipantsUpdate(m.chat, [kice], 'remove')
-    //     A17.sendMessage(from, { text: `\`\`\`「  Antilink System  」\`\`\`\n\n*⚠️ Group link detected !*\n\n*🚫@${kice.split("@")[0]} You are not allowed to send any links in this group !*\n`, contextInfo: { mentionedJid: [kice] } }, { quoted: m })
+    //   //  await PelBot.groupParticipantsUpdate(m.chat, [kice], 'remove')
+    //     PelBot.sendMessage(from, { text: `\`\`\`「  Antilink System  」\`\`\`\n\n*⚠️ Group link detected !*\n\n*🚫@${kice.split("@")[0]} You are not allowed to send any links in this group !*\n`, contextInfo: { mentionedJid: [kice] } }, { quoted: m })
     //   } else {
     //   }
 
@@ -603,8 +603,8 @@ ${isWin ? `@${winner.split('@')[0]} Won!` : isTie ? `FIN` : `Turn ${['❌', '⭕
 Ecris *surrender* pour abandonner et admettre ta défaite`
       if ((room.game._currentTurn ^ isSurrender ? room.x : room.o) !== m.chat)
         room[room.game._currentTurn ^ isSurrender ? 'x' : 'o'] = m.chat
-      if (room.x !== room.o) await A17.sendText(room.x, str, m, { mentions: parseMention(str) })
-      await A17.sendText(room.o, str, m, { mentions: parseMention(str) })
+      if (room.x !== room.o) await PelBot.sendText(room.x, str, m, { mentions: parseMention(str) })
+      await PelBot.sendText(room.o, str, m, { mentions: parseMention(str) })
       if (isTie || isWin) {
         delete this.game[room.id]
       }
@@ -647,7 +647,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
   }
   
   
-  if (smallinput=='a17') {
+  if (smallinput=='PelBot') {
       reply ('Yes I am Alive 🫂')
   }
   
@@ -727,9 +727,9 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         try {
           let userPfp;
           if (m.quoted) {
-            userPfp = await A17.profilePictureUrl(m.quoted.sender, "image");
+            userPfp = await PelBot.profilePictureUrl(m.quoted.sender, "image");
           } else {
-            userPfp = await A17.profilePictureUrl(m.sender, "image");
+            userPfp = await PelBot.profilePictureUrl(m.sender, "image");
           }
 
           const waUserName = pushname;
@@ -764,7 +764,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           });
 
           const buffer = Buffer.from(quoteResponse.data.result.image, "base64");
-          A17.sendImageAsSticker(m.chat, buffer, m, {
+          PelBot.sendImageAsSticker(m.chat, buffer, m, {
             packname: `${global.BotName}`,
             author: waUserName,
           });
@@ -781,7 +781,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
 
-        A17.sendMessage(from, { react: { text: "💫", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "💫", key: m.key } })
         reply(`⚙ *My developer's group:* https://chat.whatsapp.com/IovTetsUXOUHkBY1eKSO3Kl`)
       }
         break;
@@ -791,7 +791,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
 
-        A17.sendMessage(from, { react: { text: "💫", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "💫", key: m.key } })
         reply(`⚙ Mon code source est </> - non disponible`)
       }
         break;
@@ -804,8 +804,8 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
             if (isBan) return reply(mess.banned);
             if (isBanChat) return reply(mess.bangc);
           
-            A17.sendMessage(from, { react: { text: "💫", key: m.key } })
-            A17.sendContact(m.chat, global.Owner, m)
+            PelBot.sendMessage(from, { react: { text: "💫", key: m.key } })
+            PelBot.sendContact(m.chat, global.Owner, m)
           break;
           
           case 'addmod':
@@ -813,11 +813,11 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
             if (isBan) return reply(mess.banned);
             if (isBanChat) return reply(mess.bangc);
             if (!isCreator) return reply(mess.botowner)
-            A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+            PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
           
             if (!args[0]) return reply(`Utilisez ${prefix + command} numéro\nExemple ${prefix + command} ${OwnerNumber}`)
             bnnd = q.split("|")[0].replace(/[^0-9]/g, '')
-            let ceknye = await A17.onWhatsApp(bnnd)
+            let ceknye = await PelBot.onWhatsApp(bnnd)
             if (ceknye.length == 0) return reply(`Entrez un numéro valide et enregistré sur WhatsApp !!!`)
             Owner.push(bnnd)
             fs.writeFileSync('./database/mod.json', JSON.stringify(Owner))
@@ -829,7 +829,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
             if (isBan) return reply(mess.banned);
             if (isBanChat) return reply(mess.bangc);
             if (!isCreator) return reply(mess.botowner)
-            A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+            PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
           
             if (!args[0]) return reply(`Utilisez ${prefix + command} numéro\nExemple ${prefix + command} 916297175943`)
             ya = q.split("|")[0].replace(/[^0-9]/g, '')
@@ -845,7 +845,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           if (isBan) return reply(mess.banned);
           if (isBanChat) return reply(mess.bangc);
           if (!isCreator) return reply(mess.botowner);
-          A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+          PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
         
           try {
             const modData = fs.readFileSync('./database/mod.json', 'utf8');
@@ -857,7 +857,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
               let modList = '';
         
               mods.forEach((mod, index) => {
-                modList += `(${index + 1}) ${A17.getName(mod)}\n`;
+                modList += `(${index + 1}) ${PelBot.getName(mod)}\n`;
               });
         
               reply(`Liste des modérateurs :\n\n${modList}`);
@@ -872,13 +872,13 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           if (!isCreator) return reply(mess.owner)
           if (isBanChat) return reply(mess.bangc);
           if (!isCreator) return reply(mess.owner)
-          A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+          PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         
           if (!quoted) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
           if (!/image/.test(mime)) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
           if (/webp/.test(mime)) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
-          let media = await A17.downloadAndSaveMediaMessage(quoted)
-          await A17.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media))
+          let media = await PelBot.downloadAndSaveMediaMessage(quoted)
+          await PelBot.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media))
           m.reply(mess.jobdone)
         }
         break;
@@ -888,7 +888,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           if (isBan) return reply(mess.banned);
           if (isBanChat) return reply(mess.bangc);
           if (!isCreator) return reply(mess.botowner)
-          A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+          PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
         
           if (args.length !== 1) {
             return m.reply(`Veuillez fournir un seul caractère comme nouveau préfixe.`);
@@ -908,12 +908,12 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
       //
       case 'restart':
-        await A17.sendMessage(from, { react: { text: "⚙", key: m.key } });
+        await PelBot.sendMessage(from, { react: { text: "⚙", key: m.key } });
         if (!isCreator) return reply(mess.botowner)
 
-        await A17.sendMessage(from, { text: mess.waiting });
-        await A17.sendMessage(from, { react: { text: "✅", key: m.key } });
-        await A17.sendMessage(from, { text: 'Redémarrage réussi !' });
+        await PelBot.sendMessage(from, { text: mess.waiting });
+        await PelBot.sendMessage(from, { react: { text: "✅", key: m.key } });
+        await PelBot.sendMessage(from, { text: 'Redémarrage réussi !' });
 
         // Delay the shutdown by 5 seconds using sleep function
         //await sleep(5000);
@@ -921,8 +921,8 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         // Use PM2 to restart the script
         pm2.restart('index', (err) => {
           if (err) {
-            A17.sendMessage(from, { react: { text: "❌", key: m.key } });
-            A17.sendMessage(from, { text: 'Redémarrage Echoué !' });
+            PelBot.sendMessage(from, { react: { text: "❌", key: m.key } });
+            PelBot.sendMessage(from, { text: 'Redémarrage Echoué !' });
           } else {
             return;
           }
@@ -935,7 +935,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (!isCreator) return reply(mess.owner)
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.owner)
-        await A17.sendMessage(from, { react: { text: "⚠️", key: m.key } })
+        await PelBot.sendMessage(from, { react: { text: "⚠️", key: m.key } })
       
         reply(`D'accord, je m'endors !`)
         await sleep(5000)
@@ -946,11 +946,11 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.owner)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
       
-        A17.public = true
+        PelBot.public = true
         reply('Je suis maintenant accessible au public !')
-        A17.setStatus(`Mode : Public`)
+        PelBot.setStatus(`Mode : Public`)
       }
       break;
       
@@ -959,10 +959,10 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
       
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
-        A17.public = false
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.public = false
         reply('Seul le propriétaire peut m\'utiliser maintenant !')
-        A17.setStatus(`Mode : Privé`)
+        PelBot.setStatus(`Mode : Privé`)
       }
       break;
       
@@ -972,7 +972,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner);
-        A17.sendMessage(from, { react: { text: '❤', key: m.key } });
+        PelBot.sendMessage(from, { react: { text: '❤', key: m.key } });
       
         if (args.length === 0) {
           // Affiche l'état actuel de autoreadgc
@@ -996,7 +996,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: '❤', key: m.key } });
+        PelBot.sendMessage(from, { react: { text: '❤', key: m.key } });
       
         if (args.length === 0) {
           if (global.autoTyping) {
@@ -1023,7 +1023,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: '❤', key: m.key } });
+        PelBot.sendMessage(from, { react: { text: '❤', key: m.key } });
       
         if (args.length === 0) {
           if (global.autoRecord) {
@@ -1079,7 +1079,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           case 'ls':
             if (isBan) return reply(mess.banned);
             if (isBanChat) return reply(mess.bangc);
-            A17.sendMessage(from, { react: { text: "📂", key: m.key } });
+            PelBot.sendMessage(from, { react: { text: "📂", key: m.key } });
           
             const currentDir = process.cwd(); // Obtient le répertoire de travail actuel
           
@@ -1087,10 +1087,10 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
               const files = fs.readdirSync(currentDir);
               let folderName = `Fichiers dans ${currentDir}:\n\n`;
               let fileList = files.join('\n'); // Joint les noms de fichiers avec un saut de ligne
-              A17.sendMessage(from, { text: folderName + fileList }, m);
+              PelBot.sendMessage(from, { text: folderName + fileList }, m);
             } catch (error) {
               console.error(error);
-              A17.sendMessage(from, { text: 'Erreur lors de la lecture du contenu du répertoire.🫳🏻' }, m);
+              PelBot.sendMessage(from, { text: 'Erreur lors de la lecture du contenu du répertoire.🫳🏻' }, m);
             }
             break;
           
@@ -1102,7 +1102,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
             if (isBan) return reply(mess.banned);
             if (isBanChat) return reply(mess.bangc);
             if (!isCreator) return reply(mess.botowner)
-            A17.sendMessage(from, { react: { text: '❤', key: m.key } });
+            PelBot.sendMessage(from, { react: { text: '❤', key: m.key } });
           
             if (args.length === 0) {
               // Affiche l'état actuel de l'autostatus
@@ -1125,7 +1125,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
             if (isBan) return reply(mess.banned);
             if (isBanChat) return reply(mess.bangc);
             if (!isCreator) return reply(mess.botowner)
-            A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+            PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
             if (!args[0]) return reply(`Sélectionnez add ou del (add pour bannir, del pour débannir), Par exemple: répondre *${prefix}ban add* à l'utilisateur que vous souhaitez bannir.`)
             if (args[1]) {
               orgnye = args[1] + "@s.whatsapp.net"
@@ -1162,7 +1162,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         case 'tictactoe': {
             if (isBan) return reply(mess.ban);
             if (isBanChat) return reply(mess.banChat);
-            A17.sendMessage(from, { react: { text: "🎮", key: m.key } });
+            PelBot.sendMessage(from, { react: { text: "🎮", key: m.key } });
         
             let TicTacToe = require("./lib/tictactoe");
             this.game = this.game ? this.game : {};
@@ -1189,8 +1189,8 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
                     }[v];
                 });
                 let str = `ID de la salle : ${room.id}\n${arr.slice(0, 3).join('')}\n${arr.slice(3, 6).join('')}\n${arr.slice(6).join('')}\nEn attente de @${room.game.currentTurn.split('@')[0]}\nTapez *surrender* pour vous rendre et admettre la défaite...`;
-                if (room.x !== room.o) await A17.sendText(room.x, str, m, { mentions: parseMention(str) });
-                await A17.sendText(room.o, str, m, { mentions: parseMention(str) });
+                if (room.x !== room.o) await PelBot.sendText(room.x, str, m, { mentions: parseMention(str) });
+                await PelBot.sendText(room.o, str, m, { mentions: parseMention(str) });
             } else {
                 room = {
                     id: 'tictactoe-' + (+new Date),
@@ -1214,15 +1214,15 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
             if (text.length > 300) return reply(`Essayez-vous d'envoyer un virus !`);
             const txtmsg = `*📮 Message de rapport*\n\n*Expéditeur ➛* wa.me/${m.sender.split("@")[0]}\n\n*Nom du groupe ➛* ${groupName}\n\n*Message ➛*  ${text}`;
             for (let mod of global.Owner.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').filter(v => v != '6297175943@s.whatsapp.net'))
-                await A17.sendMessage(`${mod}`, { text: `${txtmsg}` }, { quoted: m });
-            await A17.sendMessage(`120363026915700516@g.us`, { text: `${txtmsg}`, mentions: groupAdmins }, { quoted: m });
+                await PelBot.sendMessage(`${mod}`, { text: `${txtmsg}` }, { quoted: m });
+            await PelBot.sendMessage(`120363026915700516@g.us`, { text: `${txtmsg}`, mentions: groupAdmins }, { quoted: m });
             reply(`*✅ Votre rapport a été soumis avec succès au groupe de support & au propriétaire*\n\n*Vous recevrez une réponse bientôt... ♥️*`);
         }
         break;
         
         case 'dice':
         case 'roll': {
-            A17.sendMessage(from, { react: { text: "🎲", key: m.key } });
+            PelBot.sendMessage(from, { react: { text: "🎲", key: m.key } });
             const result = Math.floor(Math.random() * 6) + 1; // Génère un nombre aléatoire entre 1 et 6
         
             const diceMessage = `🎲 *Résultat du lancer de dés :* ${result}`;
@@ -1233,7 +1233,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         
         case 'flipcoin':
         case 'coin': {
-            A17.sendMessage(from, { react: { text: "🪙", key: m.key } });
+            PelBot.sendMessage(from, { react: { text: "🪙", key: m.key } });
             // Simule le lancer d'une pièce (0 pour face, 1 pour pile)
             const result = Math.random() < 0.5 ? 'Face' : 'Pile';
         
@@ -1245,7 +1245,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
         case 'rps': {
           const randomEmoji = manyemojis[Math.floor(Math.random() * manyemojis.length)];
-          A17.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
+          PelBot.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
       
           // Vérifie si la commande inclut un mouvement valide (pierre, papier ou ciseaux)
           const validMoves = ['pierre', 'papier', 'ciseaux'];
@@ -1273,7 +1273,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           }
       
           // Envoie le résultat en tant que réponse
-          reply(`Vous avez choisi ${userMove}.\nA17 a choisi ${botMove}.\n${result}`);
+          reply(`Vous avez choisi ${userMove}.\nPelBot a choisi ${botMove}.\n${result}`);
       }
       break;
       
@@ -1289,7 +1289,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           if (isBanChat) return reply(mess.bangc);
           if (!m.isGroup) return reply(mess.grouponly)
       
-          A17.sendMessage(from, { react: { text: "💰", key: m.key } })
+          PelBot.sendMessage(from, { react: { text: "💰", key: m.key } })
           let user = m.sender
           const cara = "cara"
           const daily = await eco.daily(user, cara, 999); // donner 999 pour le quotidien, peut être modifié
@@ -1308,7 +1308,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           if (isBanChat) return reply(mess.bangc);
           if (!m.isGroup) return reply(mess.grouponly)
       
-          A17.sendMessage(from, { react: { text: "💳", key: m.key } })
+          PelBot.sendMessage(from, { react: { text: "💳", key: m.key } })
       
           if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
       
@@ -1333,7 +1333,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
               if (isBanChat) return reply(mess.bangc);
               if (!m.isGroup) return reply(mess.grouponly)
           
-              A17.sendMessage(from, { react: { text: "💳", key: m.key } })
+              PelBot.sendMessage(from, { react: { text: "💳", key: m.key } })
           
               const user = m.sender
               const cara = "cara"
@@ -1351,7 +1351,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
               if (!m.isGroup) return reply(mess.grouponly)
           
               {
-                  A17.sendMessage(from, { react: { text: "💲", key: m.key } })
+                  PelBot.sendMessage(from, { react: { text: "💲", key: m.key } })
           
                   //if (!isCreator) return reply(mess.botowner)
                   if (!text) return reply(`💴 Capacité de la banque 💳\n\n1 | 1000 sp = 💎100\n\n2 | 10000 sp = 💎1000\n\n3 | 100000 sp = 💎10000\n\nExemple - ${prefix}capacity 1 OU ${prefix}bankupgrade 1000`)
@@ -1390,7 +1390,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
               if (isBanChat) return reply(mess.bangc);
               if (!m.isGroup) return reply(mess.grouponly)
           
-              A17.sendMessage(from, { react: { text: "📥", key: m.key } })
+              PelBot.sendMessage(from, { react: { text: "📥", key: m.key } })
           
               if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
               if (!text) return reply("Indiquez le montant que vous souhaitez déposer !");
@@ -1411,7 +1411,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
               if (isBanChat) return reply(mess.bangc);
               if (!m.isGroup) return reply(mess.grouponly)
           
-              A17.sendMessage(from, { react: { text: "💸", key: m.key } })
+              PelBot.sendMessage(from, { react: { text: "💸", key: m.key } })
           
               if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
               const user = m.sender
@@ -1434,7 +1434,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
               if (!m.isGroup) return reply(mess.grouponly)
           
               {
-                  A17.sendMessage(from, { react: { text: "🔪", key: m.key } })
+                  PelBot.sendMessage(from, { react: { text: "🔪", key: m.key } })
                   if (!text) return reply(`Utilisez ${prefix}rob @utilisateur`)
                   const target =
                       m.quoted && m.mentionedJid.length === 0
@@ -1468,7 +1468,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
               if (isBan) return reply(mess.banned);
               if (isBanChat) return reply(mess.bangc);
               if (!m.isGroup) return reply(mess.grouponly)
-              A17.sendMessage(from, { react: { text: "🗿", key: m.key } })
+              PelBot.sendMessage(from, { react: { text: "🗿", key: m.key } })
               let value = text.trim().split(" ");
               if (value[0] === "") return reply(`Utilisez ${prefix}transfer 100 @utilisateur`);
               const target =
@@ -1521,7 +1521,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly)
         {
-          //var response = await A17.groupInviteCode(from)
+          //var response = await PelBot.groupInviteCode(from)
           //var link1 = `https://chat.whatsapp.com/${response}`
           //var link2 = `https://chat.whatsapp.com/BXQaaeg7utI29OI4RbhdIhl`
           var texts = text.trim().split(" ");
@@ -1713,13 +1713,13 @@ break;
       //   if (isBanChat) return reply('This Group is Already Banned from using me!')
       //   banchat.push(from)
       //   reply('This Group has been banned from using me!')
-      //   var groupe = await A17.groupMetadata(from)
+      //   var groupe = await PelBot.groupMetadata(from)
       //   var members = groupe['participants']
       //   var mems = []
       //   members.map(async adm => {
       //   mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
       //   })
-      //   A17.sendMessage(from, {text: `\`\`\`「 Notice 」\`\`\`\n\nThis group is banned from using bot. So, here nobody can use me anymore!`, contextInfo: { mentionedJid : mems }}, {quoted:m})
+      //   PelBot.sendMessage(from, {text: `\`\`\`「 Notice 」\`\`\`\n\nThis group is banned from using bot. So, here nobody can use me anymore!`, contextInfo: { mentionedJid : mems }}, {quoted:m})
       //   } else if (args[0] === "off") {
       //   if (!isBanChat) return reply('This Group is Already Banned from using me!')
       //   let off = banchat.indexOf(from)
@@ -1730,7 +1730,7 @@ break;
       //     { buttonId: `${prefix}bangroup on`, buttonText: { displayText: 'Ban' }, type: 1 },
       //     { buttonId: `${prefix}bangroup off`, buttonText: { displayText: 'Unban' }, type: 1 }
       //     ]
-      //     await A17.sendButtonText(m.chat, buttonsntnsfw, `Please choose any Button below.\n\n *On / Off*`, `${global.BotName }`, m)
+      //     await PelBot.sendButtonText(m.chat, buttonsntnsfw, `Please choose any Button below.\n\n *On / Off*`, `${global.BotName }`, m)
       //     }
       //     }
       //     break;
@@ -1739,7 +1739,7 @@ break;
       case 'reaction': case 'react': case 'reactions': case 'r':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "❤️", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "❤️", key: m.key } })
 
         reply(` *━━〈  ⚡ Reactions ⚡  〉━━*\n\nbonk, cry, bully, cuddle, hug, kiss, lick, pat, smug, yeet, blush, smile, wave, highfive, handhold, nom, glomp, bite, slap, kill, happy, wink, poke, dance, cringe`)
         break;
@@ -1770,7 +1770,7 @@ break;
             for (let i of data) {
               krl += (`${prefix}----------------------------------------------------------------------------\n\n\n*Nom:* ${i.judul}\n *Qualité :* ${i.quality}\n *Type : ${i.type}*\n *Upload le :* ${i.upload}\n *Source URL :* ${i.link}\n\n\n`)
             }
-            A17.sendMessage(from, { image: { url: data[0].thumb }, caption: krl }, { quoted: fdocs })
+            PelBot.sendMessage(from, { image: { url: data[0].thumb }, caption: krl }, { quoted: fdocs })
           });
         break;
 
@@ -1796,7 +1796,7 @@ break;
       //             buttons: buttons,
       //             headerType: 4
       //         }
-      //         A17.sendMessage(m.chat, buttonMessage, { quoted: m })
+      //         PelBot.sendMessage(m.chat, buttonMessage, { quoted: m })
       //     }
       //     break;
 
@@ -1806,7 +1806,7 @@ break;
       // case 'animewall': {
       //   if (isBan) return reply(mess.banned);
       //   if (isBanChat) return reply(mess.bangc);
-      //   A17.sendMessage(from, { react: { text: "🥵" , key: m.key }});
+      //   PelBot.sendMessage(from, { react: { text: "🥵" , key: m.key }});
 
       //   if (!args.join(" ")) return reply("Please enter a term to search!");
 
@@ -1824,7 +1824,7 @@ break;
       //     headerType: 4
       //   };
 
-      //   A17.sendMessage(m.chat, message, { quoted: m });
+      //   PelBot.sendMessage(m.chat, message, { quoted: m });
       // }
       // break;
 
@@ -1849,7 +1849,7 @@ break;
       //       footer: `${BotName}`,
       //       headerType: 4
       //     };
-      //     A17.sendMessage(m.chat, message, { quoted: m });
+      //     PelBot.sendMessage(m.chat, message, { quoted: m });
       //   }
       // }
       // break;
@@ -1861,7 +1861,7 @@ break;
       //   if (isBan) return reply(mess.banned);
       //   if (isBanChat) return reply(mess.bangc);
       //   reply(mess.waiting)
-      //   A17.sendMessage(from, { react: { text: "🥵" , key: m.key }});
+      //   PelBot.sendMessage(from, { react: { text: "🥵" , key: m.key }});
       //   if (!args.join(" ")) return reply("Please enter a term to search!");
 
       //   const { AnimeWallpaper } = require("anime-wallpaper");
@@ -1876,7 +1876,7 @@ break;
       //       footer: `${BotName}`,
       //       headerType: 4
       //     };
-      //     A17.sendMessage(m.chat, message, { quoted: m });
+      //     PelBot.sendMessage(m.chat, message, { quoted: m });
       //   }
       // }
       // break;
@@ -1888,7 +1888,7 @@ break;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         reply(mess.waiting);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } });
         if (!args.join(" ")) return reply("Entre un terme à rechercher!");
 
         const { AnimeWallpaper } = require("anime-wallpaper");
@@ -1907,7 +1907,7 @@ break;
             footer: `${BotName}`,
             headerType: 4
           };
-          A17.sendMessage(m.chat, message, { quoted: m });
+          PelBot.sendMessage(m.chat, message, { quoted: m });
         }
       }
         break;
@@ -1930,7 +1930,7 @@ break;
           buttons: buttons,
           headerType: 4
         }
-        A17.sendMessage(m.chat, buttonMessage, { quoted: m })
+        PelBot.sendMessage(m.chat, buttonMessage, { quoted: m })
       }
         break;
 
@@ -1940,7 +1940,7 @@ break;
         if (isBanChat) return reply(mess.bangc);
         let cok = await fetchJson(`http://api.lolhuman.xyz/api/random/quotesimage?apikey=${lolkey}`)
         reply(mess.waiting)
-        A17.sendMessage(m.chat, { image: { url: cok }, caption: 'Voilà...' }, { quoted: m })
+        PelBot.sendMessage(m.chat, { image: { url: cok }, caption: 'Voilà...' }, { quoted: m })
         break;
 
 
@@ -1955,9 +1955,9 @@ break;
                   .then(quote => {
                       let buttonMessage = {
                           text: `_${quote.quote}_\n\nBy '${quote.character}', ${quote.anime}`,
-                          footer: 'A17'
+                          footer: 'PelBot'
                       };
-                      A17.sendMessage(m.chat, buttonMessage, { quoted: m });
+                      PelBot.sendMessage(m.chat, buttonMessage, { quoted: m });
                   })
                   .catch(error => {
                       console.error('Error fetching anime quote:', error);
@@ -1993,7 +1993,7 @@ break;
               }
               sections.push(list)
             }
-            const sendm = A17.sendMessage(
+            const sendm = PelBot.sendMessage(
               from,
               {
                 text: "Anime Search",
@@ -2015,7 +2015,7 @@ break;
         if (isBanChat) return reply(mess.bangc);
 
         const randomEmoji = manyemojis[Math.floor(Math.random() * manyemojis.length)];
-        A17.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
+        PelBot.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
 
         if (!q) return reply(`Please provide a text query. Example: ${prefix + command} Hello, ChatGPT!`);
 
@@ -2034,7 +2034,7 @@ break;
           }
 
           const me = m.sender;
-          await A17.sendMessage(m.chat, { text: message, mentions: [me] }, { quoted: m });
+          await PelBot.sendMessage(m.chat, { text: message, mentions: [me] }, { quoted: m });
 
         } catch (error) {
           console.error(error);
@@ -2049,14 +2049,14 @@ break;
         if (isBanChat) return reply(mess.bangc);
 
         const randomEmoji = manyemojis[Math.floor(Math.random() * manyemojis.length)];
-        A17.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
+        PelBot.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
 
         if (!q) return reply(`Please provide a query to generate an image. Example: ${prefix + command} Beautiful landscape`);
 
         const apiUrl = `https://gurugpt.cyclic.app/dalle?prompt=${encodeURIComponent(q)}`;
 
         try {
-          await A17.sendMessage(m.chat, { image: { url: apiUrl } }, { quoted: m });
+          await PelBot.sendMessage(m.chat, { image: { url: apiUrl } }, { quoted: m });
         } catch (error) {
           console.error(error);
           reply("An error occurred while generating the image.");
@@ -2070,7 +2070,7 @@ break;
       case 'groupsetting': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         let sections = []
         let com = [`group open`, `leveling on`, `antilinkgc on`, `antilinktg on`, `antilinktt on`, `antilinkytch on`, `antilinkytvid on`, `antilinkig on`, `antilinkfb on`, `antilinktwit on`, `antilinkall on`, `antiwame on`]
@@ -2097,7 +2097,7 @@ break;
           }
           sections.push(yy)
         }
-        const sendm = A17.sendMessage(
+        const sendm = PelBot.sendMessage(
           from,
           {
             text: "Group Settings",
@@ -2116,7 +2116,7 @@ break;
           await fetchJson(`https://api.jikan.moe/v4/anime/${q}`)
           .then((res) => {
           let txt = `   _Anime Search Engine_ \n\n*Title:* *${res.data.title}*\n*English:* *${res.data.title_english}*\n*Japanese:* *${res.data.title_japanese}*\n*Anime Type:* *${res.data.type}*\n*Adaptation:* *${res.data.source}*\n*Total Episode:* *${res.data.episodes}*\n*Status:* *${res.data.status}*\n*Ongoing:* *${res.data.airing ? 'Yes' : 'No'}*\n*Aired:* *${res.data.aired.string}*\n*Duration:* *${res.data.duration}*\n*Rating:* *${res.data.rating}*\n*Score:* *${res.data.score}*\n*Rank:* *${res.data.rank}*\n*Main Producer:* *${res.data.producers.name}*\n*Studio:* *${res.data.studios[0].name}* `
-          A17.sendMessage(from, { image : { url : res.data.images.jpg.image_url}, caption : txt}, {quoted :m }) 
+          PelBot.sendMessage(from, { image : { url : res.data.images.jpg.image_url}, caption : txt}, {quoted :m }) 
           })
           }
           break;
@@ -2126,13 +2126,13 @@ break;
       case 'emojimix': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         if (!q) reply(`*Example :* ${prefix + command} 😊+🌹`)
         let [emoji1, emoji2] = q.split`+`
         let kuntuh = await fetchJson(`https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&contentfilter=high&media_filter=png_transparent&component=proactive&collection=emoji_kitchen_v5&q=${encodeURIComponent(emoji1)}_${encodeURIComponent(emoji2)}`)
         for (let res of kuntuh.results) {
-          let encmedia = await A17.sendImageAsSticker(from, res.url, m, { packname: global.packname, author: global.author, categories: res.tags })
+          let encmedia = await PelBot.sendImageAsSticker(from, res.url, m, { packname: global.packname, author: global.author, categories: res.tags })
           await fs.unlinkSync(encmedia)
         }
       }
@@ -2150,7 +2150,7 @@ break;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin);
-        A17.sendMessage(from, { react: { text: "⚠️", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "⚠️", key: m.key } });
 
         if (args[0] === "on") {
           if (AntiNsfw) return reply('Already activated');
@@ -2173,7 +2173,7 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!AntiNsfw) return reply(mess.nonsfw);
         if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "⚠️", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⚠️", key: m.key } })
 
         reply(` *━━〈 ⚠️ NSFW Menu ⚠️  〉━━*\n\n gifs, hentaivideo, blowjobgif, hneko, masturbation, thighs, pussy, panties, orgy, ahegao, ass, bdsm, blowjob, cuckold, ero, gasm, cum, femdom, foot, gangbang, glasses, jahy, trap, blowjobgif, spank, hneko, hwaifu, gasm`)
         break;
@@ -2185,11 +2185,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/agegao.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2198,11 +2198,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/ass.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2211,11 +2211,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/bdsm.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2224,11 +2224,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/blowjob.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2237,11 +2237,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/cuckold.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2250,11 +2250,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/cum.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2263,11 +2263,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/eba.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2276,11 +2276,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/ero.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2289,11 +2289,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/femdom.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2302,11 +2302,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/foot.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2315,11 +2315,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/gangbang.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2330,7 +2330,7 @@ break;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
         reply(mess.waiting)
-        A17.sendMessage(from, { react: { text: "👀", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "👀", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/gifs.json'))
         const rand = nsfwdata[Math.floor(Math.random() * nsfwdata.length)]
@@ -2339,7 +2339,7 @@ break;
 
         var fetchedgif = await GIFBufferToVideoBuffer(response)
 
-        await A17.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true }, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true }, { quoted: m }).catch(err => {
           console.log(err);
         })
 
@@ -2351,11 +2351,11 @@ break;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
         reply(mess.waiting)
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         anu = await hentai()
         result912 = anu[Math.floor(Math.random(), anu.length)]
-        A17.sendMessage(m.chat, { video: { url: result912.video_1 }, caption: `Title : ${result912.title}\nCategory : ${result912.category}\n$Mimetype : ${result912.type}\nViews : ${result912.views_count}\nShares : ${result912.share_count}\nSource : ${result912.link}\nMedia Url : ${result912.video_1}` }, { quoted: m })
+        PelBot.sendMessage(m.chat, { video: { url: result912.video_1 }, caption: `Title : ${result912.title}\nCategory : ${result912.category}\n$Mimetype : ${result912.type}\nViews : ${result912.views_count}\nShares : ${result912.share_count}\nSource : ${result912.link}\nMedia Url : ${result912.video_1}` }, { quoted: m })
       }
         break;
 
@@ -2365,11 +2365,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/glasses.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2378,11 +2378,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/hentai.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2391,11 +2391,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/pussy.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2404,11 +2404,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/manga.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2417,11 +2417,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/masturbation.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2430,11 +2430,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/milf.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2443,11 +2443,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/neko.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2456,11 +2456,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw)
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/neko2.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2469,11 +2469,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/nsfwloli.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2482,11 +2482,11 @@ break;
       //   if (isBanChat) return reply(mess.bangc);
       //   if (!m.isGroup) return reply(mess.grouponly);
       //   if (!AntiNsfw) return reply(mess.nonsfw)
-      //   A17.sendMessage(from, { react: { text: "🥵" , key: m.key }})
+      //   PelBot.sendMessage(from, { react: { text: "🥵" , key: m.key }})
 
       // var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/orgy.json'))
       // var kairesult = pickRandom(nsfwdata)
-      // A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+      // PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
       // break;
 
 
@@ -2497,7 +2497,7 @@ break;
         if (!AntiNsfw) return reply(mess.nonsfw);
 
         // React to the command message with a specific emoji
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } });
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/orgy.json'));
         var numberOfPictures = 3; // Change this value if you want to send a different number of pictures
@@ -2525,7 +2525,7 @@ break;
 
         // Send the selected pictures one by one
         for (let picture of selectedPictures) {
-          A17.sendMessage(m.chat, { caption: mess.success, image: { url: picture.url } }, { quoted: m });
+          PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: picture.url } }, { quoted: m });
         }
         break;
 
@@ -2535,11 +2535,11 @@ break;
       //   if (isBanChat) return reply(mess.bangc);
       //   if (!m.isGroup) return reply(mess.grouponly);
       //   if (!AntiNsfw) return reply(mess.nonsfw)
-      //   A17.sendMessage(from, { react: { text: "🥵" , key: m.key }})
+      //   PelBot.sendMessage(from, { react: { text: "🥵" , key: m.key }})
 
       // var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/panties.json'))
       // var kairesult = pickRandom(nsfwdata)
-      // A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+      // PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
       // break;
 
 
@@ -2550,7 +2550,7 @@ break;
         if (!AntiNsfw) return reply(mess.nonsfw);
 
         // React to the command message with a specific emoji
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } });
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/panties.json'));
         var numberOfPictures = 3; // Change this value if you want to send a different number of pictures
@@ -2578,7 +2578,7 @@ break;
 
         // Send the selected pictures one by one
         for (let picture of selectedPictures) {
-          A17.sendMessage(m.chat, { caption: mess.success, image: { url: picture.url } }, { quoted: m });
+          PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: picture.url } }, { quoted: m });
         }
         break;
 
@@ -2588,11 +2588,11 @@ break;
       //   if (isBanChat) return reply(mess.bangc);
       //   if (!m.isGroup) return reply(mess.grouponly);
       //   if (!AntiNsfw) return reply(mess.nonsfw)
-      //   A17.sendMessage(from, { react: { text: "🥵" , key: m.key }})
+      //   PelBot.sendMessage(from, { react: { text: "🥵" , key: m.key }})
 
       // var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/pussy.json'))
       // var kairesult = pickRandom(nsfwdata)
-      // A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+      // PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
       // break;
 
 
@@ -2603,7 +2603,7 @@ break;
         if (!AntiNsfw) return reply(mess.nonsfw);
 
         // React to the command message with a specific emoji
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } });
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/pussy.json'));
 
@@ -2628,7 +2628,7 @@ break;
 
         // Send the selected pictures one by one
         for (let url of selectedPictures) {
-          A17.sendMessage(m.chat, { caption: mess.success, image: { url: url } }, { quoted: m });
+          PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: url } }, { quoted: m });
         }
         break;
 
@@ -2638,11 +2638,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/tentacles.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2651,11 +2651,11 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!AntiNsfw) return reply(mess.nonsfw);
-        A17.sendMessage(from, { react: { text: "🥵", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🥵", key: m.key } })
 
         var nsfwdata = JSON.parse(fs.readFileSync('./HostMedia/nsfw/thighs.json'))
         var kairesult = pickRandom(nsfwdata)
-        A17.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
+        PelBot.sendMessage(m.chat, { caption: mess.success, image: { url: kairesult.url } }, { quoted: m })
         break;
 
 
@@ -2668,7 +2668,7 @@ break;
 
         if (isBanChat) return reply(mess.bangc);
 
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         const getCase = (cases) => {
           return "case" + `'${cases}'` + fs.readFileSync("Core.js").toString().split('case \'' + cases + '\'')[1].split("break;")[0] + "break;"
@@ -2680,12 +2680,12 @@ break;
       case 'emoji': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         if (!args.join(" ")) return reply('Where is the emoji?')
         emoji.get(args.join(" ")).then(async (emoji) => {
-          let mese = await A17.sendMessage(m.chat, { image: { url: emoji.images[4].url }, caption: `Here it is...` }, { quoted: m })
-          await A17.sendMessage(from, { text: "reply -s to this image to make sticker" }, { quoted: mese })
+          let mese = await PelBot.sendMessage(m.chat, { image: { url: emoji.images[4].url }, caption: `Here it is...` }, { quoted: m })
+          await PelBot.sendMessage(from, { text: "reply -s to this image to make sticker" }, { quoted: mese })
         })
       }
         break;
@@ -2698,7 +2698,7 @@ break;
       if (!m.quoted) return
       let { chat, fromMe, id, isBaileys } = m.quoted
       if (!isBaileys) return reply('How can i delete messages of other person? Baka!')
-      A17.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } })
+      PelBot.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } })
       }
       break;
       */
@@ -2709,7 +2709,7 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         if (!m.quoted) return reply('Please mention a message baka!')
         let { chat, fromMe, id } = m.quoted
@@ -2721,7 +2721,7 @@ break;
           participant: m.quoted.sender
         }
 
-        await A17.sendMessage(m.chat, { delete: key })
+        await PelBot.sendMessage(m.chat, { delete: key })
       }
         break;
 
@@ -2733,12 +2733,12 @@ break;
 
 
       case 'ghstalk': case 'githubstalk': case 'github': {
-        A17.sendMessage(from, { react: { text: "🔍", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🔍", key: m.key } })
 
         if (!q) return reply(`Give me a user name like *${prefix}github Kai0071*`)
 
         gitdata = await githubstalk.githubstalk(`${q}`)
-        A17.sendMessage(m.chat, {
+        PelBot.sendMessage(m.chat, {
           image: { url: gitdata.profile_pic }, caption:
             `*ㅤㅤㅤ|ㅤㅤㅤGithub Info ㅤㅤㅤ|\*
 
@@ -2775,10 +2775,10 @@ break;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
 
-        A17.sendMessage(from, { react: { text: "💫", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "💫", key: m.key } });
 
         if (!args[0]) {
-          return reply(`Please provide the GitHub repository link.\nExample:\n${prefix}${command} https://github.com/Kai0071/A17`);
+          return reply(`Please provide the GitHub repository link.\nExample:\n${prefix}${command} https://github.com/Kai0071/PelBot`);
         }
 
         if (!isUrl(args[0]) || !args[0].includes('github.com')) {
@@ -2794,13 +2794,13 @@ break;
 
           let gitZipUrl = `https://api.github.com/repos/${githubUser}/${githubRepo}/zipball`;
 
-          await A17.sendMessage(from, { text: `${pushname}, Please wait, downloading...` });
+          await PelBot.sendMessage(from, { text: `${pushname}, Please wait, downloading...` });
 
 
           let zipHeaders = await fetch(gitZipUrl, { method: 'HEAD' }).then(res => res.headers);
           let zipFilename = zipHeaders.get('content-disposition').match(/attachment; filename=(.*)/)[1];
 
-          await A17.sendMessage(m.chat, { document: { url: gitZipUrl }, fileName: zipFilename + '.zip', mimetype: 'application/zip' }, { quoted: m });
+          await PelBot.sendMessage(m.chat, { document: { url: gitZipUrl }, fileName: zipFilename + '.zip', mimetype: 'application/zip' }, { quoted: m });
         } catch (err) {
           console.error(err);
           return reply(`Failed to fetch the repository contents. Please ensure the GitHub link is correct and accessible. Use the format: 'https://github.com/username/repository'.`);
@@ -2811,14 +2811,14 @@ break;
       case 'listpc': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         let anu = await store.chats.all().filter(v => v.id.endsWith('.net')).map(v => v)
-        let teks = ` 「  A17's pm user list  」\n\nTotal ${anu.length} users are using A17 in personal chat.`
+        let teks = ` 「  PelBot's pm user list  」\n\nTotal ${anu.length} users are using PelBot in personal chat.`
         for (let i of anu) {
           teks += `\n\nProfile : @${i.id.split('@')[0]}\nChat : ${i.unreadCount}\nLastchat : ${moment(i.conversationTimestamp * 1000).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm:ss")}`
         }
-        A17.sendTextWithMentions(m.chat, teks, m)
+        PelBot.sendTextWithMentions(m.chat, teks, m)
       }
         break;
 
@@ -2826,12 +2826,12 @@ break;
       case 'listgc': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         let anu = await store.chats.all().filter(v => v.id.endsWith('@g.us')).map(v => v.id)
-        let teks = ` 「  A17's group user list  」\n\nTotal ${anu.length} users are using bot in Groups.`
+        let teks = ` 「  PelBot's group user list  」\n\nTotal ${anu.length} users are using bot in Groups.`
         for (let i of anu) {
-          let metadata = await A17.groupMetadata(i)
+          let metadata = await PelBot.groupMetadata(i)
           if (metadata.owner === "undefined") {
             loldd = false
           } else {
@@ -2839,13 +2839,13 @@ break;
           }
           teks += `\n\nName : ${metadata.subject ? metadata.subject : "undefined"}\nOwner : ${loldd ? '@' + loldd.split("@")[0] : "undefined"}\nID : ${metadata.id ? metadata.id : "undefined"}\nMade : ${metadata.creation ? moment(metadata.creation * 1000).tz('Asia/Kolkata').format('DD/MM/YYYY HH:mm:ss') : "undefined"}\nMember : ${metadata.participants.length ? metadata.participants.length : "undefined"}`
         }
-        A17.sendTextWithMentions(m.chat, teks, m)
+        PelBot.sendTextWithMentions(m.chat, teks, m)
       }
         break;
 
 
       case 'speedtest': case 'speedcheck': {
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         m.reply(`Plz Wait ${pushname} Testing Speed... ⚙️`)
         let cp = require('child_process')
@@ -2875,13 +2875,13 @@ break;
         if (messageType === 'imageMessage') {
           const media = await downloadMediaMessage(m, 'media', {}, { logger, reuploadRequest: sock.updateMediaMessage })
           await writeFile('./image.jpeg', media)
-          await A17.sendMessage(botNumber, 'status@broadcast', { url: './image.jpeg', media }).catch((err) => fs.unlinkSync(media))
+          await PelBot.sendMessage(botNumber, 'status@broadcast', { url: './image.jpeg', media }).catch((err) => fs.unlinkSync(media))
           reply(`*✨ ${pushname}...!! Posted On My Status ✨*`);
         }
         else if (messageType === 'videoMessage') {
           const media = await downloadMediaMessage(m, 'media', {}, { logger, reuploadRequest: sock.updateMediaMessage })
           await writeFile('./video.mp4', media)
-          await A17.sendMessage(botNumber, 'status@broadcast', { url: 'video.mp4', media }).catch((err) => fs.unlinkSync(media))
+          await PelBot.sendMessage(botNumber, 'status@broadcast', { url: 'video.mp4', media }).catch((err) => fs.unlinkSync(media))
           reply(`*✨ ${pushname}...!! Posted On My Status ✨*`);
         }
         else {
@@ -2901,7 +2901,7 @@ break;
       case 'afk': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         let user = global.db.users[m.sender]
         user.afkTime = + new Date
@@ -2974,13 +2974,13 @@ break;
           if (AntiLink) return reply('Already activated')
           ntilink.push(from)
           reply('Activated _Antilink_ in this group.')
-          var groupe = await A17.groupMetadata(from)
+          var groupe = await PelBot.groupMetadata(from)
           var members = groupe['participants']
           var mems = []
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
           })
-          A17.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
+          PelBot.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
         } else if (args[0] === "off") {
           if (!AntiLink) return reply('Already deactivated!')
           let off = ntilink.indexOf(from)
@@ -2991,7 +2991,7 @@ break;
             { buttonId: `${prefix}antilinkgc on`, buttonText: { displayText: 'On' }, type: 1 },
             { buttonId: `${prefix}antilinkgc off`, buttonText: { displayText: 'Off' }, type: 1 }
           ]
-          await A17.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off`, `${global.BotName}`, m)
+          await PelBot.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off`, `${global.BotName}`, m)
         }
       }
         break;
@@ -3007,13 +3007,13 @@ break;
           if (AntiLinkYoutubeVid) return reply('Already activated')
           ntilinkytvid.push(from)
           reply('Activated youtube video antilink !')
-          var groupe = await A17.groupMetadata(from)
+          var groupe = await PelBot.groupMetadata(from)
           var members = groupe['participants']
           var mems = []
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
           })
-          A17.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
+          PelBot.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
         } else if (args[0] === "off") {
           if (!AntiLinkYoutubeVid) return reply('Already deactivated')
           let off = ntilinkytvid.indexOf(from)
@@ -3024,7 +3024,7 @@ break;
             { buttonId: `${prefix}antilinkyoutubevideo on`, buttonText: { displayText: 'On' }, type: 1 },
             { buttonId: `${prefix}antilinkyoutubevideo off`, buttonText: { displayText: 'Off' }, type: 1 }
           ]
-          await A17.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off`, `${global.BotName}`, m)
+          await PelBot.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off`, `${global.BotName}`, m)
         }
       }
         break;
@@ -3040,13 +3040,13 @@ break;
           if (AntiLinkYoutubeChannel) return reply('Already activated')
           ntilinkytch.push(from)
           reply('Activated youtube channel antilink !')
-          var groupe = await A17.groupMetadata(from)
+          var groupe = await PelBot.groupMetadata(from)
           var members = groupe['participants']
           var mems = []
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
           })
-          A17.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
+          PelBot.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
         } else if (args[0] === "off") {
           if (!AntiLinkYoutubeChannel) return reply('Already deactivated')
           let off = ntilinkytch.indexOf(from)
@@ -3057,7 +3057,7 @@ break;
             { buttonId: `${prefix}antilinkyoutubech on`, buttonText: { displayText: 'On' }, type: 1 },
             { buttonId: `${prefix}antilinkyoutubech off`, buttonText: { displayText: 'Off' }, type: 1 }
           ]
-          await A17.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off`, `${global.BotName}`, m)
+          await PelBot.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off`, `${global.BotName}`, m)
         }
       }
         break;
@@ -3073,13 +3073,13 @@ break;
           if (AntiLinkInstagram) return reply('Already activated')
           ntilinkig.push(from)
           reply('Activated instagram antilink !')
-          var groupe = await A17.groupMetadata(from)
+          var groupe = await PelBot.groupMetadata(from)
           var members = groupe['participants']
           var mems = []
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
           })
-          A17.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
+          PelBot.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
         } else if (args[0] === "off") {
           if (!AntiLinkInstagram) return reply('Already deactivated')
           let off = ntilinkig.indexOf(from)
@@ -3090,7 +3090,7 @@ break;
             { buttonId: `${prefix}antilinkinstagram on`, buttonText: { displayText: 'On' }, type: 1 },
             { buttonId: `${prefix}antilinkinstagram off`, buttonText: { displayText: 'Off' }, type: 1 }
           ]
-          await A17.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off`, `${global.BotName}`, m)
+          await PelBot.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off`, `${global.BotName}`, m)
         }
       }
         break;
@@ -3106,13 +3106,13 @@ break;
           if (AntiLinkFacebook) return reply('Already activated')
           ntilinkfb.push(from)
           reply('Activated facebook antilink !')
-          var groupe = await A17.groupMetadata(from)
+          var groupe = await PelBot.groupMetadata(from)
           var members = groupe['participants']
           var mems = []
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
           })
-          A17.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
+          PelBot.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
         } else if (args[0] === "off") {
           if (!AntiLinkFacebook) return reply('Already deactivated')
           let off = ntilinkfb.indexOf(from)
@@ -3123,7 +3123,7 @@ break;
             { buttonId: `${prefix}antilinkfacebook on`, buttonText: { displayText: 'On' }, type: 1 },
             { buttonId: `${prefix}antilinkfacebook off`, buttonText: { displayText: 'Off' }, type: 1 }
           ]
-          await A17.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off `, `${global.BotName}`, m)
+          await PelBot.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off `, `${global.BotName}`, m)
         }
       }
         break;
@@ -3139,13 +3139,13 @@ break;
           if (AntiLinkTelegram) return reply('Already activated')
           ntilinktg.push(from)
           reply('Activated telegram antilink !')
-          var groupe = await A17.groupMetadata(from)
+          var groupe = await PelBot.groupMetadata(from)
           var members = groupe['participants']
           var mems = []
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
           })
-          A17.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
+          PelBot.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
         } else if (args[0] === "off") {
           if (!AntiLinkTelegram) return reply('Already deactivated')
           let off = ntilinkig.indexOf(from)
@@ -3156,7 +3156,7 @@ break;
             { buttonId: `${prefix}antilinktelegram on`, buttonText: { displayText: 'On' }, type: 1 },
             { buttonId: `${prefix}antilinktelegram off`, buttonText: { displayText: 'Off' }, type: 1 }
           ]
-          await A17.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off `, `${global.BotName}`, m)
+          await PelBot.sendButtonText(m.chat, buttonsntilink, `Please click the button below On / Off `, `${global.BotName}`, m)
         }
       }
         break;
@@ -3172,13 +3172,13 @@ break;
           if (AntiLinkTiktok) return reply('Already activated')
           ntilinktt.push(from)
           reply('Activated tiktok antilink !')
-          var groupe = await A17.groupMetadata(from)
+          var groupe = await PelBot.groupMetadata(from)
           var members = groupe['participants']
           var mems = []
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
           })
-          A17.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
+          PelBot.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
         } else if (args[0] === "off") {
           if (!AntiLinkTiktok) return reply('Already deactivated')
           let off = ntilinktt.indexOf(from)
@@ -3189,7 +3189,7 @@ break;
             { buttonId: `${prefix}antilinktiktok on`, buttonText: { displayText: 'On' }, type: 1 },
             { buttonId: `${prefix}antilinktiktok off`, buttonText: { displayText: 'Off' }, type: 1 }
           ]
-          await A17.sendButtonText(m.chat, buttonsntilink, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
+          await PelBot.sendButtonText(m.chat, buttonsntilink, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
         }
       }
         break;
@@ -3205,13 +3205,13 @@ break;
           if (AntiLinkTwitter) return reply('Already activated')
           ntilinktwt.push(from)
           reply('Activated twitter antilink in this group !')
-          var groupe = await A17.groupMetadata(from)
+          var groupe = await PelBot.groupMetadata(from)
           var members = groupe['participants']
           var mems = []
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
           })
-          A17.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
+          PelBot.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
         } else if (args[0] === "off") {
           if (!AntiLinkTwitter) return reply('Already deactivated')
           let off = ntilinktwt.indexOf(from)
@@ -3222,7 +3222,7 @@ break;
             { buttonId: `${prefix}antilinktwt on`, buttonText: { displayText: 'On' }, type: 1 },
             { buttonId: `${prefix}antilinktwt off`, buttonText: { displayText: 'Off' }, type: 1 }
           ]
-          await A17.sendButtonText(m.chat, buttonsntilink, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
+          await PelBot.sendButtonText(m.chat, buttonsntilink, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
         }
       }
         break;
@@ -3238,13 +3238,13 @@ break;
       // if (AntiLinkTwitter) return reply('Already activated')
       // ntilinkall.push(from)
       // reply('Enabled all antilink !')
-      // var groupe = await A17.groupMetadata(from)
+      // var groupe = await PelBot.groupMetadata(from)
       // var members = groupe['participants']
       // var mems = []
       // members.map(async adm => {
       // mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
       // })
-      // A17.sendMessage(from, {text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid : mems }}, {quoted:m})
+      // PelBot.sendMessage(from, {text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid : mems }}, {quoted:m})
       // } else if (args[0] === "off") {
       // if (!AntiLinkAll) return reply('Already deactivated')
       // let off = ntilinkall.indexOf(from)
@@ -3255,7 +3255,7 @@ break;
       // { buttonId: `${prefix}antilinkall on`, buttonText: { displayText: 'On' }, type: 1 },
       // { buttonId: `${prefix}antilinkall off`, buttonText: { displayText: 'Off' }, type: 1 }
       // ]
-      // await A17.sendButtonText(m.chat, buttonsntilink, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
+      // await PelBot.sendButtonText(m.chat, buttonsntilink, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
       // }
       // }
       // break;
@@ -3267,20 +3267,20 @@ break;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } });
 
         if (args[0] === "on") {
 
           if (AntiLinkAll) return reply('Already activated');
           ntilinkall.push(from);
           reply('Enabled all antilink!');
-          var groupe = await A17.groupMetadata(from);
+          var groupe = await PelBot.groupMetadata(from);
           var members = groupe['participants'];
           var mems = [];
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'));
           });
-          A17.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m });
+          PelBot.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m });
         } else if (args[0] === "off") {
           if (!AntiLinkAll) return reply('Already deactivated');
           let off = ntilinkall.indexOf(from);
@@ -3303,13 +3303,13 @@ break;
           if (antiWame) return reply('Already activated')
           ntwame.push(from)
           reply('Activated antiwame !')
-          var groupe = await A17.groupMetadata(from)
+          var groupe = await PelBot.groupMetadata(from)
           var members = groupe['participants']
           var mems = []
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
           })
-          A17.sendMessage(from, { text: `\`\`\`*「  Warning  」*\`\`\`\n\nAntilink is enabled!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
+          PelBot.sendMessage(from, { text: `\`\`\`*「  Warning  」*\`\`\`\n\nAntilink is enabled!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
         } else if (args[0] === "off") {
           if (!antiWame) return reply('Already deactivated')
           let off = nttoxic.indexOf(from)
@@ -3320,7 +3320,7 @@ break;
             { buttonId: `${prefix}antiwame on`, buttonText: { displayText: 'On' }, type: 1 },
             { buttonId: `${prefix}antiwame off`, buttonText: { displayText: 'Off' }, type: 1 }
           ]
-          await A17.sendButtonText(m.chat, buttonsntwame, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
+          await PelBot.sendButtonText(m.chat, buttonsntwame, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
         }
       }
         break;
@@ -3338,18 +3338,18 @@ break;
       // if (!m.isGroup) return reply(mess.grouponly);
       // if (!isBotAdmins) return reply(mess.botadmin);
       // if (!isAdmins && !isCreator) return reply(mess.useradmin)
-      // A17.sendMessage(from, { react: { text: "🫡" , key: m.key }})
+      // PelBot.sendMessage(from, { react: { text: "🫡" , key: m.key }})
       // if (args[0] === "on") {
       // if (AntiNsfw) return reply('Already activated')
       // ntnsfw.push(from)
       // reply('Enabled NSFW Commands!')
-      // var groupe = await A17.groupMetadata(from)
+      // var groupe = await PelBot.groupMetadata(from)
       // var members = groupe['participants']
       // var mems = []
       // members.map(async adm => {
       // mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
       // })
-      // A17.sendMessage(from, {text: `\`\`\`「 Notice 」\`\`\`\n\nNSFW(not safe for work) feature has been enabled in this group, which means anyone here can accesss Adult commands!`, contextInfo: { mentionedJid : mems }}, {quoted:m})
+      // PelBot.sendMessage(from, {text: `\`\`\`「 Notice 」\`\`\`\n\nNSFW(not safe for work) feature has been enabled in this group, which means anyone here can accesss Adult commands!`, contextInfo: { mentionedJid : mems }}, {quoted:m})
       // } else if (args[0] === "off") {
       // if (!AntiNsfw) return reply('Already deactivated')
       // let off = ntnsfw.indexOf(from)
@@ -3360,7 +3360,7 @@ break;
       // { buttonId: `${prefix}nsfw on`, buttonText: { displayText: 'On' }, type: 1 },
       // { buttonId: `${prefix}nsfw off`, buttonText: { displayText: 'Off' }, type: 1 }
       // ]
-      // await A17.sendButtonText(m.chat, buttonsntnsfw, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
+      // await PelBot.sendButtonText(m.chat, buttonsntnsfw, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
       // }
       // }
       // break;
@@ -3373,12 +3373,12 @@ break;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         let id = args && /\d+\-\d+@g.us/.test(args[0]) ? args[0] : m.chat
         let online = [...Object.keys(store.presences[id]), botNumber]
         let liston = 1
-        A17.sendText(m.chat, '  「 *Online Members* 」\n\n' + online.map(v => `${liston++} . @` + v.replace(/@.+/, '')).join`\n`, m, { mentions: online })
+        PelBot.sendText(m.chat, '  「 *Online Members* 」\n\n' + online.map(v => `${liston++} . @` + v.replace(/@.+/, '')).join`\n`, m, { mentions: online })
       }
         break;
 
@@ -3389,7 +3389,7 @@ break;
       // case 'happymod': {
       // if (isBan) return reply(mess.banned);	 			
       // if (isBanChat) return reply(mess.bangc);
-      // A17.sendMessage(from, { react: { text: "🫡" , key: m.key }})
+      // PelBot.sendMessage(from, { react: { text: "🫡" , key: m.key }})
       // if (!args.join(" ")) return reply(`Example : ${prefix + command} Kinemaster`)
       //modapk.happymod(args.join(" ")).then(async(res) => {
       // teks = '```「 HappyMod Search Engine 」```'
@@ -3405,7 +3405,7 @@ break;
       // footer: `${global.BotName}`,
       // headerType: 4
       // }
-      // A17.sendMessage(m.chat, buttonMessage, { quoted: m })
+      // PelBot.sendMessage(m.chat, buttonMessage, { quoted: m })
       // })
       // }
       // break;
@@ -3414,7 +3414,7 @@ break;
       case 'happymod': case 'modapk': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🔍", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🔍", key: m.key } });
 
         if (!args.join(" ")) return reply(`Example: ${prefix + command} Kinemaster`);
 
@@ -3435,7 +3435,7 @@ break;
             };
           }
 
-          A17.sendMessage(from, messageToSend, { quoted: m });
+          PelBot.sendMessage(from, messageToSend, { quoted: m });
         });
       }
         break;
@@ -3450,21 +3450,21 @@ break;
       case 'banchat': case 'bangroup': case 'banmode': {
         if (isBan) return reply(mess.banned);
         if (!isCreator) return reply(mess.botowner);
-        A17.sendMessage(from, { react: { text: "⚠️", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⚠️", key: m.key } })
 
         if (args[0] === "on") {
           if (isBanChat) return reply('This Group is Already Banned from using me!');
           banchat.push(from);
           reply('This Group has been banned from using me!');
 
-          var groupe = await A17.groupMetadata(from);
+          var groupe = await PelBot.groupMetadata(from);
           var members = groupe['participants'];
           var mems = [];
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'));
           });
 
-          A17.sendMessage(from, { text: `\`\`\`「 Notice 」\`\`\`\n\nThis group is banned from using the bot. So, here nobody can use me anymore!`, contextInfo: { mentionedJid: mems } }, { quoted: m });
+          PelBot.sendMessage(from, { text: `\`\`\`「 Notice 」\`\`\`\n\nThis group is banned from using the bot. So, here nobody can use me anymore!`, contextInfo: { mentionedJid: mems } }, { quoted: m });
         } else if (args[0] === "off") {
           if (!isBanChat) return reply('This Group is Already Banned from using me!');
           let off = banchat.indexOf(from);
@@ -3483,9 +3483,9 @@ break;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         if (!text) return reply('Pls enter -setname <New Group Name>  to change this Group Name')
-        await A17.groupUpdateSubject(m.chat, text).then((res) => reply(mess.jobdone)).catch((err) => reply(jsonformat(err)))
+        await PelBot.groupUpdateSubject(m.chat, text).then((res) => reply(mess.jobdone)).catch((err) => reply(jsonformat(err)))
       }
         break;
 
@@ -3494,9 +3494,9 @@ break;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-        await A17.updateBlockStatus(users, 'block').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+        await PelBot.updateBlockStatus(users, 'block').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
       }
         break;
 
@@ -3505,9 +3505,9 @@ break;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-        await A17.updateBlockStatus(users, 'unblock').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+        await PelBot.updateBlockStatus(users, 'unblock').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
       }
         break;
 
@@ -3518,9 +3518,9 @@ break;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         if (!text) return reply('Pls enter -setname <New Group Description>  to change this Group Description.')
-        await A17.groupUpdateDescription(m.chat, text).then((res) => reply(mess.jobdone)).catch((err) => reply(jsonformat(err)))
+        await PelBot.groupUpdateDescription(m.chat, text).then((res) => reply(mess.jobdone)).catch((err) => reply(jsonformat(err)))
       }
         break;
 
@@ -3531,12 +3531,12 @@ break;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         if (!quoted) return reply(`Send/reply Image With Caption ${prefix + command}`)
         if (!/image/.test(mime)) return reply(`Send/reply Image With Caption ${prefix + command} to change the Profile Pic of this group.`)
         if (/webp/.test(mime)) return reply(`Send/reply Image With Caption ${prefix + command} to change the Profile Pic of this group.`)
-        let media = await A17.downloadAndSaveMediaMessage(quoted)
-        await A17.updateProfilePicture(m.chat, { url: media }).catch((err) => fs.unlinkSync(media))
+        let media = await PelBot.downloadAndSaveMediaMessage(quoted)
+        await PelBot.updateProfilePicture(m.chat, { url: media }).catch((err) => fs.unlinkSync(media))
         reply(mess.jobdone)
       }
         break;
@@ -3548,7 +3548,7 @@ break;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "😳", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "😳", key: m.key } })
         let teks = `「 Attention 」
 
 *Message : ${args.join(" ") ? args.join(" ") : 'no message'}*\n\n`
@@ -3557,7 +3557,7 @@ let count = 1;
           teks += `${count} » @${mem.id.split('@')[0]}\n`
           count++;
         }
-        A17.sendMessage(m.chat, { text: teks, mentions: participants.map(a => a.id) }, { quoted: m })
+        PelBot.sendMessage(m.chat, { text: teks, mentions: participants.map(a => a.id) }, { quoted: m })
       }
         break;
 
@@ -3568,8 +3568,8 @@ let count = 1;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "✨", key: m.key } })
-        A17.sendMessage(m.chat, { text: args.join(" ") ? args.join(" ") : '', mentions: participants.map(a => a.id) }, { quoted: m })
+        PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
+        PelBot.sendMessage(m.chat, { text: args.join(" ") ? args.join(" ") : '', mentions: participants.map(a => a.id) }, { quoted: m })
       }
         break;
 
@@ -3578,7 +3578,7 @@ let count = 1;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "🗿", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🗿", key: m.key } })
         if (!text) return reply(`*Ecris une citations ou toute chose sensée pour tag un admin*`)
         let teks = `*「 Tag Admins 」*
 
@@ -3587,7 +3587,7 @@ let count = 1;
         for (let mem of groupAdmins) {
           teks += `${count} 🍁 @${mem.split('@')[0]}\n`
         }
-        A17.sendMessage(m.chat, { text: teks, mentions: groupAdmins }, { quoted: m })
+        PelBot.sendMessage(m.chat, { text: teks, mentions: groupAdmins }, { quoted: m })
       }
         break;
 
@@ -3602,10 +3602,10 @@ let count = 1;
       
         const delay = time => new Promise(res=>setTimeout(res,time));
       
-        let users = (await A17.fetchGroupMetadataFromWA(m.chat)).participants.map(u => u.jid)
+        let users = (await PelBot.fetchGroupMetadataFromWA(m.chat)).participants.map(u => u.jid)
         for (let user of users){
       
-            await A17.groupParticipantsUpdate(m.chat, [user], 'remove')
+            await PelBot.groupParticipantsUpdate(m.chat, [user], 'remove')
             await delay(3000)
         }
       }
@@ -3623,7 +3623,7 @@ let count = 1;
         const delay = time => new Promise(res => setTimeout(res, time));
         let mentioned = participants.map(v => v.jid)
         for (let member of mentioned) {
-          A17.groupParticipantsUpdate(m.chat, [member], 'remove')
+          PelBot.groupParticipantsUpdate(m.chat, [member], 'remove')
         }
       }
 
@@ -3632,7 +3632,7 @@ let count = 1;
 
       case 'nowa': case 'find': case 'stalk': case 'stalknumber': {
         if (isBan) return reply(mess.banned);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         if (!args[0]) return reply(`Utilise la commande comme: ${prefix}stalk <numero>xxx`)
         var inputnumber = args[0]
         if (!inputnumber.includes('x')) return reply('Tu n\'as pas mis x')
@@ -3671,11 +3671,11 @@ let count = 1;
           } else if (random_length == 4) {
             rndm = `${status1}${status2}${status3}${dom4}`
           }
-          var anu = await A17.onWhatsApp(`${number0}${i}${number1}@s.whatsapp.net`);
+          var anu = await PelBot.onWhatsApp(`${number0}${i}${number1}@s.whatsapp.net`);
           var anuu = anu.length !== 0 ? anu : false
           try {
             try {
-              var anu1 = await A17.fetchStatus(anu[0].jid)
+              var anu1 = await PelBot.fetchStatus(anu[0].jid)
             } catch {
               var anu1 = '401'
             }
@@ -3698,9 +3698,9 @@ let count = 1;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
-        A17.sendMessage(from, { react: { text: "🪄", key: m.key } })
-        let response = await A17.groupInviteCode(m.chat)
-        A17.sendMessage(m.chat, {
+        PelBot.sendMessage(from, { react: { text: "🪄", key: m.key } })
+        let response = await PelBot.groupInviteCode(m.chat)
+        PelBot.sendMessage(m.chat, {
           text: `*Nom du groupe :* *${groupMetadata.subject}* \n\n*Group Link :* \nhttps://chat.whatsapp.com/${response}l`, "contextInfo": {
             mimetype: "image/jpeg",
             text: `${global.OwnerName}`,
@@ -3734,8 +3734,8 @@ let count = 1;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
-        A17.groupRevokeInvite(m.chat)
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.groupRevokeInvite(m.chat)
       }
         break;
 
@@ -3746,11 +3746,11 @@ let count = 1;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         if (args[0] === 'close') {
-          await A17.groupSettingUpdate(m.chat, 'announcement').then((res) => reply(`Group has been closed!`)).catch((err) => reply(jsonformat(err)))
+          await PelBot.groupSettingUpdate(m.chat, 'announcement').then((res) => reply(`Group has been closed!`)).catch((err) => reply(jsonformat(err)))
         } else if (args[0] === 'open') {
-          await A17.groupSettingUpdate(m.chat, 'not_announcement').then((res) => reply(`Group has been opened!`)).catch((err) => reply(jsonformat(err)))
+          await PelBot.groupSettingUpdate(m.chat, 'not_announcement').then((res) => reply(`Group has been opened!`)).catch((err) => reply(jsonformat(err)))
         } else {
 
           let buttonMessage = {
@@ -3760,7 +3760,7 @@ let count = 1;
             footer: `${BotName}`,
             headerType: 4
           }
-          A17.sendMessage(m.chat, buttonMessage, { quoted: m })
+          PelBot.sendMessage(m.chat, buttonMessage, { quoted: m })
         }
       }
         break;
@@ -3772,9 +3772,9 @@ let count = 1;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-        await A17.groupParticipantsUpdate(m.chat, [users], 'promote').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+        await PelBot.groupParticipantsUpdate(m.chat, [users], 'promote').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
       }
         break;
 
@@ -3785,9 +3785,9 @@ let count = 1;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-        await A17.groupParticipantsUpdate(m.chat, [users], 'demote').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+        await PelBot.groupParticipantsUpdate(m.chat, [users], 'demote').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
       }
         break;
 
@@ -3796,12 +3796,12 @@ let count = 1;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
 
         let users = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
         if (users.length == 0) return reply(`Ecris le numéro de la personne que tu veux ajouter au groupe`)
-        await A17.groupParticipantsUpdate(m.chat, [users], 'add').then((res) => reply(`Utilisateur ajouté avec succès !`)).catch((err) => reply(`Impossible d'ajouter cet utilisateur au groupe !`))
+        await PelBot.groupParticipantsUpdate(m.chat, [users], 'add').then((res) => reply(`Utilisateur ajouté avec succès !`)).catch((err) => reply(`Impossible d'ajouter cet utilisateur au groupe !`))
       }
         break;
 
@@ -3812,14 +3812,14 @@ let count = 1;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         if (!text) return reply(`Entrez le numéro que vous voulez inviter dans le groupe...\n\nExemple :\n*${prefix + command}* 22363198446`)
         if (text.includes('+')) return reply(`Entrez le numéro sans le *+*`)
         if (isNaN(text)) return reply(`Entrez seulement un numéro avec le code pays et sans espace`)
         let group = m.chat
-        let link = 'https://chat.whatsapp.com/' + await A17.groupInviteCode(group)
-        await A17.sendMessage(text + '@s.whatsapp.net', { text: ` *Invitation*\n\nUn utilisateur t'a invité à rejoindre ce groupe \n\n${link}`, mentions: [m.sender] })
+        let link = 'https://chat.whatsapp.com/' + await PelBot.groupInviteCode(group)
+        await PelBot.sendMessage(text + '@s.whatsapp.net', { text: ` *Invitation*\n\nUn utilisateur t'a invité à rejoindre ce groupe \n\n${link}`, mentions: [m.sender] })
         reply(` Lien d'invitation envoyé à l'utilisateur `)
       }
         break;
@@ -3831,9 +3831,9 @@ let count = 1;
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-        await A17.groupParticipantsUpdate(m.chat, [users], 'remove')
+        await PelBot.groupParticipantsUpdate(m.chat, [users], 'remove')
       }
         break;
 
@@ -3843,16 +3843,16 @@ let count = 1;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         if (!args[0]) return reply(`Où est le lietn `)
         vdd = args[0]
         let vcc = vdd.split("https://chat.whatsapp.com/")[1]
         if (!vcc) return reply("Lien invalide !")
         if (isCreator) {
-          await A17.groupAcceptInvite(vcc).then(async (res) => reply(jsonformat(res))).catch(_ => _)
+          await PelBot.groupAcceptInvite(vcc).then(async (res) => reply(jsonformat(res))).catch(_ => _)
           reply("Réussi !")
         } else {
-          A17.query({
+          PelBot.query({
             tag: "iq",
             attrs: {
               type: "get",
@@ -3866,7 +3866,7 @@ let count = 1;
               teks = `Désolé, vous avez besoin de 20 membres minimum pour ajouter un bot!`
               sendOrder(m.chat, teks, "667140254502463", fs.readFileSync('./Assets/pic7.jpg'), `${global.packname}`, `${global.BotName}`, "22363198446@s.whatsapp.net", "AR6NCY8euY5cbS8Ybg5Ca55R8HFSuLO3qZqrIYCT7hQp0g==", "99999999999999999999")
             } else if (sizny > 20) {
-              await A17.groupAcceptInvite(vcc).then(async (res) => reply(jsonformat(res))).catch(_ => _)
+              await PelBot.groupAcceptInvite(vcc).then(async (res) => reply(jsonformat(res))).catch(_ => _)
               reply("Rejoins !")
             } else {
               reply("Erreur")
@@ -3883,8 +3883,8 @@ let count = 1;
       //   if (!m.isGroup) return reply(mess.grouponly);
       //       reply(mess.waiting)
       //                   if (!isCreator) return reply(`${mess.botowner}`)
-      //                   A17.sendMessage(from, { react: { text: "☯️" , key: m.key }})
-      //                   await A17.groupLeave(m.chat).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+      //                   PelBot.sendMessage(from, { react: { text: "☯️" , key: m.key }})
+      //                   await PelBot.groupLeave(m.chat).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
       //               }
       //               break;
 
@@ -3893,7 +3893,7 @@ let count = 1;
       case 'groupevent':
       case 'group-event':
 
-        A17.sendMessage(from, { react: { text: '❤', key: m.key } });
+        PelBot.sendMessage(from, { react: { text: '❤', key: m.key } });
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isBotAdmins) return reply(mess.botadmin);
@@ -3933,7 +3933,7 @@ let count = 1;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         if (!args[0]) return reply(`Select add or del (add to ban, del to unban), For Example: reply *${prefix}ban add* to the user you want to ban.`)
         if (args[1]) {
@@ -3968,13 +3968,13 @@ let count = 1;
           if (AntiLinkAll) return reply('Already activated')
           ntilinkall.push(from)
           reply('Enabled all antilink !')
-          var groupe = await A17.groupMetadata(from)
+          var groupe = await PelBot.groupMetadata(from)
           var members = groupe['participants']
           var mems = []
           members.map(async adm => {
             mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
           })
-          A17.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
+          PelBot.sendMessage(from, { text: `\`\`\`「 Warning 」\`\`\`\n\nAntilink System Activated!`, contextInfo: { mentionedJid: mems } }, { quoted: m })
         } else if (args[0] === "off") {
           if (!AntiLinkAll) return reply('Already deactivated')
           let off = ntilinkall.indexOf(from)
@@ -3982,7 +3982,7 @@ let count = 1;
           reply('Disabled all antilink !')
         } else {
           let textmsg = 'Type ' + `${prefix}${command}` + ' on to turn on antilink feature or Type ' + `${prefix + command}` + ' off to turn off antilink feature'
-          await A17.sendMessage(m.chat, { text: `${textmsg}` }, `${global.BotName}`, m)
+          await PelBot.sendMessage(m.chat, { text: `${textmsg}` }, `${global.BotName}`, m)
         }
       }
         break;
@@ -4001,7 +4001,7 @@ let count = 1;
         let { ringtone } = require('./lib/scraper')
         let anu = await ringtone(text)
         let result = anu[Math.floor(Math.random() * anu.length)]
-        A17.sendMessage(m.chat, { audio: { url: result.audio }, fileName: result.title + '.mp3', mimetype: 'audio/mpeg' }, { quoted: m })
+        PelBot.sendMessage(m.chat, { audio: { url: result.audio }, fileName: result.title + '.mp3', mimetype: 'audio/mpeg' }, { quoted: m })
       }
         break;
 
@@ -4010,14 +4010,14 @@ let count = 1;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!args.join(" ")) return reply(`Example: ${prefix + command} 10`)
-        media = await A17.downloadAndSaveMediaMessage(quoted, "volume")
+        media = await PelBot.downloadAndSaveMediaMessage(quoted, "volume")
         if (isQuotedAudio) {
           rname = getRandom('.mp3')
           exec(`ffmpeg -i ${media} -filter:a volume=${args[0]} ${rname}`, (err, stderr, stdout) => {
             fs.unlinkSync(media)
             if (err) return reply('Error!')
             jadie = fs.readFileSync(rname)
-            A17.sendMessage(from, { audio: jadie, mimetype: 'audio/mp4', ptt: true }, { quoted: m })
+            PelBot.sendMessage(from, { audio: jadie, mimetype: 'audio/mp4', ptt: true }, { quoted: m })
             fs.unlinkSync(rname)
           })
         } else if (isQuotedVideo) {
@@ -4026,7 +4026,7 @@ let count = 1;
             fs.unlinkSync(media)
             if (err) return reply('Error!')
             jadie = fs.readFileSync(rname)
-            A17.sendMessage(from, { video: jadie, mimetype: 'video/mp4' }, { quoted: m })
+            PelBot.sendMessage(from, { video: jadie, mimetype: 'video/mp4' }, { quoted: m })
             fs.unlinkSync(rname)
           })
         } else {
@@ -4041,14 +4041,14 @@ let count = 1;
         if (isBanChat) return reply(mess.bangc);
         if (!args.join(" ")) return reply(`Example: ${prefix + command} 10`)
         var req = args.join(' ')
-        media = await A17.downloadAndSaveMediaMessage(quoted, "tempo")
+        media = await PelBot.downloadAndSaveMediaMessage(quoted, "tempo")
         if (isQuotedAudio) {
           ran = getRandom('.mp3')
           exec(`ffmpeg -i ${media} -filter:a "atempo=1.0,asetrate=${req}" ${ran}`, (err, stderr, stdout) => {
             fs.unlinkSync(media)
             if (err) return reply('Error!')
             hah = fs.readFileSync(ran)
-            A17.sendMessage(from, { audio: hah, mimetype: 'audio/mp4', ptt: true }, { quoted: m })
+            PelBot.sendMessage(from, { audio: hah, mimetype: 'audio/mp4', ptt: true }, { quoted: m })
             fs.unlinkSync(ran)
           })
         } else if (isQuotedVideo) {
@@ -4057,7 +4057,7 @@ let count = 1;
             fs.unlinkSync(media)
             if (err) return reply('Error!')
             hah = fs.readFileSync(ran)
-            A17.sendMessage(from, { video: hah, mimetype: 'video/mp4' }, { quoted: m })
+            PelBot.sendMessage(from, { video: hah, mimetype: 'video/mp4' }, { quoted: m })
             fs.unlinkSync(ran)
           })
         } else {
@@ -4068,7 +4068,7 @@ let count = 1;
 
 
       case 'bass': case 'blown': case 'deep': case 'earrape': case 'fast': case 'fat': case 'nightcore': case 'reverse': case 'robot': case 'slow': case 'smooth': case 'tupai':
-        A17.sendMessage(from, { react: { text: "⌛", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
         try {
           let set
@@ -4086,13 +4086,13 @@ let count = 1;
           if (/tupai/.test(command)) set = '-filter:a "atempo=0.5,asetrate=65100"'
           if (/audio/.test(mime)) {
             reply(mess.waiting)
-            let media = await A17.downloadAndSaveMediaMessage(quoted)
+            let media = await PelBot.downloadAndSaveMediaMessage(quoted)
             let ran = getRandom('.mp3')
             exec(`ffmpeg -i ${media} ${set} ${ran}`, (err, stderr, stdout) => {
               fs.unlinkSync(media)
               if (err) return reply(err)
               let buff = fs.readFileSync(ran)
-              A17.sendMessage(m.chat, { audio: buff, mimetype: 'audio/mpeg' }, { quoted: m })
+              PelBot.sendMessage(m.chat, { audio: buff, mimetype: 'audio/mpeg' }, { quoted: m })
               fs.unlinkSync(ran)
             })
           } else reply(`Pls mention any audio you want to modify _${prefix + command}_`)
@@ -4125,17 +4125,17 @@ let count = 1;
       case 'toimage': case 'makeimg': case 'toimg': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🪄", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🪄", key: m.key } })
         if (!m.quoted) return reply('reply Image')
         if (!/webp/.test(mime)) return reply(`reply sticker with caption *${prefix + command}*`)
         reply(mess.waiting)
-        let media = await A17.downloadAndSaveMediaMessage(quoted)
+        let media = await PelBot.downloadAndSaveMediaMessage(quoted)
         let ran = await getRandom('.png')
         exec(`ffmpeg -i ${media} ${ran}`, (err) => {
           fs.unlinkSync(media)
           if (err) throw err
           let buffer = fs.readFileSync(ran)
-          A17.sendMessage(m.chat, { image: buffer }, { quoted: m })
+          PelBot.sendMessage(m.chat, { image: buffer }, { quoted: m })
           fs.unlinkSync(ran)
         })
       }
@@ -4145,14 +4145,14 @@ let count = 1;
       case 'tomp4': case 'makemp4': case 'makevideo': case 'tovideo': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🪄", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🪄", key: m.key } })
         if (!m.quoted) return reply('reply Image')
         if (!/webp/.test(mime)) return reply(`reply sticker with caption *${prefix + command}*`)
         reply(mess.waiting)
         let { webp2mp4File } = require('./lib/uploader')
-        let media = await A17.downloadAndSaveMediaMessage(quoted)
+        let media = await PelBot.downloadAndSaveMediaMessage(quoted)
         let webpToMp4 = await webp2mp4File(media)
-        await A17.sendMessage(m.chat, { video: { url: webpToMp4.result, caption: 'Here it is...' } }, { quoted: m })
+        await PelBot.sendMessage(m.chat, { video: { url: webpToMp4.result, caption: 'Here it is...' } }, { quoted: m })
         await fs.unlinkSync(media)
       }
         break;
@@ -4161,7 +4161,7 @@ let count = 1;
       case 'toaud': case 'makeaudio': case 'toaudio': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "⌛", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
         if (!/video/.test(mime) && !/audio/.test(mime)) return reply(`Send/reply Video/Audio You Want To Use As Audio With Caption ${prefix + command}`)
         if (!m.quoted) return reply(`Send/reply Video/Audio You Want To Use As Audio With Caption ${prefix + command}`)
@@ -4169,7 +4169,7 @@ let count = 1;
         let media = await quoted.download()
         let { toAudio } = require('./lib/converter')
         let audio = await toAudio(media, 'mp4')
-        A17.sendMessage(m.chat, { audio: audio, mimetype: 'audio/mpeg' }, { quoted: m })
+        PelBot.sendMessage(m.chat, { audio: audio, mimetype: 'audio/mpeg' }, { quoted: m })
       }
         break;
 
@@ -4177,7 +4177,7 @@ let count = 1;
       case 'tomp3': case 'makemp3': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         if (/document/.test(mime)) return reply(`Send/reply Video/Audio You Want To Convert Into MP3 With Caption ${prefix + command}`)
         if (!/video/.test(mime) && !/audio/.test(mime)) return reply(`Send/reply Video/Audio You Want To Convert Into MP3 With Caption ${prefix + command}`)
         if (!m.quoted) return reply(`Send/reply Video/Audio You Want To Convert Into MP3 With Caption ${prefix + command}`)
@@ -4185,7 +4185,7 @@ let count = 1;
         let media = await quoted.download()
         let { toAudio } = require('./lib/converter')
         let audio = await toAudio(media, 'mp4')
-        A17.sendMessage(m.chat, { document: audio, mimetype: 'audio/mpeg', fileName: `Converted By ${global.BotName} (${m.id}).mp3` }, { quoted: m })
+        PelBot.sendMessage(m.chat, { document: audio, mimetype: 'audio/mpeg', fileName: `Converted By ${global.BotName} (${m.id}).mp3` }, { quoted: m })
       }
         break;
 
@@ -4193,14 +4193,14 @@ let count = 1;
       case 'togif': case 'makegif': case 'getgif': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         if (!m.quoted) return reply('reply Image')
         if (!/webp/.test(mime)) return reply(`reply sticker with caption *${prefix + command}*`)
         reply(mess.wait)
         let { webp2mp4File } = require('./lib/uploader')
-        let media = await A17.downloadAndSaveMediaMessage(quoted)
+        let media = await PelBot.downloadAndSaveMediaMessage(quoted)
         let webpToMp4 = await webp2mp4File(media)
-        await A17.sendMessage(m.chat, { video: { url: webpToMp4.result, caption: 'Converted From Webp To Gif' }, gifPlayback: true }, { quoted: m })
+        await PelBot.sendMessage(m.chat, { video: { url: webpToMp4.result, caption: 'Converted From Webp To Gif' }, gifPlayback: true }, { quoted: m })
         await fs.unlinkSync(media)
       }
         break;
@@ -4209,10 +4209,10 @@ let count = 1;
       // case 'tourl': case 'makeurl':{
       // if (isBan) return reply(mess.banned);	 			
       // if (isBanChat) return reply(mess.bangc);
-      // A17.sendMessage(from, { react: { text: "🪄" , key: m.key }})
+      // PelBot.sendMessage(from, { react: { text: "🪄" , key: m.key }})
 
       // // let { UploadFileUgu, webp2mp4File, TelegraPh } = require('./lib/uploader');
-      // let media = await A17.downloadAndSaveMediaMessage(quoted)
+      // let media = await PelBot.downloadAndSaveMediaMessage(quoted)
       // if (/image/.test(mime)) {
       // let anu = await TelegraPh(media)
       // reply(util.format(anu))
@@ -4232,12 +4232,12 @@ let count = 1;
         let { GraphOrg } = require("./lib/uploader");
         if (!m.quoted) {
           //
-          A17.sendMessage(from, { react: { text: "❔", key: m.key } })
+          PelBot.sendMessage(from, { react: { text: "❔", key: m.key } })
           return m.reply(
             `With caption not working, first send an *Image* / *Video* to generate a link! then tag with *${prefix}tourl*`
           );
         }
-        let media5 = await A17.downloadAndSaveMediaMessage(quoted);
+        let media5 = await PelBot.downloadAndSaveMediaMessage(quoted);
         if (/image/.test(mime)) {
           //
           let anu = await GraphOrg(media5);
@@ -4250,7 +4250,7 @@ let count = 1;
           } catch (e) {
             //
             await fs.unlinkSync(media5);
-            return A17.sendMessage(
+            return PelBot.sendMessage(
               m.from,
               {
                 text: `*Your video size is too big!*\n\n*Max video size:* 5MB`,
@@ -4275,7 +4275,7 @@ let count = 1;
 
       case 'translate': case 'ts': case 'trans': {
         if (isBan) return reply(mess.banned);
-        A17.sendMessage(from, { react: { text: "⌛", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
         if (!args.join(" ")) return reply("Pls enter any text to translate")
         tes = await fetchJson(`https://megayaa.herokuapp.com/api/translate?to=en&kata=${args.join(" ")}`)
@@ -4289,7 +4289,7 @@ let count = 1;
       // case 'gimage': case 'gig': case 'googleimage':{
       // if (isBan) return reply(mess.banned);	 			
       // if (isBanChat) return reply(mess.bangc);
-      // A17.sendMessage(from, { react: { text: "⌛" , key: m.key }})
+      // PelBot.sendMessage(from, { react: { text: "⌛" , key: m.key }})
 
       // if (!args[0]) return reply("Enter a search term to get Google Image!")
       // let gis = require('g-i-s')
@@ -4310,7 +4310,7 @@ let count = 1;
       // headerType: 4,
 
       // }
-      // A17.sendMessage(m.chat, buttonMessage, { quoted: m })
+      // PelBot.sendMessage(m.chat, buttonMessage, { quoted: m })
       // })
       // }
       // break;
@@ -4322,7 +4322,7 @@ let count = 1;
       // case 'googleimage': {
       //   if (isBan) return reply(mess.banned);
       //   if (isBanChat) return reply(mess.bangc);
-      //   A17.sendMessage(from, { react: { text: "⌛", key: m.key } });
+      //   PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } });
 
       //   if (!args[0]) return reply("Enter a search term to get Google Image!");
       //   let gis = require('g-i-s');
@@ -4335,7 +4335,7 @@ let count = 1;
       //       footer: `${global.BotName}`,
       //       headerType: 4,
       //     };
-      //     A17.sendMessage(m.chat, buttonMessage, { quoted: m });
+      //     PelBot.sendMessage(m.chat, buttonMessage, { quoted: m });
       //   });
       // }
       // break;
@@ -4346,7 +4346,7 @@ let count = 1;
       case 'googleimage': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "⌛", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } });
 
         if (!args[0]) return reply("Enter a search term to get Google Image!");
         let gis = require('g-i-s');
@@ -4368,7 +4368,7 @@ let count = 1;
             footer: `${global.BotName}`,
             headerType: 4,
           };
-          A17.sendMessage(m.chat, buttonMessage, { quoted: m });
+          PelBot.sendMessage(m.chat, buttonMessage, { quoted: m });
         });
       }
         break;
@@ -4379,7 +4379,7 @@ let count = 1;
       //   case "googleimage":
       //   case "image":
       //     if (!text) {
-      //       A17.sendMessage(from, { react: { text: "⌛", key: m.key } });
+      //       PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } });
       //       return m.reply(`Please provide an image Search Term !\n\nExample: *${prefix}image cheems*`);
       //     }
 
@@ -4396,7 +4396,7 @@ let count = 1;
       //         },
       //       ];
       //       */
-      //       await A17.sendMessage(
+      //       await PelBot.sendMessage(
       //         m.from,
       //         {
       //           image: { url: images },
@@ -4420,9 +4420,9 @@ let count = 1;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
 
-        //A17.sendMessage(from, { react: { text: "🌌", key: m.key }});
+        //PelBot.sendMessage(from, { react: { text: "🌌", key: m.key }});
         const randomEmoji = spaceemojis[Math.floor(Math.random() * spaceemojis.length)]; // Select a random emoji
-        A17.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
+        PelBot.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
 
         const apiKey = 'ugce43VIO63s8gQhcQ7Ts2DHQo1Srcchdh9mgI2S'; // Replace with your actual NASA API key // You can use it.
         const moment = require('moment'); // Import moment library here
@@ -4437,7 +4437,7 @@ let count = 1;
           const data = await response.json();
 
           if (data.url) {
-            A17.sendMessage(from, {
+            PelBot.sendMessage(from, {
               image: { url: data.url },
               caption: `*Astronomy Picture of the Day:*\n\n${data.title}\n${data.explanation}`,
             });
@@ -4458,7 +4458,7 @@ let count = 1;
       case 'google': case 'search': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "✨", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
 
         if (!args[0]) return reply(`Example: ${prefix + command} <query>\nUses : ${prefix + command} anything...`)
         let google = require('google-it')
@@ -4478,7 +4478,7 @@ let count = 1;
       case "tts": case "texttospeech": case "say": case "speak": {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "⌛", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
         if (!args[0]) return reply("Please give me a text so that i can speak it!")
 
@@ -4489,7 +4489,7 @@ let count = 1;
             : m.text;
         const SpeakEngine = require("google-tts-api");
         const texttospeechurl = SpeakEngine.getAudioUrl(texttosay, { lang: "en", slow: false, host: "https://translate.google.com", });
-        A17.sendMessage(m.chat, { audio: { url: texttospeechurl, }, mimetype: "audio/mpeg", fileName: `A17SpeechEngine.mp3`, }, { quoted: m, });
+        PelBot.sendMessage(m.chat, { audio: { url: texttospeechurl, }, mimetype: "audio/mpeg", fileName: `PelBotSpeechEngine.mp3`, }, { quoted: m, });
       }
         break;
 
@@ -4497,19 +4497,19 @@ let count = 1;
       case 'wiki':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "⌛", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
         if (args.length < 1) return reply('What Are You Looking For?? ')
         const res2 = await wikiSearch(q).catch(e => {
           return reply('Error Result Not Found!')
         })
         const result2 = `*Title :* ${res2[0].judul}\n*Wiki :* ${res2[0].wiki}`
-        A17.sendMessage(from, { image: { url: res2[0].thumb }, caption: result2 })
+        PelBot.sendMessage(from, { image: { url: res2[0].thumb }, caption: result2 })
         break;
 
 
       case 'urban': {
-        A17.sendMessage(from, { react: { text: "📖", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "📖", key: m.key } })
         // Extract the word from the message
         const word = text.trim();
 
@@ -4545,7 +4545,7 @@ let count = 1;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "✨", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
 
         const aju = {
           image: { url: 'https://campus-pictures.onrender.com/' },
@@ -4553,7 +4553,7 @@ let count = 1;
          
         }
 
-        await A17.sendMessage(m.chat, aju, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, aju, { quoted: m }).catch(err => {
           return ('Error!')
         })
 
@@ -4563,13 +4563,13 @@ let count = 1;
       case 'earthquake':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "⌛", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
         const tres = await Gempa()
         var { Waktu, Lintang, Bujur, Magnitude, Kedalaman, Wilayah, Map } = tres.result
         console.log(Map)
         const captt = `Time : ${Waktu}\nLatitude : ${Lintang}\nLongitude : ${Bujur}\nRegion : ${Wilayah}`
-        A17.sendMessage(from, { image: { url: Map }, caption: captt })
+        PelBot.sendMessage(from, { image: { url: Map }, caption: captt })
         break;
 
 
@@ -4577,18 +4577,18 @@ let count = 1;
       case 'covid':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "⌛", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
         const c = await covid()
         var { cases, death, healed } = c[0]
-        A17.sendMessage(from, { text: `\nCovid India \n\nCase : ${cases}\n\nDead : ${death}\n\nHealed : ${healed}\n` }, m)
+        PelBot.sendMessage(from, { text: `\nCovid India \n\nCase : ${cases}\n\nDead : ${death}\n\nHealed : ${healed}\n` }, m)
         break;
 
 
       // const { getBuffer } = require("./lib/myfunc");
 
       // case 'ss':
-      //   async (A17, m, { pushName, prefix, args, text }) => {
+      //   async (PelBot, m, { pushName, prefix, args, text }) => {
       //     if (!args[0]) return m.reply(`Please provide me a link to lookup!`);
 
       //     let lookupURL;
@@ -4600,7 +4600,7 @@ let count = 1;
 
       //     try {
       //       const resImage = await getBuffer(`https://api.popcat.xyz/screenshot?url=${lookupURL}`);
-      //       await A17.sendMessage(m.from, { image: resImage, caption: `_Here's how this URL looks like:_\n${args[0]}\n` }, { quoted: m });
+      //       await PelBot.sendMessage(m.from, { image: resImage, caption: `_Here's how this URL looks like:_\n${args[0]}\n` }, { quoted: m });
       //     } catch (error) {
       //       m.reply(`An error occurred while processing your request!\n\nPlease recheck your link and try again!`);
       //     }
@@ -4629,7 +4629,7 @@ let count = 1;
           }
 
           // Send a reaction emoji
-          A17.sendMessage(from, { react: { text: "🪄", key: m.key } });
+          PelBot.sendMessage(from, { react: { text: "🪄", key: m.key } });
 
           // Check if a link is provided
           if (!text) {
@@ -4641,7 +4641,7 @@ let count = 1;
             let instadownload = await instadl(text);
 
             // Send the downloaded video as a reply to the command
-            await A17.sendMessage(m.chat, { video: { url: instadownload.url[0].url }, caption: mess.jobdone }, { quoted: m });
+            await PelBot.sendMessage(m.chat, { video: { url: instadownload.url[0].url }, caption: mess.jobdone }, { quoted: m });
           } catch (error) {
             console.error('Error while processing Instagram video:', error);
             return reply('An error occurred while processing the Instagram video.');
@@ -4654,7 +4654,7 @@ let count = 1;
       // case 'igdl': case 'instagramreels': case 'igreels': {
       // if (isBan) return reply(mess.banned);	 			
       // if (isBanChat) return reply(mess.bangc);
-      // A17.sendMessage(from, { react: { text: "🪄" , key: m.key }})
+      // PelBot.sendMessage(from, { react: { text: "🪄" , key: m.key }})
       // if (!args[0]) return reply(`Example :\n${prefix + command} https://www.instagram.com/p/CcvJGuxh9VI/?igshid=YmMyMTA2M2Y=`)
       // try {
       // hx.igdl(args[0]).then(async(resed) => {
@@ -4682,7 +4682,7 @@ let count = 1;
       // buttons: buttons,
       // headerType: 4
       // }
-      // A17.sendMessage(from, buttonMessage, {quoted:m})
+      // PelBot.sendMessage(from, buttonMessage, {quoted:m})
       // })
       // } catch (err) {
       // reply("An Error Occured!")
@@ -4695,9 +4695,9 @@ let count = 1;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (args[0] === "mp4") {
-          A17.sendMessage(from, { video: { url: args[1] }, caption: 'Here it is...', mimetype: 'video/mp4' }, { quoted: m })
+          PelBot.sendMessage(from, { video: { url: args[1] }, caption: 'Here it is...', mimetype: 'video/mp4' }, { quoted: m })
         } else if (args[0] === "jpg") {
-          A17.sendMessage(from, { image: { url: args[1] }, caption: 'Here it is...' }, { quoted: m })
+          PelBot.sendMessage(from, { image: { url: args[1] }, caption: 'Here it is...' }, { quoted: m })
         } else {
           reply("Error! ")
         }
@@ -4710,7 +4710,7 @@ let count = 1;
         if (isBanChat) return reply(mess.bangc);
         if (!args[0]) return reply(`Pls provide link!`)
         try {
-          A17.sendMessage(from, {
+          PelBot.sendMessage(from, {
             video: { url: args[0] }, caption: "Succes!", contextInfo: {
               externalAdreply: {
                 title: `${global.BotName}`,
@@ -4734,7 +4734,7 @@ let count = 1;
         if (isBanChat) return reply(mess.bangc);
         if (!args[0]) return reply(`Please provide link!`)
         try {
-          A17.sendMessage(from, { image: { url: args[0] }, caption: "Success!" }, { quoted: m })
+          PelBot.sendMessage(from, { image: { url: args[0] }, caption: "Success!" }, { quoted: m })
         } catch {
           reply("Link error")
         }
@@ -4750,7 +4750,7 @@ let count = 1;
         if (!isUrl(args[0]) && !args[0].includes('instagram.com')) return reply('*Invalid link!*')
         instagramdlv3(`${text}`).then(async (data) => {
           var buf = await getBuffer(data[0].thumbnail)
-          A17.sendMessage(m.chat, { video: { url: data[0].url }, jpegThumbnail: buf, caption: `${BotName}` }, { quoted: m })
+          PelBot.sendMessage(m.chat, { video: { url: data[0].url }, jpegThumbnail: buf, caption: `${BotName}` }, { quoted: m })
         }).catch((err) => {
           reply(mess.error)
         })
@@ -4774,9 +4774,9 @@ let count = 1;
           txt += `*URL :* ${data.url}\n\n`
           txt += `*${BotName}*`
           buf = await getBuffer(data.thumbnail)
-          A17.sendMessage(m.chat, { image: { url: data.thumbnail }, jpegThumbnail: buf, caption: `${txt}` }, { quoted: m })
+          PelBot.sendMessage(m.chat, { image: { url: data.thumbnail }, jpegThumbnail: buf, caption: `${txt}` }, { quoted: m })
           for (let i of data.medias) {
-            A17.sendMessage(m.chat, { video: { url: i.url }, jpegThumbnail: buf, caption: `*${text}*` }, { quoted: m })
+            PelBot.sendMessage(m.chat, { video: { url: i.url }, jpegThumbnail: buf, caption: `*${text}*` }, { quoted: m })
           }
         }).catch((err) => {
           reply(mess.error)
@@ -4791,7 +4791,7 @@ let count = 1;
         if (!text) return reply(`Please provide link!`)
         if (!isUrl(args[0]) && !args[0].includes('twitter.com')) return reply(`*Invalid link!*`)
         xfarrapi.Twitter(`${text}`).then(async (data) => {
-          A17.sendMessage(m.chat, { audio: { url: data.medias[1].url }, mimetype: 'audio/mp4' }, { quoted: m })
+          PelBot.sendMessage(m.chat, { audio: { url: data.medias[1].url }, mimetype: 'audio/mp4' }, { quoted: m })
         }).catch((err) => {
           reply(mess.reply)
         })
@@ -4823,7 +4823,7 @@ _Please choose the video quality_`
             headerType: 4,
 
           }
-          A17.sendMessage(from, buttonMessage, { quoted: m })
+          PelBot.sendMessage(from, buttonMessage, { quoted: m })
         } catch {
           reply("Link Error!")
         }
@@ -4845,7 +4845,7 @@ _Please choose the video quality_`
           headerType: 4,
 
         }
-        A17.sendMessage(from, buttonMessage, { quoted: m })
+        PelBot.sendMessage(from, buttonMessage, { quoted: m })
       }
         break;
 
@@ -4864,9 +4864,9 @@ _Please choose the video quality_`
           txt += `*Description:* ${data.description}\n`
           txt += `*URL :* ${text}\n\n`
           buf = await getBuffer(data.thumbnail)
-          A17.sendMessage(m.chat, { image: { url: data.thumbnail }, jpegThumbnail: buf, caption: `${txt}` }, { quoted: m })
+          PelBot.sendMessage(m.chat, { image: { url: data.thumbnail }, jpegThumbnail: buf, caption: `${txt}` }, { quoted: m })
           for (let i of data.result) {
-            A17.sendMessage(m.chat, { video: { url: i.url }, jpegThumbnail: buf, caption: `*Quality :* ${i.quality}` }, { quoted: m })
+            PelBot.sendMessage(m.chat, { video: { url: i.url }, jpegThumbnail: buf, caption: `*Quality :* ${i.quality}` }, { quoted: m })
           }
         }).catch((err) => {
           reply(mess.error)
@@ -4882,7 +4882,7 @@ _Please choose the video quality_`
         if (!isUrl(args[0]) && !args[0].includes('facebook.com')) return reply(`Invalid link!`)
         let noh = require('@bochilteam/scraper')
         noh.savefrom(`${text}`).then(async (anu) => {
-          A17.sendMessage(m.chat, { audio: { url: anu.url[0].url }, mimetype: 'audio/mp4' }, { quoted: m })
+          PelBot.sendMessage(m.chat, { audio: { url: anu.url[0].url }, mimetype: 'audio/mp4' }, { quoted: m })
         }).catch((err) => {
           reply(mess.error)
         })
@@ -4912,7 +4912,7 @@ _Click the button below to download_`
             headerType: 4,
 
           }
-          A17.sendMessage(from, buttonMessage, { quoted: m })
+          PelBot.sendMessage(from, buttonMessage, { quoted: m })
         } catch {
           reply("Link invalid!")
         }
@@ -4934,7 +4934,7 @@ _Click the button below to download_`
           headerType: 4,
 
         }
-        A17.sendMessage(from, buttonMessage, { quoted: m })
+        PelBot.sendMessage(from, buttonMessage, { quoted: m })
       }
         break;
 
@@ -4946,25 +4946,25 @@ _Click the button below to download_`
         if (!q) return reply('Please provide the link !')
         reply(mess.wait)
         if (!q.includes('tiktok')) return reply(`Invalid tiktok link!`)
-        const musim_rambutan = await A17Tiktok(`${q}`).catch(e => {
+        const musim_rambutan = await PelBotTiktok(`${q}`).catch(e => {
           reply(mess.error)
         })
         console.log(musim_rambutan)
-        const A17tiktokop = musim_rambutan.result.watermark
+        const PelBottiktokop = musim_rambutan.result.watermark
         texttk = `_Please choose the button below_`
         let buttons = [
           { buttonId: `${prefix}ttnowm ${q}`, buttonText: { displayText: 'Watermark Free' }, type: 1 },
           { buttonId: `${prefix}ttaud ${q}`, buttonText: { displayText: 'Audio ' }, type: 1 }
         ]
         let buttonMessage = {
-          video: { url: A17tiktokop },
+          video: { url: PelBottiktokop },
           caption: texttk,
           footer: `${BotName}`,
           buttons: buttons,
           headerType: 4,
 
         }
-        A17.sendMessage(from, buttonMessage, { quoted: m })
+        PelBot.sendMessage(from, buttonMessage, { quoted: m })
       }
         break;
 
@@ -4975,12 +4975,12 @@ _Click the button below to download_`
         if (!q) return reply('Please provide the link !')
         reply(mess.wait)
         if (!q.includes('tiktok')) return reply(`That's not a tiktok link!`)
-        const musim_rambutan = await A17Tiktok(`${q}`).catch(e => {
+        const musim_rambutan = await PelBotTiktok(`${q}`).catch(e => {
           reply(mess.error)
         })
         console.log(musim_rambutan)
-        const A17tiktoknowm = musim_rambutan.result.nowatermark
-        A17.sendMessage(from, { video: { url: A17tiktoknowm }, caption: "Here it is..." }, { quoted: m })
+        const PelBottiktoknowm = musim_rambutan.result.nowatermark
+        PelBot.sendMessage(from, { video: { url: PelBottiktoknowm }, caption: "Here it is..." }, { quoted: m })
       }
         break;
 
@@ -4992,12 +4992,12 @@ _Click the button below to download_`
         if (isBanChat) return reply(mess.bangc);
         if (!q) return reply('Where is the audio?')
         if (!q.includes('tiktok')) return reply(`That's not a tiktok link!`)
-        const musim_rambutan = await A17Tiktok(`${q}`).catch(e => {
+        const musim_rambutan = await PelBotTiktok(`${q}`).catch(e => {
           reply(mess.error)
         })
         console.log(musim_rambutan)
-        const A17tiktokaudio = musim_rambutan.result.nowatermark
-        A17.sendMessage(from, { audio: { url: A17tiktokaudio }, mimetype: 'audio/mp4' }, { quoted: m })
+        const PelBottiktokaudio = musim_rambutan.result.nowatermark
+        PelBot.sendMessage(from, { audio: { url: PelBottiktokaudio }, mimetype: 'audio/mp4' }, { quoted: m })
       }
         break;
 
@@ -5006,7 +5006,7 @@ _Click the button below to download_`
       case 'yts': case 'ytsearch': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "📍", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "📍", key: m.key } })
 
         if (!args.join(" ")) return reply(`Example : -yts Heat waves`)
         let yts = require("youtube-yts")
@@ -5016,7 +5016,7 @@ _Click the button below to download_`
         for (let i of search.all) {
           teks += `Result No : ${no++}\n\nTitle : ${i.title}\n\nViews : ${i.views}\n\nDuration : ${i.timestamp}\n\nUploaded : ${i.ago}\n\nAuthor : ${i.author.name}\n\nUrl : ${i.url}\n\n\n-----------------------------------------------------------------------------\n\n\n`
         }
-        A17.sendMessage(m.chat, { image: { url: search.all[0].thumbnail }, caption: teks }, { quoted: m })
+        PelBot.sendMessage(m.chat, { image: { url: search.all[0].thumbnail }, caption: teks }, { quoted: m })
       }
         break;
 
@@ -5026,11 +5026,11 @@ _Click the button below to download_`
       case 'music': case 'p': case 'play': case 'song': case 'ytplay': {
           if (isBan) return reply(mess.banned);	 			
        if (isBanChat) return reply(mess.bangc);
-       A17.sendMessage(from, { react: { text: "🍁" , key: m.key }}) 
+       PelBot.sendMessage(from, { react: { text: "🍁" , key: m.key }}) 
        const YT=require('./lib/ytdlcore')
        const { isUrl, fetchBuffer } = require('./lib/Function')
       
-       if(!text) return A17.sendMessage(from,{text:"Pls enter song name to play!"},{quoted:m})
+       if(!text) return PelBot.sendMessage(from,{text:"Pls enter song name to play!"},{quoted:m})
        let yts = require("@adiwajshing/keyed-db2")
        let search = await yts(text)
        let anu = search.videos[0]
@@ -5041,7 +5041,7 @@ _Click the button below to download_`
        ]
        let buttonMessage = {
        image: { url: anu.thumbnail },
-       caption: `「  A17 Youtube Player 2.0  」
+       caption: `「  PelBot Youtube Player 2.0  」
       
       ✨ *Title :* ${anu.title}
       
@@ -5060,7 +5060,7 @@ _Click the button below to download_`
        headerType: 4,
       
        }
-       A17.sendMessage(m.chat, buttonMessage, { quoted: m })
+       PelBot.sendMessage(m.chat, buttonMessage, { quoted: m })
        }
        break;
       
@@ -5071,14 +5071,14 @@ _Click the button below to download_`
       // case 'play': case 'song': case 'music': {
       //   if (isBan) return reply(mess.banned);	 			
       //   if (isBanChat) return reply(mess.bangc);
-      //   A17.sendMessage(from, { react: { text: "🍁" , key: m.key }}) 
+      //   PelBot.sendMessage(from, { react: { text: "🍁" , key: m.key }}) 
       //   const YT=require('./lib/ytdl-core')
       //   let yts = require("youtube-yts")
       //   let search = await yts(text)
       //   let anu = search.videos[0]
       //   const ytmp3play = await YT.mp3(anu.url)
 
-      // await A17.sendMessage(from, {audio: fs.readFileSync(ytmp3play.path),fileName: anu.title + '.mp3',mimetype: 'audio/mpeg',}, {quoted:m})
+      // await PelBot.sendMessage(from, {audio: fs.readFileSync(ytmp3play.path),fileName: anu.title + '.mp3',mimetype: 'audio/mpeg',}, {quoted:m})
       // }
       // break;
 
@@ -5088,7 +5088,7 @@ _Click the button below to download_`
       case 'music': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🍁", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } });
 
         const YT = require('./lib/ytdl-core');
         const yts = require('youtube-yts');
@@ -5101,7 +5101,7 @@ _Click the button below to download_`
         // Fetch the thumbnail URL from the 'anu' object
         let thumbnailUrl = anu.thumbnail;
 
-        await A17.sendMessage(
+        await PelBot.sendMessage(
           from,
           {
             image: { url: thumbnailUrl }, // Include the thumbnail image in the response
@@ -5122,7 +5122,7 @@ _Click the button below to download_`
         );
 
         // Send the audio file with the proper 'type' property set to 'audio'
-        await A17.sendMessage(from, {
+        await PelBot.sendMessage(from, {
           audio: fs.readFileSync(ytmp3play.path),
           filename: anu.title + '.mp3',
           mimetype: 'audio/mpeg',
@@ -5137,7 +5137,7 @@ _Click the button below to download_`
       case 'spotify': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🍁", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } });
 
         if (!q) return reply(`Please provide a query. Example: ${prefix + command} 295`);
 
@@ -5148,7 +5148,7 @@ _Click the button below to download_`
         let bname = bbuffer.spty.results.title
         let burl = bbuffer.spty.results.url;
 
-        await A17.sendMessage(from, {
+        await PelBot.sendMessage(from, {
           audio: { url: abuffer },
           ptt: true,
           filename: 'error.mp3',
@@ -5173,13 +5173,13 @@ _Click the button below to download_`
       case 'ytvd': case 'video': case 'ytvideo': case 'ytmp4': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🍃", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🍃", key: m.key } })
         const YT = require('./lib/ytdl-core')
         let yts = require("youtube-yts")
         let search = await yts(text)
         let anu = search.videos[0]
         const ytmp4play = await YT.mp4(anu.url)
-        A17.sendMessage(from, { video: { url: ytmp4play.videoUrl }, mimetype: "video/mp4", caption: anu.title + ' By *A17 MD*', }, { quoted: m })
+        PelBot.sendMessage(from, { video: { url: ytmp4play.videoUrl }, mimetype: "video/mp4", caption: anu.title + ' By *PelBot MD*', }, { quoted: m })
       }
 
         break;
@@ -5192,7 +5192,7 @@ _Click the button below to download_`
       if (!args[0]) return reply(mess.nolink)
       
       const YT=require('./lib/ytdlcore')
-      if(!text) return A17.sendMessage(from,{text:"Please provide a valid youtube link!"},{quoted:m})
+      if(!text) return PelBot.sendMessage(from,{text:"Please provide a valid youtube link!"},{quoted:m})
       let yts = require("@adiwajshing/keyed-db2")
       let search = await yts(text)
       let anu = search.videos[0]
@@ -5203,7 +5203,7 @@ _Click the button below to download_`
       ]
       let buttonMessage = {
       image: { url: anu.thumbnail },
-      caption: `「  A17 Youtube Downloader 2.0  」
+      caption: `「  PelBot Youtube Downloader 2.0  」
       
       ✨ *Title :* ${anu.title}
       
@@ -5217,7 +5217,7 @@ _Click the button below to download_`
       headerType: 4,
       
       }
-      A17.sendMessage(m.chat, buttonMessage, { quoted: m })
+      PelBot.sendMessage(m.chat, buttonMessage, { quoted: m })
       }
       break; 
       */
@@ -5226,12 +5226,12 @@ _Click the button below to download_`
       case 'ytmp3': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "⌛", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
         const YT = require('./lib/ytdl-core')
         const ytmp3play2 = await YT.mp3(text)
 
-        await A17.sendMessage(from, { document: fs.readFileSync(ytmp3play2.path), fileName: 'A17_YTmp3_Downloader.mp3', mimetype: 'audio/mpeg', }, { quoted: m })
+        await PelBot.sendMessage(from, { document: fs.readFileSync(ytmp3play2.path), fileName: 'PelBot_YTmp3_Downloader.mp3', mimetype: 'audio/mpeg', }, { quoted: m })
       }
         break;
 
@@ -5239,10 +5239,10 @@ _Click the button below to download_`
       case 'ytvd2': case 'ytmp4': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🍁", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } })
         const YT = require('./lib/ytdl-core')
         const ytmp4play2 = await YT.mp4(text)
-        A17.sendMessage(from, { video: { url: ytmp4play2.videoUrl }, mimetype: "video/mp4", caption: 'Downloaded by *A17 MD*', }, { quoted: m })
+        PelBot.sendMessage(from, { video: { url: ytmp4play2.videoUrl }, mimetype: "video/mp4", caption: 'Downloaded by *PelBot MD*', }, { quoted: m })
       }
         break;
 
@@ -5251,7 +5251,7 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "🍁", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } })
         if (!text) return reply(`Comand usage: ${prefix}lyrics Thunder`)
         reply(mess.waiting)
         const { lyrics, lyricsv2 } = require('@bochilteam/scraper')
@@ -5278,13 +5278,13 @@ _Click the button below to download_`
       // case 'couplepp': case 'cpp': case 'ppcouple': {
       // if (isBan) return reply(mess.banned);
       // if (isBanChat) return reply(mess.bangc);
-      // A17.sendMessage(from, { react: { text: "🙀" , key: m.key }});
+      // PelBot.sendMessage(from, { react: { text: "🙀" , key: m.key }});
 
       //        reply(mess.waiting)
       //        let anu = await fetchJson('https://raw.githubusercontent.com/iamriz7/kopel_/main/kopel.json')
       //        let random = anu[Math.floor(Math.random() * anu.length)]
-      //        A17.sendMessage(m.chat, { image: { url: random.male }, caption: `For him...` }, { quoted: m })
-      //        A17.sendMessage(m.chat, { image: { url: random.female }, caption: `For her...` }, { quoted: m })
+      //        PelBot.sendMessage(m.chat, { image: { url: random.male }, caption: `For him...` }, { quoted: m })
+      //        PelBot.sendMessage(m.chat, { image: { url: random.female }, caption: `For her...` }, { quoted: m })
       //    }
       // break;
 
@@ -5295,7 +5295,7 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
 
-        A17.sendMessage(from, { react: { text: "🙀", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🙀", key: m.key } });
         reply(mess.waiting);
 
         let anu = await fetchJson('https://raw.githubusercontent.com/iamriz7/kopel_/main/kopel.json');
@@ -5304,10 +5304,10 @@ _Click the button below to download_`
           let random = anu[Math.floor(Math.random() * anu.length)];
 
           // Sending the male picture
-          await A17.sendMessage(m.chat, { image: { url: random.male }, caption: `For him...` }, { quoted: m });
+          await PelBot.sendMessage(m.chat, { image: { url: random.male }, caption: `For him...` }, { quoted: m });
 
           // Sending the female picture
-          await A17.sendMessage(m.chat, { image: { url: random.female }, caption: `For her...` }, { quoted: m });
+          await PelBot.sendMessage(m.chat, { image: { url: random.female }, caption: `For her...` }, { quoted: m });
         }
       }
         break;
@@ -5317,7 +5317,7 @@ _Click the button below to download_`
       case 'coffee': case 'kopi': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         /*     let buttons = [
                      {buttonId: `${prefix}coffee`, buttonText: {displayText: '>>'}, type: 1}
@@ -5329,12 +5329,12 @@ _Click the button below to download_`
              buttons: buttons,
              headerType: 4  */
         }
-        A17.sendMessage(m.chat, buttonMessage, { quoted: m })
+        PelBot.sendMessage(m.chat, buttonMessage, { quoted: m })
       }
         break;
 
 
-      //old code of A17 button 
+      //old code of PelBot button 
 
       // case 'pinterest': case 'pin': {
       //   if (isBan) return reply(mess.banned);
@@ -5354,7 +5354,7 @@ _Click the button below to download_`
       // headerType: 4, */
 
       // }
-      // A17.sendMessage(m.chat, buttonMessage, { quoted: m })
+      // PelBot.sendMessage(m.chat, buttonMessage, { quoted: m })
       // }).catch(_ => _)
       // } catch {
       // reply("Error")
@@ -5373,7 +5373,7 @@ _Click the button below to download_`
       // let { pinterest } = require('./lib/scraper')
       // anutrest = await pinterest(text)
       // result = anutrest[Math.floor(Math.random() * anutrest.length)]
-      // A17.sendMessage(m.chat, { image: { url: result }, caption: '⭔ Media Url : '+result }, { quoted: m })
+      // PelBot.sendMessage(m.chat, { image: { url: result }, caption: '⭔ Media Url : '+result }, { quoted: m })
       // }
       // break;
 
@@ -5383,7 +5383,7 @@ _Click the button below to download_`
       case 'pin': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🐦", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🐦", key: m.key } });
 
         if (!args.join(" ")) return reply(`${pushname} Please provide a search term!`);
         reply(mess.waiting)
@@ -5399,7 +5399,7 @@ _Click the button below to download_`
 
         // Send each image without any caption
         for (let i = 0; i < results.length; i++) {
-          A17.sendMessage(m.chat, { image: { url: results[i] } }, { quoted: m });
+          PelBot.sendMessage(m.chat, { image: { url: results[i] } }, { quoted: m });
         }
       }
         break;
@@ -5409,7 +5409,7 @@ _Click the button below to download_`
       // case 'pin': {
       //   if (isBan) return reply(mess.banned);
       //   if (isBanChat) return reply(mess.bangc);
-      //   A17.sendMessage(from, { react: { text: "🐦", key: m.key } });
+      //   PelBot.sendMessage(from, { react: { text: "🐦", key: m.key } });
 
       //   if (!args.join(" ")) return reply(`${pushname} Please provide a search term!`);
       //   reply(mess.waiting);
@@ -5424,9 +5424,9 @@ _Click the button below to download_`
       //   }
 
       //   // Send each image with a common caption
-      //   const commonCaption = 'Check out this image from Pinterest By A17';
+      //   const commonCaption = 'Check out this image from Pinterest By PelBot';
       //   for (let i = 0; i < results.length; i++) {
-      //     A17.sendMessage(m.chat, { image: { url: results[i] }, caption: commonCaption }, { quoted: m });
+      //     PelBot.sendMessage(m.chat, { image: { url: results[i] }, caption: commonCaption }, { quoted: m });
       //   }
       // }
       // break;
@@ -5442,23 +5442,23 @@ _Click the button below to download_`
       case 'swm': case 'take': case 'stickerwm': case 'steal': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
-        if (!args.join(" ")) return reply(`Like use -take A17|By: Kai`)
+        if (!args.join(" ")) return reply(`Like use -take PelBot|By: Kai`)
         const swn = args.join(" ")
         const pcknm = swn.split("|")[0];
         const atnm = swn.split("|")[1];
         if (m.quoted.isAnimated === true) {
-          A17.downloadAndSaveMediaMessage(quoted, "gifee")
-          A17.sendMessage(from, { sticker: fs.readFileSync("gifee.webp") }, { quoted: m })
+          PelBot.downloadAndSaveMediaMessage(quoted, "gifee")
+          PelBot.sendMessage(from, { sticker: fs.readFileSync("gifee.webp") }, { quoted: m })
         } else if (/image/.test(mime)) {
           let media = await quoted.download()
-          let encmedia = await A17.sendImageAsSticker(m.chat, media, m, { packname: pcknm, author: atnm })
+          let encmedia = await PelBot.sendImageAsSticker(m.chat, media, m, { packname: pcknm, author: atnm })
           await fs.unlinkSync(encmedia)
         } else if (/video/.test(mime)) {
           if ((quoted.msg || quoted).seconds > 11) return reply('Maximum 10 seconds is allowed!')
           let media = await quoted.download()
-          let encmedia = await A17.sendVideoAsSticker(m.chat, media, m, { packname: pcknm, author: atnm })
+          let encmedia = await PelBot.sendVideoAsSticker(m.chat, media, m, { packname: pcknm, author: atnm })
           await fs.unlinkSync(encmedia)
         } else {
           reply(`Send Image/Video With Caption ${prefix + command}\nVideo Duration 1-9 seconds is allowed!`)
@@ -5470,17 +5470,17 @@ _Click the button below to download_`
       case 'smeme': case 'stickermeme': case 'stickmeme': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "⌛", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
         let { TelegraPh } = require('./lib/uploader')
         if (!text) return reply(`Send/reply Photo With Caption ${prefix + command} *text*`)
         if (text.includes('|')) return reply(`Send/reply Photo With Caption ${prefix + command} *text*`)
         if (!/image/.test(mime)) return reply(`Send/reply Photo With Caption ${prefix + command} *text*`)
         reply(mess.wait)
-        mee = await A17.downloadAndSaveMediaMessage(quoted)
+        mee = await PelBot.downloadAndSaveMediaMessage(quoted)
         mem = await TelegraPh(mee)
         meme = `https://api.memegen.link/images/custom/-/${text}.png?background=${mem}`
-        memek = await A17.sendImageAsSticker(m.chat, meme, m, { packname: global.packname, author: global.author })
+        memek = await PelBot.sendImageAsSticker(m.chat, meme, m, { packname: global.packname, author: global.author })
         await fs.unlinkSync(memek)
       }
         break;
@@ -5489,15 +5489,15 @@ _Click the button below to download_`
       case 'sgif': case 'sticker': case 's': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🌝", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🌝", key: m.key } })
         if (/image/.test(mime)) {
           let media = await quoted.download()
-          let encmedia = await A17.sendImageAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
+          let encmedia = await PelBot.sendImageAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
           await fs.unlinkSync(encmedia)
         } else if (/video/.test(mime)) {
           if ((quoted.msg || quoted).seconds > 11) return reply('Maximum 10 seconds!')
           let media = await quoted.download()
-          let encmedia = await A17.sendVideoAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
+          let encmedia = await PelBot.sendVideoAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
           await fs.unlinkSync(encmedia)
         } else {
           reply(`Send Image/Video With Caption ${prefix + command}\nVideo Duration 1-9 Seconds`)
@@ -5516,7 +5516,7 @@ _Click the button below to download_`
       //   if (isBan) return reply(mess.banned);
       //   if (isBanChat) return reply(mess.bangc);
       // if (!m.isGroup) return reply(`${mess.grouponly}`)
-      // A17.sendMessage(from, { react: { text: "🌝" , key: m.key }})
+      // PelBot.sendMessage(from, { react: { text: "🌝" , key: m.key }})
 
       // let member = participants.map(u => u.id)
       // let orang = member[Math.floor(Math.random() * member.length)]
@@ -5527,7 +5527,7 @@ _Click the button below to download_`
       // let buttons = [
       // { buttonId: '❤️', buttonText: { displayText: 'Congratulations ❤️' }, type: 1 }
       // ]
-      // await A17.sendButtonText(m.chat, buttons, jawab, A17.user.name, m, {mentions: menst})
+      // await PelBot.sendButtonText(m.chat, buttons, jawab, PelBot.user.name, m, {mentions: menst})
       // }
       // break;
 
@@ -5536,7 +5536,7 @@ _Click the button below to download_`
       //   if (isBan) return reply(mess.banned);
       //   if (isBanChat) return reply(mess.bangc);
       // if (!m.isGroup) return reply(`${mess.grouponly}`)
-      // A17.sendMessage(from, { react: { text: "🌝" , key: m.key }})
+      // PelBot.sendMessage(from, { react: { text: "🌝" , key: m.key }})
       // let member = participants.map(u => u.id)
       // let me = m.sender
       // let jodoh = member[Math.floor(Math.random() * member.length)]
@@ -5546,7 +5546,7 @@ _Click the button below to download_`
       // let buttons = [
       // { buttonId: '❤️', buttonText: { displayText: 'Be my Soulmate ❤️' }, type: 1 }
       // ]
-      // await A17.sendButtonText(m.chat, buttons, jawab, A17.user.name, m, {mentions: ments})
+      // await PelBot.sendButtonText(m.chat, buttons, jawab, PelBot.user.name, m, {mentions: ments})
       // }
       // break;
 
@@ -5556,14 +5556,14 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(`${mess.grouponly}`);
-        A17.sendMessage(from, { react: { text: "🌝", key: m.key } });
+        PelBot.sendMessage(from, { react: { text: "🌝", key: m.key } });
 
         let member = participants.map(u => u.id);
         let me = m.sender;
         let jodoh = member[Math.floor(Math.random() * member.length)];
 
         let message = `👫 Be me Soulmate...\n@${me.split('@')[0]} ❤️ @${jodoh.split('@')[0]}`;
-        A17.sendMessage(m.chat, { text: message, mentions: [me, jodoh] }, { quoted: m });
+        PelBot.sendMessage(m.chat, { text: message, mentions: [me, jodoh] }, { quoted: m });
       }
         break;
 
@@ -5571,23 +5571,23 @@ _Click the button below to download_`
       case 'handsomecheck':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "😺", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "😺", key: m.key } })
         if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Kai`)
         const gan = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']
         const teng = gan[Math.floor(Math.random() * gan.length)]
-        A17.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${teng}%*` }, { quoted: m })
+        PelBot.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${teng}%*` }, { quoted: m })
         break;
 
 
       case 'beautifulcheck':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "😺", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "😺", key: m.key } })
 
         if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Kai`)
         const can = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']
         const tik = can[Math.floor(Math.random() * can.length)]
-        A17.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${tik}%*` }, { quoted: m })
+        PelBot.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${tik}%*` }, { quoted: m })
         break;
 
 
@@ -5603,24 +5603,24 @@ _Click the button below to download_`
       case 'uglycheck':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "😺", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "😺", key: m.key } })
 
         if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Kai`)
         const sangeh = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']
         const sange = sangeh[Math.floor(Math.random() * sangeh.length)]
-        A17.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${sange}%*` }, { quoted: m })
+        PelBot.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${sange}%*` }, { quoted: m })
         break;
 
 
       case 'charactercheck':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🤧", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🤧", key: m.key } })
 
         if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Kai`)
-        const A17tttt = ['Compassionate', 'Generous', 'Grumpy', 'Forgiving', 'Obedient', 'Good', 'Simp', 'Kind-Hearted', 'patient', 'UwU', 'top, anyway', 'Helpful']
-        const taky = A17tttt[Math.floor(Math.random() * A17tttt.length)]
-        A17.sendMessage(from, { text: `Character Check : ${q}\nAnswer : *${taky}*` }, { quoted: m })
+        const PelBottttt = ['Compassionate', 'Generous', 'Grumpy', 'Forgiving', 'Obedient', 'Good', 'Simp', 'Kind-Hearted', 'patient', 'UwU', 'top, anyway', 'Helpful']
+        const taky = PelBottttt[Math.floor(Math.random() * PelBottttt.length)]
+        PelBot.sendMessage(from, { text: `Character Check : ${q}\nAnswer : *${taky}*` }, { quoted: m })
         break;
 
 
@@ -5628,7 +5628,7 @@ _Click the button below to download_`
       case 'dare':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🌝", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🌝", key: m.key } })
 
         const dare = [
           "eat 2 tablespoons of rice without any side dishes, if it's dragging you can drink",
@@ -5713,16 +5713,16 @@ _Click the button below to download_`
           "put your father name on status for 5hrs",
           "send abusive words in any grup, excepting this grup, and send screenshot proof here"
         ]
-        const A17dareww = dare[Math.floor(Math.random() * dare.length)]
+        const PelBotdareww = dare[Math.floor(Math.random() * dare.length)]
         buffer = await getBuffer(`https://images4.alphacoders.com/101/1016619.jpg`)
-        A17.sendMessage(from, { image: buffer, caption: '*You have chosen Dare...*\n\n' + A17dareww }, { quoted: m })
+        PelBot.sendMessage(from, { image: buffer, caption: '*You have chosen Dare...*\n\n' + PelBotdareww }, { quoted: m })
         break;
 
 
       case 'truth':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "🌝", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🌝", key: m.key } })
 
         const truth = [
           "Have you ever liked anyone? How long?",
@@ -5815,9 +5815,9 @@ _Click the button below to download_`
           "Whats the strangest dream you have ever had",
           "do you play pubg, if you then send ur id number"
         ]
-        const A17truthww = truth[Math.floor(Math.random() * truth.length)]
+        const PelBottruthww = truth[Math.floor(Math.random() * truth.length)]
         buffer = await getBuffer(`https://images2.alphacoders.com/650/650812.jpg`)
-        A17.sendMessage(from, { image: buffer, caption: '*You have chosen Truth...*\n' + A17truthww }, { quoted: m })
+        PelBot.sendMessage(from, { image: buffer, caption: '*You have chosen Truth...*\n' + PelBottruthww }, { quoted: m })
         break;
 
 
@@ -5827,12 +5827,12 @@ _Click the button below to download_`
 
 
 
-      case 'nsfwA17':
+      case 'nsfwPelBot':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         reply(mess.wait)
         nye = `http://api.lolhuman.xyz/api/gimage?apikey=${lolkey}&query=${command}`
-        A17.sendMessage(from, { image: { url: nye }, caption: "Master..." }, { quoted: m })
+        PelBot.sendMessage(from, { image: { url: nye }, caption: "Master..." }, { quoted: m })
         break;
 
       case 'mediafire': case 'mediafiredl': {
@@ -5849,7 +5849,7 @@ _Click the button below to download_`
 *Mime* : ${baby1[0].mime}
 *Link* : ${baby1[0].link}`
         reply(`${result4}`)
-        A17.sendMessage(m.chat, { document: { url: baby1[0].link }, fileName: baby1[0].nama, mimetype: baby1[0].mime }, { quoted: m }).catch((err) => reply(mess.error))
+        PelBot.sendMessage(m.chat, { document: { url: baby1[0].link }, fileName: baby1[0].nama, mimetype: baby1[0].mime }, { quoted: m }).catch((err) => reply(mess.error))
       }
         break;
 
@@ -5867,12 +5867,12 @@ _Click the button below to download_`
 
 
       // // buffer = `https://fantox-apis.vercel.app/${command}`
-      // // A17.sendMessage(from, {image:{url:buffer}, caption:"Here you go!"}, {quoted:m})
+      // // PelBot.sendMessage(from, {image:{url:buffer}, caption:"Here you go!"}, {quoted:m})
 
 
       // // // NoHorny = await fetchJson(`https://fantox-apis.vercel.app/${command}`)
       // // // YesHorny = await getBuffer(NoHorny.result)
-      // // // A17.sendMessage(from, {image:YesHorny},{quoted:m})
+      // // // PelBot.sendMessage(from, {image:YesHorny},{quoted:m})
       // // // } catch (e) {error("Error")}	
       // // break;
 
@@ -5885,7 +5885,7 @@ _Click the button below to download_`
       // spankd = await axios.get(`https://nekos.life/api/v2/img/spank`)                                   
       // let spbuff = await getBuffer(spankd.data.url)
       // let spgif = await GIFBufferToVideoBuffer(spbuff)   
-      //       await A17.sendMessage(m.chat,{video: spgif, gifPlayback:true},{ quoted:m }).catch(err => {
+      //       await PelBot.sendMessage(m.chat,{video: spgif, gifPlayback:true},{ quoted:m }).catch(err => {
       //                   return reply('Error!')
       //                                   })
       // break;
@@ -5900,7 +5900,7 @@ _Click the button below to download_`
       // bjd = await axios.get(`https://api.waifu.pics/nsfw/blowjob`)         
       // let bjf = await getBuffer(bjd.data.url)
       // let bjif = await GIFBufferToVideoBuffer(bjf)   
-      //       await A17.sendMessage(m.chat,{video: bjif, gifPlayback:true},{ quoted:m }).catch(err => {
+      //       await PelBot.sendMessage(m.chat,{video: bjif, gifPlayback:true},{ quoted:m }).catch(err => {
       //                   return reply('error..')
       //                                   })
       // break;
@@ -5914,7 +5914,7 @@ _Click the button below to download_`
       // reply(mess.waiting)
       // anu = await hentai()
       // result912 = anu[Math.floor(Math.random(), anu.length)]
-      // A17.sendMessage(m.chat, { video: { url: result912.video_1 }, caption: `Title : ${result912.title}\nCategory : ${result912.category}\n$Mimetype : ${result912.type}\nViews : ${result912.views_count}\nShares : ${result912.share_count}\nSource : ${result912.link}\nMedia Url : ${result912.video_1}` }, { quoted: m })
+      // PelBot.sendMessage(m.chat, { video: { url: result912.video_1 }, caption: `Title : ${result912.title}\nCategory : ${result912.category}\n$Mimetype : ${result912.type}\nViews : ${result912.views_count}\nShares : ${result912.share_count}\nSource : ${result912.link}\nMedia Url : ${result912.video_1}` }, { quoted: m })
       // }
       // break;
 
@@ -5935,7 +5935,7 @@ _Click the button below to download_`
       // /* buttons: trapbot,
       // headerType: 1 */
       // }     
-      //           await A17.sendMessage(m.chat, button2Messages, { quoted:m }).catch(err => {
+      //           await PelBot.sendMessage(m.chat, button2Messages, { quoted:m }).catch(err => {
       //                   return('Error!')
       //               })
       // break;
@@ -5958,7 +5958,7 @@ _Click the button below to download_`
       // /* buttons: hnekobot,
       // headerType: 1 */
       // }      
-      //           await A17.sendMessage(m.chat, button3Messages, { quoted:m }).catch(err => {
+      //           await PelBot.sendMessage(m.chat, button3Messages, { quoted:m }).catch(err => {
       //                   return('Error!')
       //               })
       // break;
@@ -5981,7 +5981,7 @@ _Click the button below to download_`
       // /* buttons: nwaifubot,
       // headerType: 1 */
       // }      
-      //           await A17.sendMessage(m.chat, button4Messages, { quoted:m }).catch(err => {
+      //           await PelBot.sendMessage(m.chat, button4Messages, { quoted:m }).catch(err => {
       //                   return('Error!')
       //               })
       // break;
@@ -6004,7 +6004,7 @@ _Click the button below to download_`
       //     buttons: wbuttsss,
       //     headerType: 4 */
       //     }     
-      //           await A17.sendMessage(m.chat, buttonsssMessages,{ quoted:m }).catch(err => {
+      //           await PelBot.sendMessage(m.chat, buttonsssMessages,{ quoted:m }).catch(err => {
       //                   return('Error!')
       //               })
       // break;  
@@ -6035,7 +6035,7 @@ _Click the button below to download_`
             buttons: wbuttsss,
             headerType: 4 */
         }
-        await A17.sendMessage(m.chat, button1ssMessages, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, button1ssMessages, { quoted: m }).catch(err => {
           return ('Error!')
         })
         break;
@@ -6045,7 +6045,7 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "✨", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
 
         reply(mess.waiting)
         waifudd = await axios.get(`https://nekos.life/api/v2/img/fox_girl`)
@@ -6060,7 +6060,7 @@ _Click the button below to download_`
           buttons: wbuttsss,
           headerType: 4 */
         }
-        await A17.sendMessage(m.chat, button12ssMessages, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, button12ssMessages, { quoted: m }).catch(err => {
           return ('Error!')
         })
         break;
@@ -6081,7 +6081,7 @@ _Click the button below to download_`
           /*  buttons: xxhnekobot,
           headerType: 1 */
         }
-        await A17.sendMessage(m.chat, xx1button3Messages, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, xx1button3Messages, { quoted: m }).catch(err => {
           return ('Error!')
         })
         break;
@@ -6103,7 +6103,7 @@ _Click the button below to download_`
              buttons: wbuttsss,
              headerType: 4 */
         }
-        await A17.sendMessage(m.chat, button112ssMessages, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, button112ssMessages, { quoted: m }).catch(err => {
           return ('Error!')
         })
         break;
@@ -6114,7 +6114,7 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "✨", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
 
         /*   const buttons = [
    {buttonId: '-crossplay', buttonText: {displayText: '>>'}, type: 1},
@@ -6128,7 +6128,7 @@ _Click the button below to download_`
            headerType: 4 */
         }
 
-        await A17.sendMessage(m.chat, cosplybutton, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, cosplybutton, { quoted: m }).catch(err => {
           return ('Error!')
         })
 
@@ -6152,7 +6152,7 @@ _Click the button below to download_`
           buttons: wbutsss,
           headerType: 4
         }
-        await A17.sendMessage(m.chat, buttonssMessage, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, buttonssMessage, { quoted: m }).catch(err => {
           return ('Error!')
         })
         break;
@@ -6176,7 +6176,7 @@ _Click the button below to download_`
           buttons: wbuttsss,
           headerType: 4
         }
-        await A17.sendMessage(m.chat, buttonssMessages, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, buttonssMessages, { quoted: m }).catch(err => {
           return ('Error!')
         })
         break;
@@ -6194,7 +6194,7 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "❤", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "❤", key: m.key } })
 
         var pat = await fetchJson(`https://api.waifu.pics/sfw/${command}`)
         try {
@@ -6221,7 +6221,7 @@ _Click the button below to download_`
           const response = await axios.get(pat.url, { responseType: 'arraybuffer' })
           const buffer = Buffer.from(response.data, "utf-8")
           var fetchedgif = await GIFBufferToVideoBuffer(buffer)
-          A17.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
+          PelBot.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
         } catch (error) {
           console.log(error);
         }
@@ -6259,7 +6259,7 @@ _Click the button below to download_`
           const response = await axios.get(pat.url, { responseType: 'arraybuffer' })
           const buffer = Buffer.from(response.data, "utf-8")
           var fetchedgif = await GIFBufferToVideoBuffer(buffer)
-          A17.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
+          PelBot.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
         } catch (error) {
           console.log(error);
         }
@@ -6297,7 +6297,7 @@ _Click the button below to download_`
           const response = await axios.get(pat.url, { responseType: 'arraybuffer' })
           const buffer = Buffer.from(response.data, "utf-8")
           var fetchedgif = await GIFBufferToVideoBuffer(buffer)
-          A17.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
+          PelBot.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
         } catch (error) {
           console.log(error);
         }
@@ -6335,7 +6335,7 @@ _Click the button below to download_`
           const response = await axios.get(pat.url, { responseType: 'arraybuffer' })
           const buffer = Buffer.from(response.data, "utf-8")
           var fetchedgif = await GIFBufferToVideoBuffer(buffer)
-          A17.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
+          PelBot.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
         } catch (error) {
           console.log(error);
         }
@@ -6377,7 +6377,7 @@ _Click the button below to download_`
           const response = await axios.get(pat.url, { responseType: 'arraybuffer' })
           const buffer = Buffer.from(response.data, "utf-8")
           var fetchedgif = await GIFBufferToVideoBuffer(buffer)
-          A17.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
+          PelBot.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
         } catch (error) {
           console.log(error);
         }
@@ -6418,7 +6418,7 @@ _Click the button below to download_`
           const response = await axios.get(pat.url, { responseType: 'arraybuffer' })
           const buffer = Buffer.from(response.data, "utf-8")
           var fetchedgif = await GIFBufferToVideoBuffer(buffer)
-          A17.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
+          PelBot.sendMessage(m.chat, { video: fetchedgif, gifPlayback: true, mentions: ment, caption: musers }, { quoted: m })
         } catch (error) {
           console.log(error);
         }
@@ -6439,7 +6439,7 @@ _Click the button below to download_`
       resggh = await axios.get(`https://nekos.life/api/v2/img/${command}`)         
       let resffj = await getBuffer(resggh.data.url)
       let resmain = await GIFBufferToVideoBuffer(resffj)   
-          await A17.sendMessage(m.chat,{video: resmain, gifPlayback:true},{ quoted:m }).catch(err => {
+          await PelBot.sendMessage(m.chat,{video: resmain, gifPlayback:true},{ quoted:m }).catch(err => {
                       return reply('error..')
                                       })
       break;
@@ -6463,7 +6463,7 @@ _Click the button below to download_`
                  buttons: wbutsss,
             headerType: 4 */
         }
-        await A17.sendMessage(m.chat, buttonzMessage, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, buttonzMessage, { quoted: m }).catch(err => {
           return ('Erreur!')
         })
         break;
@@ -6473,7 +6473,7 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "✨", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
 
         reply(mess.waiting)
         waifudd = await axios.get(`https://waifu.pics/api/sfw/awoo`)
@@ -6488,7 +6488,7 @@ _Click the button below to download_`
           headerType: 2 */
 
         }
-        await A17.sendMessage(m.chat, button1Messages, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, button1Messages, { quoted: m }).catch(err => {
           return ('Erreur !')
         })
         break;
@@ -6518,7 +6518,7 @@ _Click the button below to download_`
           buttons: walb,
           headerType: 4
         }
-        await A17.sendMessage(m.chat, wal, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, wal, { quoted: m }).catch(err => {
           return ('Error!')
         })
         break;
@@ -6568,7 +6568,7 @@ _Click the button below to download_`
       //     /\[Written by MAL Rewrite]/g,
       //     ""
       //   )}`
-      // A17.sendMessage(m.chat,{image:{url:result.images.jpg.large_image_url},caption:details},{quoted:m})   
+      // PelBot.sendMessage(m.chat,{image:{url:result.images.jpg.large_image_url},caption:details},{quoted:m})   
       // break;
 
 
@@ -6577,7 +6577,7 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned); // Vous êtes banni d'utiliser des commandes!
         if (isBanChat) return reply(mess.bangc); // Ce groupe est banni d'utiliser des commandes!
         if (!m.isGroup) return reply(mess.grouponly); // Cette commande est uniquement destinée aux groupes, Baka!
-        A17.sendMessage(from, { react: { text: "🍁", key: m.key } }); // Envoyer une réaction de feuille d'érable
+        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } }); // Envoyer une réaction de feuille d'érable
     
         if (!text) return reply(`Veuillez fournir un terme de recherche!\n\n*Exemple:* ${prefix}anime naruto`); // Veuillez fournir un terme de recherche
     
@@ -6603,7 +6603,7 @@ _Click the button below to download_`
 🌐 *URL: ${anime.url}*
 ❄ *Description:* ${anime.synopsis}*`;
     
-        await A17.sendMessage(m.chat, { image: { url: anime.picture }, caption: animetxt }, { quoted: m }); // Envoyer les informations sur l'anime avec l'image associée
+        await PelBot.sendMessage(m.chat, { image: { url: anime.picture }, caption: animetxt }, { quoted: m }); // Envoyer les informations sur l'anime avec l'image associée
     }
     break;
     
@@ -6612,7 +6612,7 @@ _Click the button below to download_`
           if (isBan) return reply(mess.banned); // Vous êtes banni d'utiliser des commandes!
           if (isBanChat) return reply(mess.bangc); // Ce groupe est banni d'utiliser des commandes!
           if (!m.isGroup) return reply(mess.grouponly); // Cette commande est uniquement destinée aux groupes, Baka!
-          A17.sendMessage(from, { react: { text: "🍁", key: m.key } });
+          PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } });
       
           reply(mess.waiting); // Juste un moment...
           const { Manga } = require("@shineiichijo/marika");
@@ -6642,7 +6642,7 @@ _Click the button below to download_`
               /\[Ecris par MAL Rewrite]/g,
               ""
           )}`;
-          A17.sendMessage(m.chat, { image: { url: srh.data[0].images.jpg.large_image_url }, caption: mang }, { quoted: m });
+          PelBot.sendMessage(m.chat, { image: { url: srh.data[0].images.jpg.large_image_url }, caption: mang }, { quoted: m });
           break;
       
 
@@ -6663,7 +6663,7 @@ _Click the button below to download_`
           headerType: 4 */
         }
 
-        await A17.sendMessage(m.chat, button4Messagess, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, button4Messagess, { quoted: m }).catch(err => {
           return ('erreur..')
         })
         break;
@@ -6685,7 +6685,7 @@ _Click the button below to download_`
               headerType: 2  */
         }
 
-        await A17.sendMessage(m.chat, buttonMessagessf, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, buttonMessagessf, { quoted: m }).catch(err => {
           return ('erreur..')
         })
         break;
@@ -6707,7 +6707,7 @@ _Click the button below to download_`
             headerType: 2 */
         }
 
-        await A17.sendMessage(m.chat, buttonMessagessfgr, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, buttonMessagessfgr, { quoted: m }).catch(err => {
           return ('erreur..')
         })
         break;
@@ -6724,7 +6724,7 @@ _Click the button below to download_`
       //   if (!isBotAdmins) return reply(mess.botadmin);
       //   if (!isAdmins && !isCreator) return reply(mess.useradmin)
       //   let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-      //   await A17.groupParticipantsUpdate(m.chat, [users], 'remove')
+      //   await PelBot.groupParticipantsUpdate(m.chat, [users], 'remove')
       // }
       //   break;
 
@@ -6755,7 +6755,7 @@ _Click the button below to download_`
             }
           }]
           let txt = `「 *${global.OwnerName}'s Broadcast* 」\n\n${text}`
-          A17.send5ButImg(yoi, txt, `${global.BotName}`, BotLogo, btn, Thumb)
+          PelBot.send5ButImg(yoi, txt, `${global.BotName}`, BotLogo, btn, Thumb)
         }
         reply('Diffusion envoyée !')
       }
@@ -6767,10 +6767,10 @@ _Click the button below to download_`
       case 'help': case 'h': case 'menu': case 'allmenu': case 'listmenu': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "✨", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
         const helpmenu = `Hemlo *${pushname}* Dear...!! ${nowtime} ,
   
-Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that is possible on WhatsApp based on WhatsApp Multi Device(MD) Support.
+Hemlo, I am "PelBot" a WhatsApp bot create and recode by Kai to do everything that is possible on WhatsApp based on WhatsApp Multi Device(MD) Support.
 
 
   ⌯    *Time* : ${kaitime}
@@ -7087,13 +7087,13 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
   ┬│▸
   ╰────────────···▸`
         let buttonMessage = {
-          video: fs.readFileSync('./system/A17_3.mp4'), gifPlayback: true,
+          video: fs.readFileSync('./system/PelBot_3.mp4'), gifPlayback: true,
           caption: helpmenu,
 
           headerType: 4
 
         }
-        A17.sendMessage(m.chat, buttonMessage, { quoted: m })
+        PelBot.sendMessage(m.chat, buttonMessage, { quoted: m })
       }
         break;
 
@@ -7102,7 +7102,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
         if (isCmd) {
           if (isBan) return reply(mess.banned);
           if (isBanChat) return reply(mess.bangc);
-          A17.sendMessage(from, { react: { text: "✨", key: m.key } })
+          PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
 
           reply(`Tu as besoin d'aide ${pushname} ? Ecris *${prefix}help* pour avoir la liste de mes commandes.`)
         }
@@ -7114,7 +7114,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
         if (isCmd) {
           if (isBan) return reply(mess.banned);
           if (isBanChat) return reply(mess.bangc);
-          A17.sendMessage(from, { react: { text: "✨", key: m.key } })
+          PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
 
           reply(`Tu as besoin d'aide ${pushname} ? Ecris *${prefix}help* pour avoir la liste de mes commandes.`)
         }
@@ -7127,7 +7127,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
         if (isCmd) {
           if (isBan) return reply(mess.banned);
           if (isBanChat) return reply(mess.bangc);
-          A17.sendMessage(from, { react: { text: "✨", key: m.key } })
+          PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
 
           reply(`Tu as besoin d'aide ${pushname} ? Ecris *${prefix}help* pour avoir la liste de mes commandes.`)
         }
@@ -7140,10 +7140,10 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "🍁", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } })
 
         reply(`Running repl....Please wait until repl.it responds...`)
-        var replqr = await getBuffer(`https://a17-qr-scanner.broken0007.repl.co/`)
+        var replqr = await getBuffer(`https://PelBot-qr-scanner.broken0007.repl.co/`)
         /*        var qrbutton = [
 {buttonId: `${prefix}qr`, buttonText: {displayText: `Tap to Re-run Repl`}, type: 1}
 ] */
@@ -7154,7 +7154,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
               buttons: qrbutton,
               headerType: 4 */
         }
-        await A17.sendMessage(m.chat, bmffg, { quoted: m }).catch(err => {
+        await PelBot.sendMessage(m.chat, bmffg, { quoted: m }).catch(err => {
           return ('Error!')
         })
         break;
@@ -7164,12 +7164,12 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
       case 'weather':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "✨", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
         if (!args[0]) return reply("Enter your location to search weather.")
         myweather = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${args.join(" ")}&units=metric&appid=e409825a497a0c894d2dd975542234b0&language=tr`)
 
         const weathertext = `           🌤 *Weather Report* 🌤  \n\n🔎 *Search Location:* ${myweather.data.name}\n*💮 Country:* ${myweather.data.sys.country}\n🌈 *Weather:* ${myweather.data.weather[0].description}\n🌡️ *Temperature:* ${myweather.data.main.temp}°C\n❄️ *Minimum Temperature:* ${myweather.data.main.temp_min}°C\n📛 *Maximum Temperature:* ${myweather.data.main.temp_max}°C\n💦 *Humidity:* ${myweather.data.main.humidity}%\n🎐 *Wind:* ${myweather.data.wind.speed} km/h\n`
-        A17.sendMessage(from, { video: { url: 'https://media.tenor.com/bC57J4v11UcAAAPo/weather-sunny.mp4' }, gifPlayback: true, caption: weathertext }, { quoted: m })
+        PelBot.sendMessage(from, { video: { url: 'https://media.tenor.com/bC57J4v11UcAAAPo/weather-sunny.mp4' }, gifPlayback: true, caption: weathertext }, { quoted: m })
 
         break;
 
@@ -7192,7 +7192,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
       //               textw += `*Longitude:-* ${wdata.data.coord.lon}\n`
       //               textw += `*Country:-* ${wdata.data.sys.country}\n`
 
-      //             A17.sendMessage(
+      //             PelBot.sendMessage(
       //                   m.chat, {
       //                       text: textw,
       //                   }, {
@@ -7219,8 +7219,8 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
       case 'waifucheck':
         cantik = body.slice(1)
         const okebnh1 = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']
-        const A17kak = okebnh1[Math.floor(Math.random() * okebnh1.length)]
-        A17.sendMessage(m.chat, { text: A17kak }, { quoted: m })
+        const PelBotkak = okebnh1[Math.floor(Math.random() * okebnh1.length)]
+        PelBot.sendMessage(m.chat, { text: PelBotkak }, { quoted: m })
         break;
 
 
@@ -7235,7 +7235,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
         if (isCmd) {
           if (isBan) return reply(mess.banned);
           if (isBanChat) return reply(mess.bangc);
-          A17.sendMessage(from, { react: { text: "❌", key: m.key } })
+          PelBot.sendMessage(from, { react: { text: "❌", key: m.key } })
           reply(`Hey *${pushname}* senpai! this command are not programmed! Type *${prefix}help* to get my full command list!`)
 
         }
@@ -7254,7 +7254,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
           try {
             reply(util.format(eval(`(async () => { ${budy.slice(3)} })()`)))
           } catch (e) {
-            A17.sendMessage(from, { image: ErrorPic, caption: String(e) }, { quoted: m })
+            PelBot.sendMessage(from, { image: ErrorPic, caption: String(e) }, { quoted: m })
           }
         }
         if (budy.startsWith('>')) {
@@ -7264,7 +7264,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
             if (typeof evaled !== 'string') evaled = require('util').inspect(evaled)
             await reply(evaled)
           } catch (err) {
-            await A17.sendMessage(from, { image: ErrorPic, caption: String(err) }, { quoted: m })
+            await PelBot.sendMessage(from, { image: ErrorPic, caption: String(err) }, { quoted: m })
           }
         }
 
@@ -7272,7 +7272,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
         if (budy.startsWith('$')) {
           if (!isCreator) return reply(mess.botowner)
           exec(budy.slice(2), (err, stdout) => {
-            if (err) return A17.sendMessage(from, { image: ErrorPic, caption: String(err) }, { quoted: m })
+            if (err) return PelBot.sendMessage(from, { image: ErrorPic, caption: String(err) }, { quoted: m })
             if (stdout) return replyH(stdout)
           })
         }
@@ -7283,11 +7283,11 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
           if (m.isBaileys) return
           let msgs = global.db.database
           if (!(budy.toLowerCase() in msgs)) return
-          A17.copyNForward(m.chat, msgs[budy.toLowerCase()], true)
+          PelBot.copyNForward(m.chat, msgs[budy.toLowerCase()], true)
         }
     }
   } catch (err) {
-    A17.sendMessage(`${ownertag}@s.whatsapp.net`, util.format(err), { quoted: m })
+    PelBot.sendMessage(`${ownertag}@s.whatsapp.net`, util.format(err), { quoted: m })
     console.log(err)
     let e = String(err)
     if (e.includes("not-authorized")) return

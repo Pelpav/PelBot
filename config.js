@@ -44,7 +44,7 @@ global.openAiAPI = "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";
 global.location = "Bamako City, Mali";
 global.reactmoji = "❤️";
 global.themeemoji = "💖";
-global.vidmenu = { url: 'https://media.tenor.com/Jdu0Ov8X2sIAAAAC/A17-Bot.mp4' };
+global.vidmenu = { url: 'https://media.tenor.com/Jdu0Ov8X2sIAAAAC/PelBot-Bot.mp4' };
 global.websitex = "https://github.com/Pelpav";
 global.lolhuman = "KaysaS";
 
