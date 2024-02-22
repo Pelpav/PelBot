@@ -717,43 +717,6 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
     switch (command) {
 
 
-      //
-      case 'sc': case 'script': case 'sourcecode': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "❤", key: m.key } })
-
-        let { data } = await axios.get('https://api.github.com/repos/Kai0071/A17');
-        teks = `*A17 Script*\n\n*Total Stars*: ${data.stargazers_count}⭐\n*Total Forks*: ${data.forks_count} forks\n*GitHub*: https://github.com/Kai0071/A17\n\nDont forget to follow me on *GitHub* and give a ⭐️ to my projects. `
-        /*  let buttons = [
-          {buttonId: `${prefix}owner`, buttonText: {displayText: '🍁 DEVELOPER 🍁'}, type: 1}
-          ] */
-        let buttonMessage = {
-          image: Thumb,
-          jpegThumbnail: BotLogo,
-          caption: teks,
-          /* footer: `${BotName}`,
-           buttons: buttons,
-           headerType: 4, */
-          contextInfo: {
-            externalAdreply: {
-              title: "Powered by Kai",
-              body: " ",
-              thumbnail: fs.readFileSync("Assets/pic2.jpg"),
-              mediaType: 1,
-              //mediaUrl: 'https://wallpapercave.com/wp/wp10524580.jpg',
-              //sourceUrl: "https://wallpapercave.com/wp/wp10524580.jpg"
-              mediaUrl: 'github.com/Kai0071/A17',
-              sourceUrl: "github.com/Kai0071/A17"
-            }
-          }
-
-        }
-        A17.sendMessage(m.chat, buttonMessage, { quoted: m })
-      }
-        break;
-
-
 
       case 'qt': {
         if (!args[0] && !m.quoted) {
@@ -806,7 +769,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           });
         } catch (error) {
           console.error(error);
-          m.reply("Error generating quote!");
+          m.reply("Erreur lors de la génération de citation !");
         }
         break;
       }
@@ -818,7 +781,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
 
         A17.sendMessage(from, { react: { text: "💫", key: m.key } })
-        reply(`⚙ *My developer's group:* non disponible`)
+        reply(`⚙ *My developer's group:* https://chat.whatsapp.com/IovTetsUXOUHkBY1eKSO3Kl`)
       }
         break;
 
@@ -828,119 +791,118 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
 
         A17.sendMessage(from, { react: { text: "💫", key: m.key } })
-        reply(`⚙ My Source Code is </> - non disponible`)
+        reply(`⚙ Mon code source est </> - non disponible`)
       }
         break;
 
 
-      case 'owner': case 'creator': case 'mod': case 'mods': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-
-        A17.sendMessage(from, { react: { text: "💫", key: m.key } })
-        A17.sendContact(m.chat, global.Owner, m)
-      }
-        break;
-
-      case 'addmod':
-      case 'addowner':
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
-
-        if (!args[0]) return reply(`Use ${prefix + command} number\nExample ${prefix + command} ${OwnerNumber}`)
-        bnnd = q.split("|")[0].replace(/[^0-9]/g, '')
-        let ceknye = await A17.onWhatsApp(bnnd)
-        if (ceknye.length == 0) return reply(`Enter A Valid And Registered Number On WhatsApp!!!`)
-        Owner.push(bnnd)
-        fs.writeFileSync('./database/mod.json', JSON.stringify(Owner))
-        reply(`Number ${bnnd} Has Become An Owner!!!`)
-        break;
-
-
-      case 'delowner':
-      case 'delmod':
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
-
-        if (!args[0]) return reply(`Use ${prefix + command} nomor\nExample ${prefix + command} 916297175943`)
-        ya = q.split("|")[0].replace(/[^0-9]/g, '')
-        unp = Owner.indexOf(ya)
-        Owner.splice(unp, 1)
-        fs.writeFileSync('./database/mod.json', JSON.stringify(Owner))
-        reply(`The Numbrr ${ya} Has been deleted from owner list by the owner!!!`)
-        break;
-
-
-      case 'modlist':
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!isCreator) return reply(mess.botowner);
-        A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
-
-        try {
-          const modData = fs.readFileSync('./database/mod.json', 'utf8');
-          const mods = JSON.parse(modData);
-
-          if (mods.length === 0) {
-            reply('There are no mods in the list.');
-          } else {
-            let modList = '';
-
-            mods.forEach((mod, index) => {
-              modList += `(${index + 1}) ${A17.getName(mod)}\n`;
-            });
-
-            reply(`List of List of Moderators:\n\n${modList}`);
-          }
-        } catch (error) {
-          console.error(error);
-          reply('Failed to fetch mod list.');
-        }
-        break;
+        case 'owner':
+          case 'creator':
+          case 'mod':
+          case 'mods':
+            if (isBan) return reply(mess.banned);
+            if (isBanChat) return reply(mess.bangc);
+          
+            A17.sendMessage(from, { react: { text: "💫", key: m.key } })
+            A17.sendContact(m.chat, global.Owner, m)
+          break;
+          
+          case 'addmod':
+          case 'addowner':
+            if (isBan) return reply(mess.banned);
+            if (isBanChat) return reply(mess.bangc);
+            if (!isCreator) return reply(mess.botowner)
+            A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+          
+            if (!args[0]) return reply(`Utilisez ${prefix + command} numéro\nExemple ${prefix + command} ${OwnerNumber}`)
+            bnnd = q.split("|")[0].replace(/[^0-9]/g, '')
+            let ceknye = await A17.onWhatsApp(bnnd)
+            if (ceknye.length == 0) return reply(`Entrez un numéro valide et enregistré sur WhatsApp !!!`)
+            Owner.push(bnnd)
+            fs.writeFileSync('./database/mod.json', JSON.stringify(Owner))
+            reply(`Le numéro ${bnnd} est devenu un propriétaire !!!`)
+          break;
+          
+          case 'delowner':
+          case 'delmod':
+            if (isBan) return reply(mess.banned);
+            if (isBanChat) return reply(mess.bangc);
+            if (!isCreator) return reply(mess.botowner)
+            A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+          
+            if (!args[0]) return reply(`Utilisez ${prefix + command} numéro\nExemple ${prefix + command} 916297175943`)
+            ya = q.split("|")[0].replace(/[^0-9]/g, '')
+            unp = Owner.indexOf(ya)
+            Owner.splice(unp, 1)
+            fs.writeFileSync('./database/mod.json', JSON.stringify(Owner))
+            reply(`Le numéro ${ya} a été supprimé de la liste des propriétaires par le propriétaire !!!`)
+          break;
+          
 
 
-      case 'setbotpp': {
-
-        if (!isCreator) return reply(mess.owner)
-        if (isBanChat) return reply(mess.bangc);
-        if (!isCreator) return reply(mess.owner)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
-
-        if (!quoted) return `*Send/reply Image With Caption* ${prefix + command}`
-        if (!/image/.test(mime)) return `*Send/reply Image With Caption* ${prefix + command}`
-        if (/webp/.test(mime)) return `*Send/reply Image With Caption* ${prefix + command}`
-        let media = await A17.downloadAndSaveMediaMessage(quoted)
-        await A17.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media))
-        m.reply(mess.jobdone)
-      }
-        break;
-
-
-      //
-      case 'changeprefix':
-      case 'setprefix':
-
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
-
-        if (args.length !== 1) {
-          return m.reply(`Please provide a single character as the new prefix.`);
-        } else {
-          const newPrefix = args[0];
+        case 'modlist':
+          if (isBan) return reply(mess.banned);
+          if (isBanChat) return reply(mess.bangc);
+          if (!isCreator) return reply(mess.botowner);
+          A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+        
           try {
-            global.prefa = [newPrefix];
-            return m.reply(`${pushname} Successfully changed Prefix to "${newPrefix}"`);
+            const modData = fs.readFileSync('./database/mod.json', 'utf8');
+            const mods = JSON.parse(modData);
+        
+            if (mods.length === 0) {
+              reply('Il n\'y a aucun modérateur dans la liste.');
+            } else {
+              let modList = '';
+        
+              mods.forEach((mod, index) => {
+                modList += `(${index + 1}) ${A17.getName(mod)}\n`;
+              });
+        
+              reply(`Liste des modérateurs :\n\n${modList}`);
+            }
           } catch (error) {
-            console.error('Error changing prefix:', error);
-            return m.reply(`An error occurred while changing the prefix. Please try again later.`);
+            console.error(error);
+            reply('Impossible de récupérer la liste des modérateurs.');
           }
+          break;
+        
+        case 'setbotpp': {
+          if (!isCreator) return reply(mess.owner)
+          if (isBanChat) return reply(mess.bangc);
+          if (!isCreator) return reply(mess.owner)
+          A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        
+          if (!quoted) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
+          if (!/image/.test(mime)) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
+          if (/webp/.test(mime)) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
+          let media = await A17.downloadAndSaveMediaMessage(quoted)
+          await A17.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media))
+          m.reply(mess.jobdone)
         }
+        break;
+        
+        case 'changeprefix':
+        case 'setprefix':
+          if (isBan) return reply(mess.banned);
+          if (isBanChat) return reply(mess.bangc);
+          if (!isCreator) return reply(mess.botowner)
+          A17.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+        
+          if (args.length !== 1) {
+            return m.reply(`Veuillez fournir un seul caractère comme nouveau préfixe.`);
+          } else {
+            const newPrefix = args[0];
+            try {
+              global.prefa = [newPrefix];
+              return m.reply(`${pushname} Préfixe changé avec succès en "${newPrefix}"`);
+            } catch (error) {
+              console.error('Erreur lors du changement de préfixe:', error);
+              return m.reply(`Une erreur s'est produite lors du changement du préfixe. Veuillez réessayer plus tard.`);
+            }
+          }
+        break;
+        
 
 
       //
@@ -950,7 +912,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
         await A17.sendMessage(from, { text: mess.waiting });
         await A17.sendMessage(from, { react: { text: "✅", key: m.key } });
-        await A17.sendMessage(from, { text: 'Restarting Success!' });
+        await A17.sendMessage(from, { text: 'Redémarrage réussi !' });
 
         // Delay the shutdown by 5 seconds using sleep function
         //await sleep(5000);
@@ -959,7 +921,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         pm2.restart('index', (err) => {
           if (err) {
             A17.sendMessage(from, { react: { text: "❌", key: m.key } });
-            A17.sendMessage(from, { text: 'Restarting Failed!' });
+            A17.sendMessage(from, { text: 'Redémarrage Echoué !' });
           } else {
             return;
           }
@@ -973,39 +935,36 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.owner)
         await A17.sendMessage(from, { react: { text: "⚠️", key: m.key } })
-
-        reply(`Okey bye time to sleep!`)
+      
+        reply(`D'accord, je m'endors !`)
         await sleep(5000)
         process.exit()
         break;
-
-
+      
       case 'public': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.owner)
         A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
-
+      
         A17.public = true
-        reply('I am now Publicly accessable!')
+        reply('Je suis maintenant accessible au public !')
         A17.setStatus(`Mode : Public`)
       }
-        break;
-
-
+      break;
+      
       case 'self': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
-
+      
         A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
         A17.public = false
-        reply('Only Owner can use me now!')
-        A17.setStatus(`Mode : Self`)
+        reply('Seul le propriétaire peut m\'utiliser maintenant !')
+        A17.setStatus(`Mode : Privé`)
       }
-        break;
-
-
+      break;
+      
       case 'autoreadgc':
       case 'auto-read-gc':
       case 'readgc':
@@ -1013,188 +972,181 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner);
         A17.sendMessage(from, { react: { text: '❤', key: m.key } });
-
+      
         if (args.length === 0) {
-          // Display the current status of autoreadgc
-          return m.reply(`Auto-Read-GC is currently ${global.autoreadgc ? 'enabled' : 'disabled'}.`);
+          // Affiche l'état actuel de autoreadgc
+          return m.reply(`Auto-lecture des groupes est actuellement ${global.autoreadgc ? 'activée' : 'désactivée'}.`);
         } else if (args.length === 1 && (args[0] === 'on' || args[0] === 'off')) {
           const status = args[0];
           if (status === 'on') {
             global.autoreadgc = true;
-            return m.reply('Auto-Read-GC is now enabled.');
+            return m.reply('Auto-lecture des groupes est maintenant activée.');
           } else {
             global.autoreadgc = false;
-            return m.reply('Auto-Read-GC is now disabled.');
+            return m.reply('Auto-lecture des groupes est maintenant désactivée.');
           }
         } else {
-          return m.reply(`Usage: ${global.prefa[0]}autoreadgc [on/off]`);
+          return m.reply(`Utilisation: ${global.prefa[0]}autoreadgc [on/off]`);
         }
         break;
-
-
+      
       case 'autotyping':
       case 'auto-typing':
-
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
         A17.sendMessage(from, { react: { text: '❤', key: m.key } });
-
+      
         if (args.length === 0) {
           if (global.autoTyping) {
-            return m.reply(`Auto typing in group chats is currently *enabled*.\n\nTo disable, use \`${global.prefa[0]}autotyping off\`.`);
+            return m.reply(`L'autotypage dans les chats de groupe est actuellement *activé*.\n\nPour désactiver, utilisez \`${global.prefa[0]}autotyping off\`.`);
           } else {
-            return m.reply(`Auto typing in group chats is currently *disabled*.\n\nTo enable, use \`${global.prefa[0]}autotyping on\`.`);
+            return m.reply(`L'autotypage dans les chats de groupe est actuellement *désactivé*.\n\nPour activer, utilisez \`${global.prefa[0]}autotyping on\`.`);
           }
         } else if (args.length === 1 && (args[0] === 'on' || args[0] === 'off')) {
           const status = args[0];
           if (status === 'on') {
             global.autoTyping = true;
-            return m.reply(`Auto typing in group chats is now *enabled*.`);
+            return m.reply(`L'autotypage dans les chats de groupe est maintenant *activé*.`);
           } else {
             global.autoTyping = false;
-            return m.reply(`Auto typing in group chats is now *disabled*.`);
+            return m.reply(`L'autotypage dans les chats de groupe est maintenant *désactivé*.`);
           }
         } else {
-          return m.reply(`Usage: \`${global.prefa[0]}autotyping [on/off]\``);
+          return m.reply(`Utilisation: \`${global.prefa[0]}autotyping [on/off]\``);
         }
         break;
-
-
+      
       case 'autorecord':
       case 'auto-recording':
-
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
         A17.sendMessage(from, { react: { text: '❤', key: m.key } });
-
+      
         if (args.length === 0) {
           if (global.autoRecord) {
-            return m.reply(`Auto recording is currently *enabled*.\n\nTo disable, use \`${global.prefa[0]}autorecord off\`.`);
+            return m.reply(`L'enregistrement automatique est actuellement *activé*.\n\nPour désactiver, utilisez \`${global.prefa[0]}autorecord off\`.`);
           } else {
-            return m.reply(`Auto recording is currently *disabled*.\n\nTo enable, use \`${global.prefa[0]}autorecord on\`.`);
+            return m.reply(`L'enregistrement automatique est actuellement *désactivé*.\n\nPour activer, utilisez \`${global.prefa[0]}autorecord on\`.`);
           }
         } else if (args.length === 1 && (args[0] === 'on' || args[0] === 'off')) {
           const status = args[0];
           if (status === 'on') {
             global.autoRecord = true;
-            return m.reply(`Auto recording is now *enabled*.`);
+            return m.reply(`L'enregistrement automatique est maintenant *activé*.`);
           } else {
             global.autoRecord = false;
-            return m.reply(`Auto recording is now *disabled*.`);
+            return m.reply(`L'enregistrement automatique est maintenant *désactivé*.`);
           }
         } else {
-          return m.reply(`Usage: \`${global.prefa[0]}autorecord [on/off]\``);
+          return m.reply(`Utilisation: \`${global.prefa[0]}autorecord [on/off]\``);
         }
         break;
+      
 
 
-      //Hosted platfrom info
-      case 'server':
-      case 'sysinfo': {
-        const used = process.memoryUsage();
-        const cpu = os.cpus()[0];
-        const totalCpuUsage = (100 * (cpu.times.user + cpu.times.nice + cpu.times.sys + cpu.times.irq) / cpu.times.idle).toFixed(2);
-        const systemName = os.platform() + ' ' + os.release();
-
-        const respon = `
-  🤖 *A17's Server Info* 🤖
-  
-  *System*: ${systemName}
-  
-  *RAM*: ${formatp(os.totalmem() - os.freemem())} / ${formatp(os.totalmem())}
-  
-  *NodeJS Memory Usage*: ${Object.keys(used).map(key => `${key}: ${formatp(used[key])}`).join(', ')}
-  
-  *Total CPU Usage*: ${totalCpuUsage}%
-  
-  *CPU Model*: ${cpu.model.trim()} (${cpu.speed} MHz)
-  
-  *Runtime*: ${runtime(process.uptime())}
-  
-  *Response Speed*: ${latensie.toFixed(4)} seconds
-  `.trim();
-
-        m.reply(respon);
-        break;
-      }
-
-
-      case 'ls':
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        A17.sendMessage(from, { react: { text: "📂", key: m.key } });
-
-
-        const currentDir = process.cwd(); // Get the current working directory
-
-        try {
-          const files = fs.readdirSync(currentDir);
-          let folderName = `Files in ${currentDir}:\n\n`;
-          let fileList = files.join('\n'); // Join the file names with a newline
-          A17.sendMessage(from, { text: folderName + fileList }, m);
-        } catch (error) {
-          console.error(error);
-          A17.sendMessage(from, { text: 'Error reading directory contents.🫳🏻' }, m);
-        }
-        break;
-
-
-      case 'autostatus':
-      case 'auto-status':
-      case 'statusevent':
-      case 'autostatusseen':
-
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: '❤', key: m.key } });
-
-        if (args.length === 0) {
-          // Display the current status of autostatus
-          return m.reply(`Auto-Status is currently ${global.statusseen ? 'enabled' : 'disabled'}.`);
-        } else if (args.length === 1 && (args[0] === 'on' || args[0] === 'off')) {
-          const status = args[0];
-          if (status === 'on') {
-            global.statusseen = true;
-            return m.reply('Auto-Status is now enabled.');
-          } else {
-            global.statusseen = false;
-            return m.reply('Auto-Status is now disabled.');
+        case 'server':
+          case 'sysinfo': {
+            const used = process.memoryUsage();
+            const cpu = os.cpus()[0];
+            const totalCpuUsage = (100 * (cpu.times.user + cpu.times.nice + cpu.times.sys + cpu.times.irq) / cpu.times.idle).toFixed(2);
+            const systemName = os.platform() + ' ' + os.release();
+          
+            const respon = `
+🤖 *Informations sur le serveur de PelBot* 🤖
+          
+*Système*: ${systemName}
+          
+*RAM*: ${formatp(os.totalmem() - os.freemem())} / ${formatp(os.totalmem())}
+          
+*Utilisation de la mémoire NodeJS*: ${Object.keys(used).map(key => `${key}: ${formatp(used[key])}`).join(', ')}
+          
+*Utilisation totale du CPU*: ${totalCpuUsage}%
+          
+*Modèle CPU*: ${cpu.model.trim()} (${cpu.speed} MHz)
+          
+*Durée d'exécution*: ${runtime(process.uptime())}
+          
+*Vitesse de réponse*: ${latensie.toFixed(4)} secondes
+          `.trim();
+          
+            m.reply(respon);
+            break;
           }
-        } else {
-          return m.reply(`Usage: ${global.prefa[0]}autostatus [on/off]`);
-        }
-        break;
-
-
-      case 'ban': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!isCreator) return reply(mess.botowner)
-        A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
-        if (!args[0]) return reply(`Select add or del (add to ban, del to unban), For Example: reply *${prefix}ban add* to the user you want to ban.`)
-        if (args[1]) {
-          orgnye = args[1] + "@s.whatsapp.net"
-        } else if (m.quoted) {
-          orgnye = m.quoted.sender
-        }
-        const isBane = banUser.includes(orgnye)
-        if (args[0] === "add") {
-          if (isBane) return ads('User is already banned.')
-          banUser.push(orgnye)
-          reply(`Successfully Banned the user.`)
-        } else if (args[0] === "del") {
-          if (!isBane) return ads('User is already unbanned.')
-          let delbans = banUser.indexOf(orgnye)
-          banUser.splice(delbans, 1)
-          reply(`Successfully Unbanned the user.`)
-        } else {
-          reply("Error")
-        }
-      }
-        break;
+          
+          case 'ls':
+            if (isBan) return reply(mess.banned);
+            if (isBanChat) return reply(mess.bangc);
+            A17.sendMessage(from, { react: { text: "📂", key: m.key } });
+          
+            const currentDir = process.cwd(); // Obtient le répertoire de travail actuel
+          
+            try {
+              const files = fs.readdirSync(currentDir);
+              let folderName = `Fichiers dans ${currentDir}:\n\n`;
+              let fileList = files.join('\n'); // Joint les noms de fichiers avec un saut de ligne
+              A17.sendMessage(from, { text: folderName + fileList }, m);
+            } catch (error) {
+              console.error(error);
+              A17.sendMessage(from, { text: 'Erreur lors de la lecture du contenu du répertoire.🫳🏻' }, m);
+            }
+            break;
+          
+          case 'autostatus':
+          case 'auto-status':
+          case 'statusevent':
+          case 'autostatusseen':
+          
+            if (isBan) return reply(mess.banned);
+            if (isBanChat) return reply(mess.bangc);
+            if (!isCreator) return reply(mess.botowner)
+            A17.sendMessage(from, { react: { text: '❤', key: m.key } });
+          
+            if (args.length === 0) {
+              // Affiche l'état actuel de l'autostatus
+              return m.reply(`L'autostatus est actuellement ${global.statusseen ? 'activé' : 'désactivé'}.`);
+            } else if (args.length === 1 && (args[0] === 'on' || args[0] === 'off')) {
+              const status = args[0];
+              if (status === 'on') {
+                global.statusseen = true;
+                return m.reply('L\'autostatus est maintenant activé.');
+              } else {
+                global.statusseen = false;
+                return m.reply('L\'autostatus est maintenant désactivé.');
+              }
+            } else {
+              return m.reply(`Utilisation: ${global.prefa[0]}autostatus [on/off]`);
+            }
+            break;
+          
+          case 'ban': {
+            if (isBan) return reply(mess.banned);
+            if (isBanChat) return reply(mess.bangc);
+            if (!isCreator) return reply(mess.botowner)
+            A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
+            if (!args[0]) return reply(`Sélectionnez add ou del (add pour bannir, del pour débannir), Par exemple: répondre *${prefix}ban add* à l'utilisateur que vous souhaitez bannir.`)
+            if (args[1]) {
+              orgnye = args[1] + "@s.whatsapp.net"
+            } else if (m.quoted) {
+              orgnye = m.quoted.sender
+            }
+            const isBane = banUser.includes(orgnye)
+            if (args[0] === "add") {
+              if (isBane) return ads('L\'utilisateur est déjà banni.')
+              banUser.push(orgnye)
+              reply(`L'utilisateur a été banni avec succès.`)
+            } else if (args[0] === "del") {
+              if (!isBane) return ads('L\'utilisateur est déjà débanni.')
+              let delbans = banUser.indexOf(orgnye)
+              banUser.splice(delbans, 1)
+              reply(`L'utilisateur a été débanni avec succès.`)
+            } else {
+              reply("Erreur")
+            }
+          }
+          break;
+          
 
 
 
@@ -1204,342 +1156,347 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
       //tictactoe game
 
-      case 'ttc': case 'ttt': case 'tictactoe': {
-        if (isBan) return reply(mess.ban)
-        if (isBanChat) return reply(mess.banChat)
-        A17.sendMessage(from, { react: { text: "🎮", key: m.key } })
+      case 'ttc':
+        case 'ttt':
+        case 'tictactoe': {
+            if (isBan) return reply(mess.ban);
+            if (isBanChat) return reply(mess.banChat);
+            A17.sendMessage(from, { react: { text: "🎮", key: m.key } });
+        
+            let TicTacToe = require("./lib/tictactoe");
+            this.game = this.game ? this.game : {};
+            if (Object.values(this.game).find(room => room.id.startsWith('tictactoe') && [room.game.playerX, room.game.playerO].includes(m.sender))) return reply(`${pushname}, vous êtes toujours dans le jeu...`);
+            let room = Object.values(this.game).find(room => room.state === 'WAITING' && (text ? room.name === text : true));
+            if (room) {
+                reply(`Salut ${pushname}, votre partenaire est trouvé !`);
+                room.o = m.chat;
+                room.game.playerO = m.sender;
+                room.state = 'PLAYING';
+                let arr = room.game.render().map(v => {
+                    return {
+                        X: '❌',
+                        O: '⭕',
+                        1: '1️⃣',
+                        2: '2️⃣',
+                        3: '3️⃣',
+                        4: '4️⃣',
+                        5: '5️⃣',
+                        6: '6️⃣',
+                        7: '7️⃣',
+                        8: '8️⃣',
+                        9: '9️⃣',
+                    }[v];
+                });
+                let str = `ID de la salle : ${room.id}\n${arr.slice(0, 3).join('')}\n${arr.slice(3, 6).join('')}\n${arr.slice(6).join('')}\nEn attente de @${room.game.currentTurn.split('@')[0]}\nTapez *surrender* pour vous rendre et admettre la défaite...`;
+                if (room.x !== room.o) await A17.sendText(room.x, str, m, { mentions: parseMention(str) });
+                await A17.sendText(room.o, str, m, { mentions: parseMention(str) });
+            } else {
+                room = {
+                    id: 'tictactoe-' + (+new Date),
+                    x: m.chat,
+                    o: '',
+                    game: new TicTacToe(m.sender, 'o'),
+                    state: 'WAITING'
+                };
+                if (text) room.name = text;
+                reply('En attente d\'un partenaire' + (text ? ` Tapez la commande ci-dessous ${prefix}${command} ${text}` : ''));
+                this.game[room.id] = room;
+            }
+        }
+        break;
+        
+        case 'report':
+        case 'suggest': {
+            if (isBan) return reply(mess.banned);
+            if (isBanChat) return reply(mess.banChat);
+            if (!text) return reply(`Veuillez fournir un message de rapport que vous souhaitez envoyer`);
+            if (text.length > 300) return reply(`Essayez-vous d'envoyer un virus !`);
+            const txtmsg = `*📮 Message de rapport*\n\n*Expéditeur ➛* wa.me/${m.sender.split("@")[0]}\n\n*Nom du groupe ➛* ${groupName}\n\n*Message ➛*  ${text}`;
+            for (let mod of global.Owner.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').filter(v => v != '6297175943@s.whatsapp.net'))
+                await A17.sendMessage(`${mod}`, { text: `${txtmsg}` }, { quoted: m });
+            await A17.sendMessage(`120363026915700516@g.us`, { text: `${txtmsg}`, mentions: groupAdmins }, { quoted: m });
+            reply(`*✅ Votre rapport a été soumis avec succès au groupe de support & au propriétaire*\n\n*Vous recevrez une réponse bientôt... ♥️*`);
+        }
+        break;
+        
+        case 'dice':
+        case 'roll': {
+            A17.sendMessage(from, { react: { text: "🎲", key: m.key } });
+            const result = Math.floor(Math.random() * 6) + 1; // Génère un nombre aléatoire entre 1 et 6
+        
+            const diceMessage = `🎲 *Résultat du lancer de dés :* ${result}`;
+        
+            reply(diceMessage);
+        }
+        break;
+        
+        case 'flipcoin':
+        case 'coin': {
+            A17.sendMessage(from, { react: { text: "🪙", key: m.key } });
+            // Simule le lancer d'une pièce (0 pour face, 1 pour pile)
+            const result = Math.random() < 0.5 ? 'Face' : 'Pile';
+        
+            const flipCoinMessage = `🪙 *Résultat du lancer de pièce : ${result}*`;
+            reply(flipCoinMessage);
+        }
+        break;
+        
 
-        let TicTacToe = require("./lib/tictactoe")
-        this.game = this.game ? this.game : {}
-        if (Object.values(this.game).find(room => room.id.startsWith('tictactoe') && [room.game.playerX, room.game.playerO].includes(m.sender))) return reply(`${pushname} You Are Still In The Game...`)
-        let room = Object.values(this.game).find(room => room.state === 'WAITING' && (text ? room.name === text : true))
-        if (room) {
-          reply(`Hey ${pushname} Your Partner found!`)
-          room.o = m.chat
-          room.game.playerO = m.sender
-          room.state = 'PLAYING'
-          let arr = room.game.render().map(v => {
-            return {
-              X: '❌',
-              O: '⭕',
-              1: '1️⃣',
-              2: '2️⃣',
-              3: '3️⃣',
-              4: '4️⃣',
-              5: '5️⃣',
-              6: '6️⃣',
-              7: '7️⃣',
-              8: '8️⃣',
-              9: '9️⃣',
-            }[v]
-          })
-          let str = `Room ID: ${room.id}
-  ${arr.slice(0, 3).join('')}
-  ${arr.slice(3, 6).join('')}
-  ${arr.slice(6).join('')}
-  Waiting @${room.game.currentTurn.split('@')[0]}
-  Type *surrender* to surrender and admit defeat...`
-          if (room.x !== room.o) await A17.sendText(room.x, str, m, { mentions: parseMention(str) })
-          await A17.sendText(room.o, str, m, { mentions: parseMention(str) })
-        } else {
-          room = {
-            id: 'tictactoe-' + (+new Date),
-            x: m.chat,
-            o: '',
-            game: new TicTacToe(m.sender, 'o'),
-            state: 'WAITING'
+        case 'rps': {
+          const randomEmoji = manyemojis[Math.floor(Math.random() * manyemojis.length)];
+          A17.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
+      
+          // Vérifie si la commande inclut un mouvement valide (pierre, papier ou ciseaux)
+          const validMoves = ['pierre', 'papier', 'ciseaux'];
+          if (!args[0] || !validMoves.includes(args[0].toLowerCase())) {
+              return reply('Veuillez fournir un mouvement valide : pierre, papier ou ciseaux.');
           }
-          if (text) room.name = text
-          reply('Waiting For Partner' + (text ? ` Type The Command Below ${prefix} ${command} ${text}` : ''))
-          this.game[room.id] = room
-        }
+      
+          // Génère un mouvement aléatoire pour le bot
+          const botMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+      
+          // Détermine le gagnant
+          const userMove = args[0].toLowerCase();
+          let result;
+      
+          if (userMove === botMove) {
+              result = 'C\'est une égalité !';
+          } else if (
+              (userMove === 'pierre' && botMove === 'ciseaux') ||
+              (userMove === 'papier' && botMove === 'pierre') ||
+              (userMove === 'ciseaux' && botMove === 'papier')
+          ) {
+              result = `Vous gagnez ! 🥳 ${userMove} bat ${botMove}.`;
+          } else {
+              result = `Vous perdez ! 🫳🏻 ${botMove} bat ${userMove}.`;
+          }
+      
+          // Envoie le résultat en tant que réponse
+          reply(`Vous avez choisi ${userMove}.\nA17 a choisi ${botMove}.\n${result}`);
       }
-        break;
-
-
-
-      // report and suggest ...
-
-      case 'report': case 'suggest ': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!text) return reply(`please provide a report message you want to deliver`)
-        if (text.length > 300) return reply(`Are you trying to send virus!`)
-        const txtmsg = `*📮 Report Message*\n\n*Sender ➛* wa.me/${m.sender.split("@")[0]}\n\n*Group Name ➛* ${groupName}\n\n*Message ➛*  ${text}`
-        for (let mod of global.Owner.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').filter(v => v != '6297175943@s.whatsapp.net'))
-          await A17.sendMessage(`${mod}`, { text: `${txtmsg}` }, { quoted: m })
-        await A17.sendMessage(`120363026915700516@g.us`, { text: `${txtmsg}`, mentions: groupAdmins }, { quoted: m })
-        reply(`*✅ Your Report has been submitted Successfully to Support group & Owner*\n\n*You will get response shortly... ♥️*`);
-      }
-        break;
-
-
-      //
-
-      case 'dice': case 'roll': {
-        A17.sendMessage(from, { react: { text: "🎲", key: m.key } })
-        const result = Math.floor(Math.random() * 6) + 1; // Generate a random number between 1 and 6
-
-        const diceMessage = `🎲 *Dice Roll Result:* ${result}`;
-
-        reply(diceMessage);
-      }
-        break;
-
-
-      case 'flipcoin': case 'coin': {
-        A17.sendMessage(from, { react: { text: "🪙", key: m.key } });
-        // Simulate flipping a coin (0 for heads, 1 for tails)
-        const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
-
-        const flipCoinMessage = `🪙 *Coin Flip Result: ${result}*`;
-        reply(flipCoinMessage);
-      }
-        break;
-
-
-      case 'rps': {
-        const randomEmoji = manyemojis[Math.floor(Math.random() * manyemojis.length)];
-        A17.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
-
-        // Check if the command includes a valid move (rock, paper, or scissors)
-        const validMoves = ['rock', 'paper', 'scissors'];
-        if (!args[0] || !validMoves.includes(args[0].toLowerCase())) {
-          return reply('Please provide a valid move: rock, paper, or scissors.');
-        }
-
-        // Generate a random move for the bot
-        const botMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-
-        // Determine the winner
-        const userMove = args[0].toLowerCase();
-        let result;
-
-        if (userMove === botMove) {
-          result = 'It\'s a tie!';
-        } else if (
-          (userMove === 'rock' && botMove === 'scissors') ||
-          (userMove === 'paper' && botMove === 'rock') ||
-          (userMove === 'scissors' && botMove === 'paper')
-        ) {
-          result = `You win! 🥳 ${userMove} beats ${botMove}.`;
-        } else {
-          result = `You lose! 🫳🏻 ${botMove} beats ${userMove}.`;
-        }
-
-        // Send the result as a response
-        reply(`You chose ${userMove}.\nA17 chose ${botMove}.\n${result}`);
-      }
-        break;
-
-
-      // economy ...
-      case 'daily': case 'claim': case 'reward':
-
-        {
+      break;
+      
+      
+      // économie ...
+      case 'daily':
+      case 'claim':
+      case 'reward':
+      
+      {
           if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
           if (isBan) return reply(mess.banned);
           if (isBanChat) return reply(mess.bangc);
           if (!m.isGroup) return reply(mess.grouponly)
-
+      
           A17.sendMessage(from, { react: { text: "💰", key: m.key } })
           let user = m.sender
           const cara = "cara"
-          const daily = await eco.daily(user, cara, 999); //give 999 for daily, can be changed
-
-          if (daily.cd) return reply(`You already claimed daily for today, come back in ${daily.cdL}`); //cdL is already formatted cooldown Left
-
-          reply(`You claimed 💎${daily.amount} for daily`);
-        }
-        break;
-
-
-      case 'wallet': case 'purse': {
-
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly)
-
-        A17.sendMessage(from, { react: { text: "💳", key: m.key } })
-
-        if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
-
-        const user = m.sender
-
-        const cara = "cara"
-
-        const balance = await eco.balance(user, cara); //Returns wallet, bank, and bankCapacity. Also creates a USer if it doesn't exist.
-
-        await reply(`👛 ${pushname}'s Purse:\n\n_💎${balance.wallet}_`);
-
+          const daily = await eco.daily(user, cara, 999); // donner 999 pour le quotidien, peut être modifié
+      
+          if (daily.cd) return reply(`Vous avez déjà réclamé votre récompense quotidienne aujourd'hui, revenez dans ${daily.cdL}`); // cdL est le temps de recharge déjà formaté
+      
+          reply(`Vous avez réclamé 💎${daily.amount} pour votre récompense quotidienne`);
       }
-        break;
-
-
-      case 'bank': case 'levee': {
-        if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
-
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly)
-
-        A17.sendMessage(from, { react: { text: "💳", key: m.key } })
-
-        const user = m.sender
-        const cara = "cara"
-        const balance = await eco.balance(user, cara); //Returns wallet, bank, and bankCapacity. Also creates a USer if it doesn't exist.
-        await reply(`🏦 ${pushname}'s Bank:\n\n_💎${balance.bank}/${balance.bankCapacity}_`);
-      }
-        break;
-
-
-      case 'capacity': case 'bankupgrade':
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly)
-
-        {
-          A17.sendMessage(from, { react: { text: "💲", key: m.key } })
-
-          //if (!isCreator) return reply(mess.botowner)
-          if (!text) return reply(`💴 Bank-capacity 💳\n\n1 | 1000 sp = 💎100\n\n2 | 10000 sp = 💎1000\n\n3 | 100000 sp = 💎10000\n\nExample- ${prefix}capacity 1 OR ${prefix}bankupgrade 1000`)
+      break;
+      
+      
+      case 'wallet':
+      case 'purse': {
+      
+          if (isBan) return reply(mess.banned);
+          if (isBanChat) return reply(mess.bangc);
+          if (!m.isGroup) return reply(mess.grouponly)
+      
+          A17.sendMessage(from, { react: { text: "💳", key: m.key } })
+      
           if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
-          const user = m.mentionedJid[0] ? m.mentionedJid[0] : m.sender
+      
+          const user = m.sender
+      
           const cara = "cara"
-          let value = text.trim();
-          let k = parseInt(value)
-          const balance = await eco.balance(user, cara)
-          switch (value) {
-            case '1000':
-            case '1':
-              if (k > balance.wallet) return reply(`You need to pay 💎100 to increase bank capacity ~ 1000 sp`);
-              const deduct1 = await eco.deduct(user, cara, 100);
-              const add1 = eco.giveCapacity(user, cara, 1000);
-              await reply(`1000 💎diamond storage has been added in ${pushname} bank`)
-            case '10000':
-            case '2':
-              if (k > balance.wallet) return reply(`You need to pay 💎1000 to increase bank capacity ~ 10000 sp`);
-              const deduct2 = await eco.deduct(user, cara, 1000);
-              const add2 = eco.giveCapacity(user, cara, 10000);
-              await reply(`10000 💎diamond storage has been added in ${pushname} bank`)
-            case '100000':
-            case '3':
-              if (k > balance.wallet) return reply(`You need to pay 💎10000 to increase bank capacity ~ 100000 sp`);
-              const deduct3 = await eco.deduct(user, cara, 10000);
-              const add3 = eco.giveCapacity(user, cara, 100000);
-              await reply(`100000 💎diamond storage has been added in ${pushname} bank`)
+      
+          const balance = await eco.balance(user, cara); // Renvoie le portefeuille, la banque et la capacité de la banque. Crée également un utilisateur s'il n'existe pas.
+      
+          await reply(`👛 Portefeuille de ${pushname} :\n\n_💎${balance.wallet}_`);
+      
+      }
+      break;
+      
+
+
+        case 'bank':
+          case 'levee': {
+              if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
+          
+              if (isBan) return reply(mess.banned);
+              if (isBanChat) return reply(mess.bangc);
+              if (!m.isGroup) return reply(mess.grouponly)
+          
+              A17.sendMessage(from, { react: { text: "💳", key: m.key } })
+          
+              const user = m.sender
+              const cara = "cara"
+              const balance = await eco.balance(user, cara); // Renvoie le solde du portefeuille, de la banque et de la capacité de la banque. Crée également un utilisateur s'il n'existe pas.
+              await reply(`🏦 Banque de ${pushname} :\n\n_💎${balance.bank}/${balance.bankCapacity}_`);
           }
-        }
-        break;
+          break;
+          
 
 
-      case 'deposit': case 'pay-in': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly)
-
-        A17.sendMessage(from, { react: { text: "📥", key: m.key } })
-
-        if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
-        if (!text) return reply("Provide the amount you want to deposit!");
-        const texts = text.trim();
-        const user = m.sender;
-        const cara = 'cara'
-        const deposit = await eco.deposit(user, cara, texts);
-        if (deposit.noten) return reply('You can\'t deposit what you don\'t have.'); //if user states more than whats in his wallet
-        reply(`Successfully Deposited 💎${deposit.amount} to your bank.`)
-      }
-        break;
-
-
-      case 'withdraw': case 'withdrawal': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly)
-
-        A17.sendMessage(from, { react: { text: "💸", key: m.key } })
-
-        if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
-        const user = m.sender
-        if (!text) return reply("Provide the amount you want to withdraw!");
-        const query = text.trim();
-        const cara = 'cara'
-        const withdraw = await eco.withdraw(user, cara, query);
-        if (withdraw.noten) return reply('🏧 Insufficient fund in bank'); //if user states more than whats in his wallet
-        const add = eco.give(user, cara, query);
-        reply(`🏧 ALERT  💎${withdraw.amount} has been added in your wallet.`)
-
-      }
-        break;
-
-
-      case 'rob': case 'attack':
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly)
-
-        {
-          A17.sendMessage(from, { react: { text: "🔪", key: m.key } })
-          if (!text) return reply(`Use ${prefix}rob @user`)
-          const target =
-            m.quoted && m.mentionedJid.length === 0
-              ? m.quoted.sender
-              : m.mentionedJid[0] || null;
-          if (!target || target === m.sender) return reply("what are you trying to do!")
-          if (m.quoted?.sender && !m.mentionedJid.includes(m.quoted.sender)) m.mentionedJid.push(m.quoted.sender)
-          while (m.mentionedJid.length < 2) m.mentionedJid.push(m.sender)
-          const cara = "cara"
-          const user1 = m.sender
-          const user2 = target
-          const k = 250
-          const balance1 = await eco.balance(user1, cara)
-          const balance2 = await eco.balance(user2, cara)
-          const typ = ['ran', 'rob', 'caught'];
-          const random = typ[Math.floor(Math.random() * typ.length)];
-          if (k > balance1.wallet) return reply(`☹️ You don't have enough money to pay incase you get caught`);
-          if (k > balance2.wallet) return reply(`Sorry, your victim is too poor 🤷🏽‍♂️ let go.`);
-          let tpy = random
-          switch (random) {
-            case 'ran':
-              await reply(`Your victim escaped, be more scaryðŸ˜¤ next time.`)
+        case 'capacity':
+          case 'bankupgrade':
+              if (isBan) return reply(mess.banned);
+              if (isBanChat) return reply(mess.bangc);
+              if (!m.isGroup) return reply(mess.grouponly)
+          
+              {
+                  A17.sendMessage(from, { react: { text: "💲", key: m.key } })
+          
+                  //if (!isCreator) return reply(mess.botowner)
+                  if (!text) return reply(`💴 Capacité de la banque 💳\n\n1 | 1000 sp = 💎100\n\n2 | 10000 sp = 💎1000\n\n3 | 100000 sp = 💎10000\n\nExemple - ${prefix}capacity 1 OU ${prefix}bankupgrade 1000`)
+                  if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
+                  const user = m.mentionedJid[0] ? m.mentionedJid[0] : m.sender
+                  const cara = "cara"
+                  let value = text.trim();
+                  let k = parseInt(value)
+                  const balance = await eco.balance(user, cara)
+                  switch (value) {
+                      case '1000':
+                      case '1':
+                          if (k > balance.wallet) return reply(`Vous devez payer 💎100 pour augmenter la capacité de la banque ~ 1000 sp`);
+                          const deduct1 = await eco.deduct(user, cara, 100);
+                          const add1 = eco.giveCapacity(user, cara, 1000);
+                          await reply(`1000 💎 d'espace de stockage ajouté dans la banque de ${pushname}`)
+                      case '10000':
+                      case '2':
+                          if (k > balance.wallet) return reply(`Vous devez payer 💎1000 pour augmenter la capacité de la banque ~ 10000 sp`);
+                          const deduct2 = await eco.deduct(user, cara, 1000);
+                          const add2 = eco.giveCapacity(user, cara, 10000);
+                          await reply(`10000 💎 d'espace de stockage ajouté dans la banque de ${pushname}`)
+                      case '100000':
+                      case '3':
+                          if (k > balance.wallet) return reply(`Vous devez payer 💎10000 pour augmenter la capacité de la banque ~ 100000 sp`);
+                          const deduct3 = await eco.deduct(user, cara, 10000);
+                          const add3 = eco.giveCapacity(user, cara, 100000);
+                          await reply(`100000 💎 d'espace de stockage ajouté dans la banque de ${pushname}`)
+                  }
+              }
+              break;
+          
+          case 'deposit':
+          case 'pay-in': {
+              if (isBan) return reply(mess.banned);
+              if (isBanChat) return reply(mess.bangc);
+              if (!m.isGroup) return reply(mess.grouponly)
+          
+              A17.sendMessage(from, { react: { text: "📥", key: m.key } })
+          
+              if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
+              if (!text) return reply("Indiquez le montant que vous souhaitez déposer !");
+              const texts = text.trim();
+              const user = m.sender;
+              const cara = 'cara'
+              const deposit = await eco.deposit(user, cara, texts);
+              if (deposit.noten) return reply('Vous ne pouvez pas déposer ce que vous n\'avez pas.'); // si l'utilisateur demande plus que ce qu'il y a dans son portefeuille
+              reply(`Dépôt réussi 💎${deposit.amount} dans votre banque.`)
           }
-        }
-        break;
+          break;
+          
 
 
-      case 'transfer': case 'give': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly)
-        A17.sendMessage(from, { react: { text: "🗿", key: m.key } })
-        let value = text.trim().split(" ");
-        if (value[0] === "") return reply(`Use ${prefix}transfer 100 @user`);
-        const target =
-          m.quoted && m.mentionedJid.length === 0
-            ? m.quoted.sender
-            : m.mentionedJid[0] || null;
-        if (!target || target === m.sender) return reply("what are you trying to do!")
-        if (m.quoted?.sender && !m.mentionedJid.includes(m.quoted.sender)) m.mentionedJid.push(m.quoted.sender)
-        while (m.mentionedJid.length < 2) m.mentionedJid.push(m.sender)
-        const cara = "cara"
-        const user1 = m.sender
-        const user2 = target
-        const word = value[0];
-        const code = value[1];
-        let d = parseInt(word)
-        if (!d) return reply("check your text plz u r using the command in a wrong way")
+        case 'withdraw':
+          case 'withdrawal': {
+              if (isBan) return reply(mess.banned);
+              if (isBanChat) return reply(mess.bangc);
+              if (!m.isGroup) return reply(mess.grouponly)
+          
+              A17.sendMessage(from, { react: { text: "💸", key: m.key } })
+          
+              if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
+              const user = m.sender
+              if (!text) return reply("Indiquez le montant que vous souhaitez retirer !");
+              const query = text.trim();
+              const cara = 'cara'
+              const withdraw = await eco.withdraw(user, cara, query);
+              if (withdraw.noten) return reply('🏧 Fond insuffisant dans la banque'); // si l'utilisateur demande plus que ce qu'il y a dans son portefeuille
+              const add = eco.give(user, cara, query);
+              reply(`🏧 ALERTE  💎${withdraw.amount} a été ajouté à votre portefeuille.`)
+          }
+          break;
+          
 
-        const balance = await eco.balance(user1, cara);
-        let a = (balance.wallet) < parseInt(word)
-        //Returns wallet, bank, and bankCapacity. Also creates a USer if it doesn't exist.	
-        if (a == true) return reply("you dont have sufficient money to transfer");
 
-        const deduct = await eco.deduct(user1, cara, value[0]);
-        const give = await eco.give(user2, cara, value[0]);
-        reply(`📠 Transaction successful`)
+        case 'rob':
+          case 'attack':
+              if (isBan) return reply(mess.banned);
+              if (isBanChat) return reply(mess.bangc);
+              if (!m.isGroup) return reply(mess.grouponly)
+          
+              {
+                  A17.sendMessage(from, { react: { text: "🔪", key: m.key } })
+                  if (!text) return reply(`Utilisez ${prefix}rob @utilisateur`)
+                  const target =
+                      m.quoted && m.mentionedJid.length === 0
+                      ? m.quoted.sender
+                      : m.mentionedJid[0] || null;
+                  if (!target || target === m.sender) return reply("que cherchez-vous à faire !")
+                  if (m.quoted?.sender && !m.mentionedJid.includes(m.quoted.sender)) m.mentionedJid.push(m.quoted.sender)
+                  while (m.mentionedJid.length < 2) m.mentionedJid.push(m.sender)
+                  const cara = "cara"
+                  const user1 = m.sender
+                  const user2 = target
+                  const k = 250
+                  const balance1 = await eco.balance(user1, cara)
+                  const balance2 = await eco.balance(user2, cara)
+                  const typ = ['fui', 'volé', 'attrapé'];
+                  const random = typ[Math.floor(Math.random() * typ.length)];
+                  if (k > balance1.wallet) return reply(`☹️ Vous n'avez pas assez d'argent pour payer au cas où vous vous faites prendre`);
+                  if (k > balance2.wallet) return reply(`Désolé, votre victime est trop pauvre 🤷🏽‍♂️ laissez tomber.`);
+                  let tpy = random
+                  switch (random) {
+                      case 'fui':
+                          await reply(`Votre victime s'est échappée, soyez plus effrayant la prochaine fois.`)
+                  }
+              }
+              break;
+          
 
-      }
-        break;
+
+        case 'transfer':
+          case 'give': {
+              if (isBan) return reply(mess.banned);
+              if (isBanChat) return reply(mess.bangc);
+              if (!m.isGroup) return reply(mess.grouponly)
+              A17.sendMessage(from, { react: { text: "🗿", key: m.key } })
+              let value = text.trim().split(" ");
+              if (value[0] === "") return reply(`Utilisez ${prefix}transfer 100 @utilisateur`);
+              const target =
+                  m.quoted && m.mentionedJid.length === 0
+                  ? m.quoted.sender
+                  : m.mentionedJid[0] || null;
+              if (!target || target === m.sender) return reply("que cherchez-vous à faire !")
+              if (m.quoted?.sender && !m.mentionedJid.includes(m.quoted.sender)) m.mentionedJid.push(m.quoted.sender)
+              while (m.mentionedJid.length < 2) m.mentionedJid.push(m.sender)
+              const cara = "cara"
+              const user1 = m.sender
+              const user2 = target
+              const word = value[0];
+              const code = value[1];
+              let d = parseInt(word)
+              if (!d) return reply("vérifiez votre texte s'il vous plaît, vous utilisez la commande de la mauvaise manière")
+          
+              const balance = await eco.balance(user1, cara);
+              let a = (balance.wallet) < parseInt(word)
+              // Renvoie le portefeuille, la banque et la capacité de la banque. Crée également un utilisateur s'il n'existe pas.
+              if (a == true) return reply("vous n'avez pas assez d'argent pour transférer");
+          
+              const deduct = await eco.deduct(user1, cara, value[0]);
+              const give = await eco.give(user2, cara, value[0]);
+              reply(`📠 Transaction réussie`)
+          
+          }
+          break;
+          
 
 
       case 'wealth': case 'ritual': {
@@ -1680,72 +1637,67 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       */
 
 
-      case 'slot': case 'spin': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly)
-        var today = new Date();
-        if (today.getDay() == 6 || today.getDay() == 5 || today.getDay() == 0) {
-          if (text == 'help') return reply(`*1:* Use ${prefix}slot to play\n\n*2:* You must have 💎100 in your wallet\n\n*3:* If you don't have money in wallet then withdraw from your bank\n\n*4:* If you don't have money in your bank too then use economy features to gain money`)
-          if (text == 'money') return reply(`*1:* Small Win --> +💎20\n\n*2:* Small Lose --> -💎20\n\n*3:* Big Win --> +💎100\n\n*4:* Big Lose --> -💎50\n\n*5:* 🎉 JackPot --> +💎1000`)
-          const fruit1 = ["🥥", "🍎", "🍇"]
-          const fruit2 = ["🍎", "🍇", "🥥"]
-          const fruit3 = ["🍇", "🥥", "🍎"]
-          const fruit4 = ["🍇", "🥥", "🍎"]
-          const lose = ['*You suck at playing this game*\n\n_--> 🍍-🥥-🍎_', '*Totally out of line*\n\n_--> 🥥-🍎-🍍_', '*Are you a newbie?*\n\n_--> 🍎-🍍-🥥_']
-          const smallLose = ['*You cannot harvest coconut 🥥 in a pineapple 🍍 farm*\n\n_--> 🍍>🥥<🍍_', '*Apples and Coconut are not best Combo*\n\n_--> 🍎>🥥<🍎_', '*Coconuts and Apple are not great deal*\n\n_--> 🥥>🍎<🥥_']
-          const won = ['*You harvested a basket of*\n\n_--> 🍎+🍎+🍎_', '*Impressive, You must be a specialist in plucking coconuts*\n\n_--> 🥥+🥥+🥥_', '*Amazing, you are going to be making pineapple juice for the family*\n\n_--> 🍍+🍍+🍍_']
-          const near = ['*Wow, you were so close to winning pineapples*\n\n_--> 🍎-🍍+🍍_', '*Hmmm, you were so close to winning Apples*\n\n_--> 🍎+🍎-🍍_']
-          const jack = ['*🥳 JackPot 🤑*\n\n_--> 🍇×🍇×🍇×🍇_', '*🎉 JaaackPooot!*\n\n_--> 🥥×🥥×🥥×🥥_', '*🎊 You Just hit a jackpot worth 💎1000*']
-          const user = m.sender
-          const cara = "cara"
-          const k = 100
-          const balance1 = await eco.balance(user, cara)
+      case 'slot':
+case 'spin': {
+    if (isBan) return reply(mess.banned);
+    if (isBanChat) return reply(mess.bangc);
+    if (!m.isGroup) return reply(mess.grouponly)
+    var today = new Date();
+    if (today.getDay() == 6 || today.getDay() == 5 || today.getDay() == 0) {
+        if (text == 'help') return reply(`*1:* Utilisez ${prefix}slot pour jouer\n\n*2:* Vous devez avoir 💎100 dans votre portefeuille\n\n*3:* Si vous n'avez pas d'argent dans votre portefeuille, retirez-le de votre banque\n\n*4:* Si vous n'avez pas d'argent dans votre banque non plus, utilisez les fonctionnalités économiques pour gagner de l'argent`)
+        if (text == 'money') return reply(`*1:* Petite victoire --> +💎20\n\n*2:* Petite défaite --> -💎20\n\n*3:* Grande victoire --> +💎100\n\n*4:* Grande défaite --> -💎50\n\n*5:* 🎉 Jackpot --> +💎1000`)
+        const fruit1 = ["🥥", "🍎", "🍇"]
+        const fruit2 = ["🍎", "🍇", "🥥"]
+        const fruit3 = ["🍇", "🥥", "🍎"]
+        const fruit4 = ["🍇", "🥥", "🍎"]
+        const lose = ['*Tu es mauvais à ce jeu*\n\n_--> 🍍-🥥-🍎_', '*Totalement hors de propos*\n\n_--> 🥥-🍎-🍍_', '*Es-tu un débutant ?*\n\n_--> 🍎-🍍-🥥_']
+        const smallLose = ['*Tu ne peux pas récolter de noix de coco 🥥 dans une ferme d\'ananas 🍍*\n\n_--> 🍍>🥥<🍍_', '*Les pommes et les noix de coco ne font pas bon ménage*\n\n_--> 🍎>🥥<🍎_', '*Les noix de coco et les pommes ne font pas un bon deal*\n\n_--> 🥥>🍎<🥥_']
+        const won = ['*Tu as récolté un panier de*\n\n_--> 🍎+🍎+🍎_', '*Impressionnant, tu dois être un spécialiste de la récolte des noix de coco*\n\n_--> 🥥+🥥+🥥_', '*Incroyable, tu vas faire du jus d\'ananas pour la famille*\n\n_--> 🍍+🍍+🍍_']
+        const near = ['*Wow, tu étais si près de gagner des ananas*\n\n_--> 🍎-🍍+🍍_', '*Hmmm, tu étais si près de gagner des pommes*\n\n_--> 🍎+🍎-🍍_']
+        const jack = ['*🥳 Jackpot 🤑*\n\n_--> 🍇×🍇×🍇×🍇_', '*🎉 JaaackPooot !*\n\n_--> 🥥×🥥×🥥×🥥_', '*🎊 Tu viens de décrocher un jackpot d\'une valeur de 💎1000*']
+        const user = m.sender
+        const cara = "cara"
+        const k = 100
+        const balance1 = await eco.balance(user, cara)
 
-          if (k > balance1.wallet) return reply(`You are going to be spinning on your wallet, you need at least 💎100`);
-          const f1 = fruit1[Math.floor(Math.random() * fruit1.length)];
-          const f2 = fruit2[Math.floor(Math.random() * fruit2.length)];
-          const f3 = fruit3[Math.floor(Math.random() * fruit3.length)];
-          const f4 = fruit4[Math.floor(Math.random() * fruit4.length)];
-          const mess1 = lose[Math.floor(Math.random() * lose.length)];
-          const mess2 = won[Math.floor(Math.random() * won.length)];
-          const mess3 = near[Math.floor(Math.random() * near.length)];
-          const mess4 = jack[Math.floor(Math.random() * jack.length)];
-          const mess5 = smallLose[Math.floor(Math.random() * smallLose.length)];
+        if (k > balance1.wallet) return reply(`Vous allez jouer avec votre portefeuille, vous avez besoin d'au moins 💎100`);
+        const f1 = fruit1[Math.floor(Math.random() * fruit1.length)];
+        const f2 = fruit2[Math.floor(Math.random() * fruit2.length)];
+        const f3 = fruit3[Math.floor(Math.random() * fruit3.length)];
+        const f4 = fruit4[Math.floor(Math.random() * fruit4.length)];
+        const mess1 = lose[Math.floor(Math.random() * lose.length)];
+        const mess2 = won[Math.floor(Math.random() * won.length)];
+        const mess3 = near[Math.floor(Math.random() * near.length)];
+        const mess4 = jack[Math.floor(Math.random() * jack.length)];
+        const mess5 = smallLose[Math.floor(Math.random() * smallLose.length)];
 
-          if ((f1 !== f2) && f2 !== f3) {
+        if ((f1 !== f2) && f2 !== f3) {
             const deduct1 = await eco.deduct(user, cara, 50);
-            reply(`${mess1}\n\n*Big Lose -->* _💎50_`)
-          }
-          else if ((f1 == f2) && f2 == f3) {
+            reply(`${mess1}\n\n*Grande Défaite -->* _💎50_`)
+        } else if ((f1 == f2) && f2 == f3) {
             const give1 = await eco.give(user, cara, 100);
-            reply(`${mess2}\n*_Big Win -->* _💎100_`)
-          }
-          else if ((f1 == f2) && f2 !== f3) {
+            reply(`${mess2}\n*_Grande Victoire -->* _💎100_`)
+        } else if ((f1 == f2) && f2 !== f3) {
             const give2 = await eco.give(user, cara, 20);
-            reply(`${mess3}\n*Small Win -->* _💎20_`)
-          }
-          else if ((f1 !== f2) && f1 == f3) {
+            reply(`${mess3}\n*Petite Victoire -->* _💎20_`)
+        } else if ((f1 !== f2) && f1 == f3) {
             const deduct2 = await eco.deduct(user, cara, 20);
-            reply(`${mess5}\n\n*Small Lose -->* _💎20_`)
-          }
-          else if ((f1 !== f2) && f2 == f3) {
+            reply(`${mess5}\n\n*Petite Défaite -->* _💎20_`)
+        } else if ((f1 !== f2) && f2 == f3) {
             const give4 = eco.give(user, cara, 20);
-            reply(`${mess3}\n\n*Small Win -->* _💎20_`)
-          }
-          else if (((f1 == f2) && f2 == f3) && f3 == f4) {
+            reply(`${mess3}\n\n*Petite Victoire -->* _💎20_`)
+        } else if (((f1 == f2) && f2 == f3) && f3 == f4) {
             const give5 = eco.give(user, cara, 1000);
-            reply(`${mess4}\n\n_🎊 JackPot --> _💎1000_`)
-          }
-          else {
-            reply(`Do you understand what you are doing?`)
-          }
+            reply(`${mess4}\n\n_🎊 Jackpot --> _💎1000_`)
+        } else {
+            reply(`Comprenez-vous ce que vous faites ?`)
         }
-        else {
-          reply(`*You can only play this game during weekends*\n\n*🌿 Friday*\n*🎏 Saturday*\n*🎐 Sunday*`)
-        }
-      }
-        break;
+    } else {
+        reply(`*Vous ne pouvez jouer à ce jeu que pendant les week-ends*\n\n*🌿 Vendredi*\n*🎏 Samedi*\n*🎐 Dimanche*`)
+    }
+}
+break;
+
 
 
 
@@ -1809,13 +1761,13 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         reply(mess.waiting)
-        if (!q) return reply(`Please enter a Movie search term...\nExample: ${prefix}movie Spiderman`)
+        if (!q) return reply(`Entre un film à rechercher...\nExample: ${prefix}movie Spiderman`)
         xfarrapi.Film(q)
           .then(data => {
             console.log(data)
-            let krl = `*Search Term:* ${q}\n\n`
+            let krl = `*Terme de recherche:* ${q}\n\n`
             for (let i of data) {
-              krl += (`${prefix}----------------------------------------------------------------------------\n\n\n*Movie Name:* ${i.judul}\n *Quality :* ${i.quality}\n *Type : ${i.type}*\n *Uploaded on :* ${i.upload}\n *Source URL :* ${i.link}\n\n\n`)
+              krl += (`${prefix}----------------------------------------------------------------------------\n\n\n*Nom:* ${i.judul}\n *Qualité :* ${i.quality}\n *Type : ${i.type}*\n *Upload le :* ${i.upload}\n *Source URL :* ${i.link}\n\n\n`)
             }
             A17.sendMessage(from, { image: { url: data[0].thumb }, caption: krl }, { quoted: fdocs })
           });
@@ -1936,7 +1888,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
         reply(mess.waiting);
         A17.sendMessage(from, { react: { text: "🥵", key: m.key } });
-        if (!args.join(" ")) return reply("Please enter a term to search!");
+        if (!args.join(" ")) return reply("Entre un terme à rechercher!");
 
         const { AnimeWallpaper } = require("anime-wallpaper");
         const wall = new AnimeWallpaper();
@@ -1963,16 +1915,16 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       case 'wikimedia': case 'wikiimage': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        if (!args.join(" ")) return reply("What picture are you looking for??")
+        if (!args.join(" ")) return reply("Tu cherches quelle image ???")
         let { wikimedia } = require('./lib/scraper')
         anu = await wikimedia(args)
         hasil = anu[Math.floor(Math.random() * anu.length)]
         let buttons = [
-          { buttonId: `${prefix}wikimedia ${args.join(" ")}`, buttonText: { displayText: 'Next Image' }, type: 1 }
+          { buttonId: `${prefix}wikimedia ${args.join(" ")}`, buttonText: { displayText: 'Image suivante' }, type: 1 }
         ]
         let buttonMessage = {
           image: { url: hasil.image },
-          caption: `Title : ${hasil.title}\nSource : ${hasil.source}\nMedia Url : ${hasil.image}`,
+          caption: `Titre : ${hasil.title}\nSource : ${hasil.source}\nMedia Url : ${hasil.image}`,
           footer: `${BotName}`,
           buttons: buttons,
           headerType: 4
@@ -1987,27 +1939,36 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
         let cok = await fetchJson(`http://api.lolhuman.xyz/api/random/quotesimage?apikey=${lolkey}`)
         reply(mess.waiting)
-        A17.sendMessage(m.chat, { image: { url: cok }, caption: 'Here it is...' }, { quoted: m })
+        A17.sendMessage(m.chat, { image: { url: cok }, caption: 'Voilà...' }, { quoted: m })
         break;
 
 
-      case 'quotesanime': case 'quoteanime': case 'animequote': case 'animequotes': {
-        let { quotesAnime } = require('./lib/scraper')
-        let anu = await quotesAnime()
-        hasil = anu[Math.floor(Math.random() * anu.length)]
-        /*     let buttons = [
-                 {buttonId: `${prefix}quotesanime`, buttonText: {displayText: '>>'}, type: 1}
-             ]  */
-        let buttonMessage = {
-          text: `_${hasil.quotes}_\n\nBy '${hasil.karakter}', ${hasil.anime}\n\n- ${hasil.up_at}`,
-          /*     footer: 'A17',
-               buttons: buttons,
-               headerType: 2  */
-        }
-        A17.sendMessage(m.chat, buttonMessage, { quoted: m })
-      }
-        break;
+        case 'quotesanime':
+          case 'quoteanime':
+          case 'animequote':
+          case 'animequotes': {
+              const fetch = require('node-fetch');
+          
+              fetch('https://animechan.xyz/api/random')
+                  .then(response => response.json())
+                  .then(quote => {
+                      let buttonMessage = {
+                          text: `_${quote.quote}_\n\nBy '${quote.character}', ${quote.anime}`,
+                          footer: 'A17'
+                      };
+                      A17.sendMessage(m.chat, buttonMessage, { quoted: m });
+                  })
+                  .catch(error => {
+                      console.error('Error fetching anime quote:', error);
+                      reply('Erreur lors de la récupération de la citation anime.');
+                  });
+          }
+          break;
+          
+          
 
+          
+          
 
 
       case 'animestory': {
@@ -3584,12 +3545,13 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
+        if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
         A17.sendMessage(from, { react: { text: "😳", key: m.key } })
         let teks = `「 Attention 」
 
 *Message : ${args.join(" ") ? args.join(" ") : 'no message'}*\n\n`
-let count = 0;
+let count = 1;
         for (let mem of participants) {
           teks += `${count} » @${mem.id.split('@')[0]}\n`
           count++;
@@ -3603,6 +3565,7 @@ let count = 0;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
+        if (!isBotAdmins) return reply(mess.botadmin);
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
         A17.sendMessage(from, { react: { text: "✨", key: m.key } })
         A17.sendMessage(m.chat, { text: args.join(" ") ? args.join(" ") : '', mentions: participants.map(a => a.id) }, { quoted: m })
@@ -3610,17 +3573,18 @@ let count = 0;
         break;
 
 
-      case 'tagadmins': case 'admins': {
+      case 'tagadmins': case 'admins': case 'tagadmin': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         A17.sendMessage(from, { react: { text: "🗿", key: m.key } })
-        if (!text) return reply(`*Please quote or write a meaningful message to tag admins to*`)
+        if (!text) return reply(`*Ecris une citations ou toute chose sensée pour tag un admin*`)
         let teks = `*「 Tag Admins 」*
 
 *Message : ${text}*\n\n`
+let count = 1;
         for (let mem of groupAdmins) {
-          teks += `🍁 @${mem.split('@')[0]}\n`
+          teks += `${count} 🍁 @${mem.split('@')[0]}\n`
         }
         A17.sendMessage(m.chat, { text: teks, mentions: groupAdmins }, { quoted: m })
       }
@@ -3668,11 +3632,11 @@ let count = 0;
       case 'nowa': case 'find': case 'stalk': case 'stalknumber': {
         if (isBan) return reply(mess.banned);
         A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
-        if (!args[0]) return reply(`Use command like: ${prefix}stalk <number>xxx`)
+        if (!args[0]) return reply(`Utilise la commande comme: ${prefix}stalk <numero>xxx`)
         var inputnumber = args[0]
-        if (!inputnumber.includes('x')) return reply('You didnot added x')
-        reply(`Searching for WhatsApp account in given range...`)
-        reply(`Please wait while i fetch details...`)
+        if (!inputnumber.includes('x')) return reply('Tu n\'as pas mis x')
+        reply(`Recherche de numéros Whatsapp dans la fourchette donnée...`)
+        reply(`Attendez s'il vous plait pendant que je compile les détails...`)
         function countInstances(string, word) {
           return string.split(word).length - 1;
         }
@@ -3687,9 +3651,9 @@ let count = 0;
         } else if (random_length == 3) {
           randomxx = 1000
         }
-        var nomerny = `*『 List of Whatsapp Numbers 』*\n\n`
+        var nomerny = `*『 Liste des numéros whatsapp 』*\n\n`
         var nobio = `\n*Bio:* || \nHey there! I am using WhatsApp.\n`
-        var nowhatsapp = `\n*Numbers with no WhatsApp account within the range you provided*\n`
+        var nowhatsapp = `\n*Numéros sans compte whatsapp dans la fourchette donnée*\n`
         for (let i = 0; i < randomxx; i++) {
           var nu = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
           var status1 = nu[Math.floor(Math.random() * nu.length)]
@@ -3736,7 +3700,7 @@ let count = 0;
         A17.sendMessage(from, { react: { text: "🪄", key: m.key } })
         let response = await A17.groupInviteCode(m.chat)
         A17.sendMessage(m.chat, {
-          text: `*Group Name:* *${groupMetadata.subject}* \n\n*Group Link :* \nhttps://chat.whatsapp.com/${response}l`, "contextInfo": {
+          text: `*Nom du groupe :* *${groupMetadata.subject}* \n\n*Group Link :* \nhttps://chat.whatsapp.com/${response}l`, "contextInfo": {
             mimetype: "image/jpeg",
             text: `${global.OwnerName}`,
             "forwardingScore": 1000000000,
@@ -3791,7 +3755,7 @@ let count = 0;
           let buttonMessage = {
             image: BotLogo,
             jpegThumbnail: Thumb,
-            caption: `*「 ${global.BotName} 」*\n\n_Group Setting Changer tool_:\n\nIf you want to Group close *-group close*\n\nIf you want to Group Oepn *-group open*`,
+            caption: `*「 ${global.BotName} 」*\n\n_Changement des paramètres du groupe_:\n\nSi tu veux fermer le groupe *-group close*\n\nSi tu veux ouvrir le groupe *-group open*`,
             footer: `${BotName}`,
             headerType: 4
           }
@@ -3835,8 +3799,8 @@ let count = 0;
 
 
         let users = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-        if (users.length == 0) return reply(`Please write the number of the person you want to add to thhis group`)
-        await A17.groupParticipantsUpdate(m.chat, [users], 'add').then((res) => reply(`User Added Successfully!`)).catch((err) => reply(`Cannot add that user to this group!`))
+        if (users.length == 0) return reply(`Ecris le numéro de la personne que tu veux ajouter au groupe`)
+        await A17.groupParticipantsUpdate(m.chat, [users], 'add').then((res) => reply(`Utilisateur ajouté avec succès !`)).catch((err) => reply(`Impossible d'ajouter cet utilisateur au groupe !`))
       }
         break;
 
@@ -3849,13 +3813,13 @@ let count = 0;
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
         A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
-        if (!text) return reply(`Enter the number you want to invite to the group...\n\nExample :\n*${prefix + command}* 916297175943`)
-        if (text.includes('+')) return reply(`Enter the number together without *+*`)
-        if (isNaN(text)) return reply(`Enter only the numbers plus your country code without spaces`)
+        if (!text) return reply(`Entrez le numéro que vous voulez inviter dans le groupe...\n\nExemple :\n*${prefix + command}* 22363198446`)
+        if (text.includes('+')) return reply(`Entrez le numéro sans le *+*`)
+        if (isNaN(text)) return reply(`Entrez seulement un numéro avec le code pays et sans espace`)
         let group = m.chat
         let link = 'https://chat.whatsapp.com/' + await A17.groupInviteCode(group)
-        await A17.sendMessage(text + '@s.whatsapp.net', { text: ` *GROUP INVITATION*\n\nA user invites you to join this group \n\n${link}`, mentions: [m.sender] })
-        reply(` An invite link is sent to the user`)
+        await A17.sendMessage(text + '@s.whatsapp.net', { text: ` *Invitation*\n\nUn utilisateur t'a invité à rejoindre ce groupe \n\n${link}`, mentions: [m.sender] })
+        reply(` Lien d'invitation envoyé à l'utilisateur `)
       }
         break;
 
@@ -3879,13 +3843,13 @@ let count = 0;
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
         A17.sendMessage(from, { react: { text: "🫡", key: m.key } })
-        if (!args[0]) return reply(`Where's the link?`)
+        if (!args[0]) return reply(`Où est le lietn `)
         vdd = args[0]
         let vcc = vdd.split("https://chat.whatsapp.com/")[1]
-        if (!vcc) return reply("Link invalid!")
+        if (!vcc) return reply("Lien invalide !")
         if (isCreator) {
           await A17.groupAcceptInvite(vcc).then(async (res) => reply(jsonformat(res))).catch(_ => _)
-          reply("Succes!")
+          reply("Réussi !")
         } else {
           A17.query({
             tag: "iq",
@@ -3898,13 +3862,13 @@ let count = 0;
           }).then(async (res) => {
             sizny = res.content[0].attrs.size
             if (sizny < 20) {
-              teks = `Sorry, munimun 20 members are required in a group to add bot!`
-              sendOrder(m.chat, teks, "667140254502463", fs.readFileSync('./Assets/pic7.jpg'), `${global.packname}`, `${global.BotName}`, "916297175943@s.whatsapp.net", "AR6NCY8euY5cbS8Ybg5Ca55R8HFSuLO3qZqrIYCT7hQp0g==", "99999999999999999999")
+              teks = `Désolé, vous avez besoin de 20 membres minimum pour ajouter un bot!`
+              sendOrder(m.chat, teks, "667140254502463", fs.readFileSync('./Assets/pic7.jpg'), `${global.packname}`, `${global.BotName}`, "22363198446@s.whatsapp.net", "AR6NCY8euY5cbS8Ybg5Ca55R8HFSuLO3qZqrIYCT7hQp0g==", "99999999999999999999")
             } else if (sizny > 20) {
               await A17.groupAcceptInvite(vcc).then(async (res) => reply(jsonformat(res))).catch(_ => _)
-              reply("Joined !")
+              reply("Rejoins !")
             } else {
-              reply("Error")
+              reply("Erreur")
             }
           }).catch(_ => _)
         }
@@ -3936,29 +3900,29 @@ let count = 0;
 
         if (args.length === 0) {
           if (global.groupevent) {
-            return m.reply(`Group events are currently *enabled*.\n\nYou can turn them *off* using "${global.prefa[0]}groupevent off".`);
+            return m.reply(`Les évènements de groupes sont actuellement *activés*.\n\nTu peux les *désactiver* en utilisant "${global.prefa[0]}groupevent off".`);
           } else {
-            return m.reply(`Group events are currently *disabled*.\n\nYou can turn them *on* using "${global.prefa[0]}groupevent on".`);
+            return m.reply(`Les évènements de groupes sont actuellement *désactivés*.\n\nTu peux les *activer* en utilisant "${global.prefa[0]}groupevent on".`);
           }
         } else if (args.length === 1 && (args[0] === 'on' || args[0] === 'off')) {
           const status = args[0];
           if (status === 'on') {
             if (global.groupevent) {
-              return m.reply(`Group events are already *enabled*.`);
+              return m.reply(`Les évènements de groupes sont déjà *activés*.`);
             } else {
               global.groupevent = true;
-              return m.reply(`Group events are now *enabled*.`);
+              return m.reply(`Les évènements de groupes sont maintenant *activés*.`);
             }
           } else {
             if (!global.groupevent) {
-              return m.reply(`Group events are already *disabled*.`);
+              return m.reply(`Les évènements de groupes sont déjà *désactivés*.`);
             } else {
               global.groupevent = false;
-              return m.reply(`Group events are now *disabled*.`);
+              return m.reply(`Les évènements de groupes sont maintenant *désactivés*.`);
             }
           }
         } else {
-          return m.reply(`Usage: ${global.prefa[0]}groupevent [on/off]`);
+          return m.reply(`Utilisation: ${global.prefa[0]}groupevent [on/off]`);
         }
         break;
 
@@ -6441,12 +6405,12 @@ _Click the button below to download_`
             ment = [messsender, m.sender]
           }
           if (users == "none") {
-            musers = `@${m.sender.split("@")[0]} ${command}ed at themself!`
+            musers = `@${m.sender.split("@")[0]} ${command}ed à lui même!`
             console.log(musers)
 
           } else {
             const rcpp = `@${users.split("@"[0])}`
-            musers = `@${m.sender.split("@")[0]} ${command}ed at @${users.split("@")[0]} `
+            musers = `@${m.sender.split("@")[0]} ${command}ed à @${users.split("@")[0]} `
 
             console.log(musers)
           }
@@ -6493,13 +6457,13 @@ _Click the button below to download_`
                ] */
         let buttonzMessage = {
           image: { url: ud.data.url },
-          caption: `Here it is...`,
+          caption: `Voilà...`,
           /*   footer: `${global.BotName}`,
                  buttons: wbutsss,
             headerType: 4 */
         }
         await A17.sendMessage(m.chat, buttonzMessage, { quoted: m }).catch(err => {
-          return ('Error!')
+          return ('Erreur!')
         })
         break;
 
@@ -6517,14 +6481,14 @@ _Click the button below to download_`
           ] */
         let button1Messages = {
           image: { url: waifudd.data.url },
-          caption: `Here it is...`,
+          caption: `Voilà...`,
           /*  footer: `${global.BotName}`,
           buttons: wbuttsss,
           headerType: 2 */
 
         }
         await A17.sendMessage(m.chat, button1Messages, { quoted: m }).catch(err => {
-          return ('Error!')
+          return ('Erreur !')
         })
         break;
 
@@ -6535,7 +6499,7 @@ _Click the button below to download_`
         if (!m.isGroup) return reply(mess.grouponly);
         reply(mess.waiting)
         const { AnimeWallpaper } = require("anime-wallpaper")
-        if (!q) return reply('Please enter a seach term!')
+        if (!q) return reply('Entrez un terme de recherche !')
         const wall = new AnimeWallpaper();
         const pages = [1, 2, 3, 4];
         const random = pages[Math.floor(Math.random() * pages.length)]
@@ -6548,7 +6512,7 @@ _Click the button below to download_`
         ]
         let wal = {
           image: { url: wallpaper[i].image },
-          caption: `*Search Term :* ${q}`,
+          caption: `*Terme de recherche :* ${q}`,
           footer: `${global.BotName}`,
           buttons: walb,
           headerType: 4
@@ -6609,72 +6573,77 @@ _Click the button below to download_`
 
       //
       case 'anime': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "🍁", key: m.key } });
-        if (!text) return reply(`Please proide a search term!\n\n*Example:* ${prefix}anime naruto`)
-
-        const malScraper = require('mal-scraper')
-        reply(mess.waiting);
-        const anime = await malScraper.getInfoFromName(text).catch(() => null)
-        if (!anime) return reply(`${p}Could not find your scarch`)
+        if (isBan) return reply(mess.banned); // Vous êtes banni d'utiliser des commandes!
+        if (isBanChat) return reply(mess.bangc); // Ce groupe est banni d'utiliser des commandes!
+        if (!m.isGroup) return reply(mess.grouponly); // Cette commande est uniquement destinée aux groupes, Baka!
+        A17.sendMessage(from, { react: { text: "🍁", key: m.key } }); // Envoyer une réaction de feuille d'érable
+    
+        if (!text) return reply(`Veuillez fournir un terme de recherche!\n\n*Exemple:* ${prefix}anime naruto`); // Veuillez fournir un terme de recherche
+    
+        const malScraper = require('mal-scraper');
+        reply(mess.waiting); // En attente de la réponse
+    
+        const anime = await malScraper.getInfoFromName(text).catch(() => null);
+        if (!anime) return reply(`${p}Impossible de trouver votre recherche`);
+    
         let animetxt = `
-  🎀 *Title: ${anime.title}*
-  🎋 *Type: ${anime.type}*
-  🎐 *Premiered on: ${anime.premiered}*
-  💠 *Total Episodes: ${anime.episodes}*
-  📈 *Status: ${anime.status}*
-  💮 *Genres: ${anime.genres}
-  📍 *Studio: ${anime.studios}*
-  🌟 *Score: ${anime.score}*
-  💎 *Rating: ${anime.rating}*
-  🏅 *Rank: ${anime.ranked}*
-  💫 *Popularity: ${anime.popularity}*
-  ♦️ *Trailer: ${anime.trailer}*
-  🌐 *URL: ${anime.url}*
-  ❄ *Description:* ${anime.synopsis}*`
-        await A17.sendMessage(m.chat, { image: { url: anime.picture }, caption: animetxt }, { quoted: m })
-      }
-        break;
+🎀 *Titre: ${anime.title}*
+🎋 *Type: ${anime.type}*
+🎐 *Première le: ${anime.premiered}*
+💠 *Épisodes totaux: ${anime.episodes}*
+📈 *Statut: ${anime.status}*
+💮 *Genres: ${anime.genres}*
+📍 *Studio: ${anime.studios}*
+🌟 *Score: ${anime.score}*
+💎 *Classification: ${anime.rating}*
+🏅 *Classement: ${anime.ranked}*
+💫 *Popularité: ${anime.popularity}*
+♦️ *Bande-annonce: ${anime.trailer}*
+🌐 *URL: ${anime.url}*
+❄ *Description:* ${anime.synopsis}*`;
+    
+        await A17.sendMessage(m.chat, { image: { url: anime.picture }, caption: animetxt }, { quoted: m }); // Envoyer les informations sur l'anime avec l'image associée
+    }
+    break;
+    
 
-
-      case 'manga':
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly);
-        A17.sendMessage(from, { react: { text: "🍁", key: m.key } })
-
-        reply(mess.waiting)
-        const { Manga } = require("@shineiichijo/marika")
-        const manga = new Manga();
-        if (!q) return reply(`Please proide a search term!\n\n_Example:_ ${prefix}manga naruto`)
-        let srh = await manga.searchManga(q)
-        let mang = `*Title:* ${srh.data[0].title}\n`;
-        mang += `*Status:* ${srh.data[0].status}\n`;
-        mang += `*Total Volumes:* ${srh.data[0].volumes}\n`;
-        mang += `*Total Chapters:* ${srh.data[0].chapters}\n`;
-        mang += `*Genres:*\n`;
-        for (let i = 0; i < srh.data[0].genres.length; i++) {
-          mang += `\t\t\t\t\t\t\t\t${srh.data[0].genres[i].name}\n`;
-        }
-        mang += `*Published on:* ${srh.data[0].published.from}\n`;
-        mang += `*Score:* ${srh.data[0].scored}\n`;
-        mang += `*Popularity:* ${srh.data[0].popularity}\n`;
-        mang += `*Favorites:* ${srh.data[0].favorites}\n`;
-        mang += `*Authors:*\n`;
-        for (let i = 0; i < srh.data[0].authors.length; i++) {
-          mang += `\t\t\t\t\t\t\t\t\t${srh.data[0].authors[i].name} (${srh.data[0].authors[0].type})\n`;
-        }
-        mang += `\n*URL:* ${srh.data[0].url}\n\n`;
-        if (srh.data[0].background !== null)
-          mang += `*Background:* ${srh.data[0].background}`;
-        mang += `*Description:* ${srh.data[0].synopsis.replace(
-          /\[Written by MAL Rewrite]/g,
-          ""
-        )}`;
-        A17.sendMessage(m.chat, { image: { url: srh.data[0].images.jpg.large_image_url }, caption: mang }, { quoted: m })
-        break;
+        case 'manga':
+          if (isBan) return reply(mess.banned); // Vous êtes banni d'utiliser des commandes!
+          if (isBanChat) return reply(mess.bangc); // Ce groupe est banni d'utiliser des commandes!
+          if (!m.isGroup) return reply(mess.grouponly); // Cette commande est uniquement destinée aux groupes, Baka!
+          A17.sendMessage(from, { react: { text: "🍁", key: m.key } });
+      
+          reply(mess.waiting); // Juste un moment...
+          const { Manga } = require("@shineiichijo/marika");
+          const manga = new Manga();
+          if (!q) return reply(`Veuillez fournir un terme de recherche !\n\n_Exemple :_ ${prefix}manga naruto`);
+          let srh = await manga.searchManga(q);
+          let mang = `*Titre :* ${srh.data[0].title}\n`;
+          mang += `*Statut :* ${srh.data[0].status}\n`;
+          mang += `*Nombre de volumes :* ${srh.data[0].volumes}\n`;
+          mang += `*Nombre de chapitres :* ${srh.data[0].chapters}\n`;
+          mang += `*Genres :*\n`;
+          for (let i = 0; i < srh.data[0].genres.length; i++) {
+              mang += `\t${srh.data[0].genres[i].name}\n`;
+          }
+          mang += `\n*Publié le :* ${srh.data[0].published.from}\n`;
+          mang += `*Score :* ${srh.data[0].scored}\n`;
+          mang += `*Popularité :* ${srh.data[0].popularity}\n`;
+          mang += `*Favoris :* ${srh.data[0].favorites}\n`;
+          mang += `*Auteurs :*\n`;
+          for (let i = 0; i < srh.data[0].authors.length; i++) {
+              mang += `\t${srh.data[0].authors[i].name} (${srh.data[0].authors[0].type})\n`;
+          }
+          mang += `\n\n*URL :* ${srh.data[0].url}\n\n`;
+          if (srh.data[0].background !== null)
+              mang += `*Contexte :* ${srh.data[0].background}`;
+          mang += `*Description :* ${srh.data[0].synopsis.replace(
+              /\[Ecris par MAL Rewrite]/g,
+              ""
+          )}`;
+          A17.sendMessage(m.chat, { image: { url: srh.data[0].images.jpg.large_image_url }, caption: mang }, { quoted: m });
+          break;
+      
 
 
       case 'waifu':
@@ -6688,13 +6657,13 @@ _Click the button below to download_`
           ] */
         let button4Messagess = {
           image: { url: waifuddd.data.url },
-          caption: 'More than one waifu will definitely ruin your Laifu!',
+          caption: 'Plus d\'une waifu ruinera définitivement ton Laifu!',
           /*buttons: wbuttsssr,
           headerType: 4 */
         }
 
         await A17.sendMessage(m.chat, button4Messagess, { quoted: m }).catch(err => {
-          return ('error..')
+          return ('erreur..')
         })
         break;
 
@@ -6716,7 +6685,7 @@ _Click the button below to download_`
         }
 
         await A17.sendMessage(m.chat, buttonMessagessf, { quoted: m }).catch(err => {
-          return ('error..')
+          return ('erreur..')
         })
         break;
 
@@ -6732,13 +6701,13 @@ _Click the button below to download_`
           ] */
         let buttonMessagessfgr = {
           image: { url: waifuddd.data.url },
-          caption: 'Dont be a lolicon !',
+          caption: 'Ne sois pas un lolicon !',
           /*  buttons: wbuttsssr,
             headerType: 2 */
         }
 
         await A17.sendMessage(m.chat, buttonMessagessfgr, { quoted: m }).catch(err => {
-          return ('error..')
+          return ('erreur..')
         })
         break;
 
@@ -6768,9 +6737,9 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
-        if (!args.join(" ")) return reply(`Please enter some text to broadcast! \n\nExample : ${prefix + command} ${global.OwnerName}`)
+        if (!args.join(" ")) return reply(`Entrez un texte à diffuser ! \n\nExemple : ${prefix + command} ${global.OwnerName}`)
         let anu = await store.chats.all().map(v => v.id)
-        reply(`Send Broadcast To ${anu.length} Chat\nTime's up ${anu.length * 1.5} second`)
+        reply(`Diffusion envoyé à ${anu.length} Chats \nDurée : ${anu.length * 1.5} secondes`)
         for (let yoi of anu) {
           await sleep(1500)
           let btn = [{
@@ -6780,14 +6749,14 @@ _Click the button below to download_`
             }
           }, {
             quickreplyButton: {
-              displayText: 'Bot Owner',
+              displayText: 'Propriétaire',
               id: '-owner'
             }
           }]
           let txt = `「 *${global.OwnerName}'s Broadcast* 」\n\n${text}`
           A17.send5ButImg(yoi, txt, `${global.BotName}`, BotLogo, btn, Thumb)
         }
-        reply('Broadcast Sent !')
+        reply('Diffusion envoyée !')
       }
         break;
 
