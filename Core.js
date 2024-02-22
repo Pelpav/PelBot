@@ -15,9 +15,9 @@ const { addBalance } = require("./lib/limit.js");
 const { smsg, formatp, tanggal, GIFBufferToVideoBuffer, formatDate, getTime, isUrl, sleep, clockString, runtime, fetchJson, getBuffer, jsonformat, format, parseMention, getRandom, fetchBuffer } = require('./lib/myfunc')
 const _ = require("lodash");
 const yargs = require("yargs/yargs");
-const kaitime = moment.tz('Asia/Kolkata').format('HH:mm:ss');
-const kaidate = moment.tz('Asia/Kolkata').format('DD/MM/YYYY');
-const time2 = moment().tz('Asia/Kolkata').format('HH:mm:ss');
+const kaitime = moment.tz('Africa/Mali').format('HH:mm:ss');
+const kaidate = moment.tz('Africa/Mali').format('DD/MM/YYYY');
+const time2 = moment().tz('Africa/Mali').format('HH:mm:ss');
 const currentDate = new Date();
 const options = { weekday: 'long' }; // Specify 'long' to get the full day name
 const currentDay = new Intl.DateTimeFormat('en-US', options).format(currentDate);
@@ -51,17 +51,17 @@ const { MessageType } = require('@whiskeysockets/baileys');
 let nowtime = '';
 
 if (time2 < "05:00:00") {
-  nowtime = 'Good night 🏙';
+  nowtime = 'Bonne nuit 🏙';
 } else if (time2 < "11:00:00") {
-  nowtime = 'Good morning 🌅';
+  nowtime = 'Bonjour 🌅';
 } else if (time2 < "15:00:00") {
-  nowtime = 'Good afternoon 🏞';
+  nowtime = 'Bonsoir 🏞';
 } else if (time2 < "18:00:00") {
-  nowtime = 'Good evening 🌇';
+  nowtime = 'Bonsoir 🌇';
 } else if (time2 < "19:00:00") {
-  nowtime = 'Good evening 🌆';
+  nowtime = 'Bonsoir 🌆';
 } else {
-  nowtime = 'Good night 🌌';
+  nowtime = 'Bonne nuit 🌌';
 }
 
 
@@ -171,13 +171,13 @@ var syear = (yye < 1000) ? yye + 1900 : yye;
 const jangwak = (hri + '' + buln[bulnh] + '' + syear)
 const janghar = (thisDaye)
 var myHari = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
+  "Dimanche",
+  "Lundi",
+  "Mardi",
+  "Mercredi",
+  "Jeudi",
+  "Vendredi",
+  "Samedi",
 ];
 var tgel = new Date();
 var thisHari = tgel.getDay(),
@@ -564,10 +564,10 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
       }
       if (!isSurrender && 1 > (ok = room.game.turn(m.sender === room.game.playerO, parseInt(m.text) - 1))) {
         reply({
-          '-3': 'Game Has Ended',
-          '-2': 'Invalid',
-          '-1': 'Invalid Position',
-          0: 'Invalid Position',
+          '-3': 'Fin du jeu',
+          '-2': 'Invalide',
+          '-1': 'Position Invalide',
+          0: 'Position Invalide',
         }[ok])
         return !0
       }
@@ -597,10 +597,10 @@ module.exports = A17 = async (A17, m, chatUpdate, store) => {
 ${arr.slice(0, 3).join('')}
 ${arr.slice(3, 6).join('')}
 ${arr.slice(6).join('')}
-${isWin ? `@${winner.split('@')[0]} Won!` : isTie ? `Game Over` : `Turn ${['❌', '⭕'][1 * room.game._currentTurn]} (@${room.game.currentTurn.split('@')[0]})`}
+${isWin ? `@${winner.split('@')[0]} Won!` : isTie ? `FIN` : `Turn ${['❌', '⭕'][1 * room.game._currentTurn]} (@${room.game.currentTurn.split('@')[0]})`}
 ❌: @${room.game.playerX.split('@')[0]}
 ⭕: @${room.game.playerO.split('@')[0]}
-Typed *surrender* to surrender and admited defeat`
+Ecris *surrender* pour abandonner et admettre ta défaite`
       if ((room.game._currentTurn ^ isSurrender ? room.x : room.o) !== m.chat)
         room[room.game._currentTurn ^ isSurrender ? 'x' : 'o'] = m.chat
       if (room.x !== room.o) await A17.sendText(room.x, str, m, { mentions: parseMention(str) })
@@ -686,22 +686,20 @@ Typed *surrender* to surrender and admited defeat`
   */
 
 
-    const responses = {
+  const responses = {
+    hello: `Bonjour ${pushname}, je suis ${BotName}. Mon préfixe actuel est "${prefix}". Comment puis-je vous aider ?`,
+    kai: `Mon patron est perdu dans un autre Multivers, et j'ai perdu la connexion avec lui...`,
+    runtime: `Salut ${pushname}\n${nowtime}\n\nMon temps d'exécution : ${runtime(process.uptime())}\n\nLe préfixe est : *${prefix}*\n\nHeure : ${kaitime}\n\nDate : ${kaidate}\n\nAujourd'hui, c'est ${currentDay}`,
+    konichiwa: `Konichiwa ${pushname}, je suis ${BotName}. Comment puis-je vous aider ?`,
+    sasha: 'Rien que pour toi...🫶🏻',
+    ping: `Salut ${pushname}, Pong ${latensie.toFixed(4)} ms`,
+    'good morning': `Bonjour à toi aussi ${pushname} ☺️. Passe une excellente journée 😇.`,
+    ohayo: `Bonjour à toi aussi ${pushname} ☺️. Passe une excellente journée 😇.`,
+    'good afternoon': `Bonjour à toi aussi ${pushname} ✨. Je te souhaite un agréable après-midi 😇🤞🏻.`,
+    konnichiwa: `Bonjour à toi aussi ${pushname} ✨. Je te souhaite un agréable après-midi 😇🤞🏻.`,
+    'good night': `Bonne nuit à toi aussi ${pushname} 😇. Fais de beaux rêves.`,
+};
 
-
-      hello: `Hello ${pushname}, I am ${BotName}. My current prefix is "${prefix}". How can I help you?`,
-      kai: `My Boss is lost in another Multiverse, and I lost connection with him...`,
-      runtime: `Hey ${pushname}\n${nowtime}\n\nMy runtime:${runtime(process.uptime())}\n\nPrefix is: *${prefix}*\n\nTime: ${kaitime}\n\nDate: ${kaidate}\n\nToday is ${currentDay}`,
-      konichiwa: `Konichiwa ${pushname}, I am ${BotName}. How can I help you?`,
-      sasha: 'Only you...🫶🏻',
-      ping: `Hey ${pushname}, Pong ${latensie.toFixed(4)} ms`,
-      'good morning': `Good morning to you too ${pushname} ☺️. Have a great day 😇.`,
-      ohayo: `Good morning to you too ${pushname} ☺️. Have a great day 😇.`,
-      'good afternoon': `Good afternoon to you too ${pushname} ✨. Wishing you an enjoyable afternoon too 😇🤞🏻.`,
-      konnichiwa: `Good afternoon to you too ${pushname} ✨. Wishing you an enjoyable afternoon too 😇🤞🏻.`,
-      'good night': `Good night to you too ${pushname} 😇. Sleep well and sweet dreams.`,
-
-    };
 
     const smallinput = budy.toLowerCase();
 
@@ -759,7 +757,7 @@ Typed *surrender* to surrender and admited defeat`
 
       case 'qt': {
         if (!args[0] && !m.quoted) {
-          return m.reply(`Please provide a text (Type or mention a message) !`);
+          return m.reply(`S'il vous plait donnez un texte (Ecris ou tag un message) !`);
         }
 
         try {
@@ -820,7 +818,7 @@ Typed *surrender* to surrender and admited defeat`
         if (isBanChat) return reply(mess.bangc);
 
         A17.sendMessage(from, { react: { text: "💫", key: m.key } })
-        reply(`⚙ *My developer's group:* http://gg.gg/gc-support`)
+        reply(`⚙ *My developer's group:* non disponible`)
       }
         break;
 
@@ -830,7 +828,7 @@ Typed *surrender* to surrender and admited defeat`
         if (isBanChat) return reply(mess.bangc);
 
         A17.sendMessage(from, { react: { text: "💫", key: m.key } })
-        reply(`⚙ My Source Code is </> - https://github.com/Kai0071/A17`)
+        reply(`⚙ My Source Code is </> - non disponible`)
       }
         break;
 
@@ -843,7 +841,6 @@ Typed *surrender* to surrender and admited defeat`
         A17.sendContact(m.chat, global.Owner, m)
       }
         break;
-
 
       case 'addmod':
       case 'addowner':
@@ -3592,8 +3589,10 @@ Typed *surrender* to surrender and admited defeat`
         let teks = `「 Attention 」
 
 *Message : ${args.join(" ") ? args.join(" ") : 'no message'}*\n\n`
+let count = 0;
         for (let mem of participants) {
-          teks += `» @${mem.id.split('@')[0]}\n`
+          teks += `${count} » @${mem.id.split('@')[0]}\n`
+          count++;
         }
         A17.sendMessage(m.chat, { text: teks, mentions: participants.map(a => a.id) }, { quoted: m })
       }

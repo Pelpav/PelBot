@@ -21,14 +21,14 @@ global.prefa = ["."];                                    //Default prefix here. 
 
 
 //
-global.Owner = ["916297175943", "919362639362"];         //If you want singal number so global.Owner = ['916297175943'] Change into your number.
-global.OwnerNumber = ["916297175943", "919362639362"];   //If you want singal number so global.Owner = ['916297175943'] Change into your number.
-global.ownertag = ["916297175943"];
-global.OwnerName = "Kai";
-global.BotName = "A17";
-global.packname = "A17 Bot";                             //Do not change.
-global.author = "By: Kai";                               //Do not change.
-global.BotSourceCode = "https://github.com/Kai0071/A17"; //Do not change.
+global.Owner = ["22363198446", "22394331377"];         //If you want singal number so global.Owner = ['916297175943'] Change into your number.
+global.OwnerNumber = ["22363198446", "22394331377"];   //If you want singal number so global.Owner = ['916297175943'] Change into your number.
+global.ownertag = ["22363198446"];
+global.OwnerName = "Christian";
+global.BotName = "PelBot";
+global.packname = "Pelpav Bot";                             //Do not change.
+global.author = "By: Christian";                               //Do not change.
+global.BotSourceCode = "https://github.com/Pelpav"; //Do not change.
 global.SupportGroupLink = "https://chat.whatsapp.com/GhRGdwfaMVDCoeAdzILfl";
 
 
@@ -41,11 +41,11 @@ global.openAiAPI = "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";
 
 
 //
-global.location = "Tata City, India";
+global.location = "Bamako City, Mali";
 global.reactmoji = "❤️";
 global.themeemoji = "💖";
 global.vidmenu = { url: 'https://media.tenor.com/Jdu0Ov8X2sIAAAAC/A17-Bot.mp4' };
-global.websitex = "https://github.com/Kai0071";
+global.websitex = "https://github.com/Pelpav";
 global.lolhuman = "KaysaS";
 
 
@@ -79,21 +79,21 @@ global.ntilink = []
 
 //
 global.mess = {
-  jobdone: 'Here you go...',
-  useradmin: 'Sorry, only *Group Admins* can use this command *Baka*!',
-  botadmin: 'Sorry, i cant execute this command without being an *Admin* of this group.',
-  botowner: 'Only my *Owner* can use this command, Baka!',
-  grouponly: 'This command is only made for *Groups*, Baka!',
-  privateonly: 'This command is only made for *Private Chat*, Baka!',
-  botonly: 'Only the *Bot itself* can use this command!',
-  waiting: 'Just Wait...',
-  nolink: 'Please provide me *link*, Baka!',
-  error: 'An error occurd!',
-  banned: 'You are *Banned* fron using commands!',
-  bangc: 'This Group is *Banned* from using Commands!',
-  nonsfw: 'Dont be a pervert Baka! This is not a NSFW enabled group!'
-
+  jobdone: 'Voilà...',
+  useradmin: 'Désolé, seuls les *administrateurs de groupe* peuvent utiliser cette commande *Baka*!',
+  botadmin: 'Désolé, je ne peux pas exécuter cette commande sans être un *administrateur* de ce groupe.',
+  botowner: 'Seul mon *propriétaire* peut utiliser cette commande, Baka!',
+  grouponly: 'Cette commande est uniquement destinée aux *groupes*, Baka!',
+  privateonly: 'Cette commande est uniquement destinée aux *chats privés*, Baka!',
+  botonly: 'Seul le *bot lui-même* peut utiliser cette commande!',
+  waiting: 'Juste un moment...',
+  nolink: 'Veuillez me fournir un *lien*, Baka!',
+  error: 'Une erreur est survenue!',
+  banned: 'Vous êtes *banni* d\'utiliser des commandes!',
+  bangc: 'Ce groupe est *banni* d\'utiliser des commandes!',
+  nonsfw: 'Ne soyez pas un pervers Baka! Ce groupe n\'est pas activé pour le contenu pour adultes (NSFW)!'
 }
+
 
 global.limitawal = {
   premium: "Infinity",
