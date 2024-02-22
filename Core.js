@@ -2735,7 +2735,7 @@ break;
       case 'ghstalk': case 'githubstalk': case 'github': {
         A17.sendMessage(from, { react: { text: "🔍", key: m.key } })
 
-        if (!q) return reply(`Give me a user name like *${prefix}github Kai0071*`)
+        if (!q) return reply(`Give me a user name like *${prefix}github Pelpav*`)
 
         gitdata = await githubstalk.githubstalk(`${q}`)
         A17.sendMessage(m.chat, {
@@ -5584,7 +5584,7 @@ _Click the button below to download_`
         if (isBanChat) return reply(mess.bangc);
         A17.sendMessage(from, { react: { text: "😺", key: m.key } })
 
-        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Kai`)
+        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Pelpav`)
         const can = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']
         const tik = can[Math.floor(Math.random() * can.length)]
         A17.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${tik}%*` }, { quoted: m })
@@ -5605,7 +5605,7 @@ _Click the button below to download_`
         if (isBanChat) return reply(mess.bangc);
         A17.sendMessage(from, { react: { text: "😺", key: m.key } })
 
-        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Kai`)
+        if (!text) return reply(`Tag Someone, Example : ${prefix + command} @Pelpavpav`)
         const sangeh = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']
         const sange = sangeh[Math.floor(Math.random() * sangeh.length)]
         A17.sendMessage(from, { text: `*${command}*\n\nName : ${q}\nAnswer : *${sange}%*` }, { quoted: m })
@@ -5701,7 +5701,7 @@ _Click the button below to download_`
           "shout you bastard in front of your mom/papa",
           "change the name to i am idiot for 24 hours",
           "slap urself firmly and send the sound of slap through voice note😂",
-          "say i love the bot owner Kai through voice note",
+          "say i love the bot owner Pelpav through voice note",
           "send your gf/bf pic here",
           "make any tiktok dance challenge video and put it on status, u can delete it after 5hrs",
           "break;up with your best friend for 5hrs without telling him/her that its a dare",
@@ -5795,7 +5795,7 @@ _Click the button below to download_`
           "Mention the incident that makes you hurt that you still remember",
           "what achievements have you got this year?",
           "what was your worst habit at school?",
-          "do you love the bot creator Kai?",
+          "do you love the bot creator Pelpavpav?",
           "have you ever thought of taking revenge from ur teacher?",
           "do you like current prime minister of ur country",
           "you non veg or veg",
@@ -7071,7 +7071,7 @@ Hemlo, I am "A17" a WhatsApp bot create and recode by Kai to do everything that 
   ⌯       all NSFW commands.
   ⌯    
   ⌯   『  *${global.BotName}*  』
-  ⌯       Developed By: *Kai*
+  ⌯       Developed By: *Pelpav*
   ⌯    
   ⌯   🍁 To use any of these
   ⌯       commands type.
