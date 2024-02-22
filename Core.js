@@ -717,6 +717,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
     switch (command) {
 
 
+      
 
       case 'qt': {
         if (!args[0] && !m.quoted) {
