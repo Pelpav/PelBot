@@ -5,9 +5,11 @@ const fs = require('fs');
 const pm2 = require('pm2');
 const util = require("util");
 const { promisify } = require('util');
+const xfarrapi = require('xfarr-api');
 const setTimeoutPromise = promisify(setTimeout);
 const chalk = require("chalk");
 const axios = require('axios');
+const cheerio = require('cheerio');
 const { spawn, exec, execSync } = require("child_process");
 const moment = require("moment-timezone");
 const { EmojiAPI } = require("emoji-api");
@@ -15,12 +17,13 @@ const { addBalance } = require("./lib/limit.js");
 const { smsg, formatp, tanggal, GIFBufferToVideoBuffer, formatDate, getTime, isUrl, sleep, clockString, runtime, fetchJson, getBuffer, jsonformat, format, parseMention, getRandom, fetchBuffer } = require('./lib/myfunc')
 const _ = require("lodash");
 const yargs = require("yargs/yargs");
-const kaitime = moment.tz('Bamako/Mali').format('HH:mm:ss');
-const kaidate = moment.tz('Bamako/Mali').format('DD/MM/YYYY');
-const time2 = moment().tz('Bamako/Mali').format('HH:mm:ss');
+const kaitime = moment.tz('UTC').format('HH:mm:ss');
+const kaidate = moment.tz('UTC').format('DD/MM/YYYY');
+const time2 = moment().tz('UTC').format('HH:mm:ss');
 const currentDate = new Date();
 const options = { weekday: 'long' }; // Specify 'long' to get the full day name
 const currentDay = new Intl.DateTimeFormat('en-US', options).format(currentDate);
+const fetch = require('node-fetch');
 
 const speed = require('performance-now');
 const eco = require('discord-mongoose-economy');
@@ -144,6 +147,7 @@ let _buruan = JSON.parse(fs.readFileSync('./storage/user/bounty.json'));
 let _darahOrg = JSON.parse(fs.readFileSync('./storage/user/blood.json'))
 let ntnsfw = JSON.parse(fs.readFileSync('./database/nsfw.json')); //
 let pendaftar = JSON.parse(fs.readFileSync('./storage/user/user.json'))
+let groups = JSON.parse(fs.readFileSync('./storage/group/group.json'))
 let balance = JSON.parse(fs.readFileSync('./database/balance.json'))
 let ssewa = JSON.parse(fs.readFileSync('./database/sewa.json'))
 let ban = JSON.parse(fs.readFileSync('./database/ban.json'))
@@ -184,7 +188,92 @@ var thisHari = tgel.getDay(),
   thisDaye = myHari[thisHari];
 var yye = tgel.getYear();
 
+function getGenreName(genreId) {
+  // Liste des genres
+  const genres = {
+    28: "Action",
+    12: "Aventure",
+    16: "Animation",
+    35: "Comédie",
+    80: "Crime",
+    99: "Documentaire",
+    18: "Drame",
+    10751: "Familial",
+    14: "Fantastique",
+    36: "Histoire",
+    27: "Horreur",
+    10402: "Musique",
+    9648: "Mystère",
+    10749: "Romance",
+    878: "Science-Fiction",
+    10770: "Téléfilm",
+    53: "Thriller",
+    10752: "Guerre",
+    37: "Western",
+    10759: "Action & Adventure",
+    10762: "Kids",
+    10763: "News",
+    10764: "Reality",
+    10765: "Science-Fiction & Fantastique",
+    10766: "Soap",
+    10767: "Talk",
+    10768: "Guerre & Politiques"
+  };
 
+  // Vérifie si l'identifiant du genre existe dans la liste des genres
+  if (genres.hasOwnProperty(genreId)) {
+    return genres[genreId]; // Retourne le nom du genre correspondant à l'identifiant
+  } else {
+    return "Genre inconnu"; // Retourne un message d'erreur si l'identifiant du genre n'est pas trouvé
+  }
+}
+
+// Fonction pour mapper les codes de langue aux noms des langues correspondants
+function getLanguageName(languageCode) {
+  switch (languageCode) {
+    case 'en':
+      return 'Anglais';
+    case 'fr':
+      return 'Français';
+    case 'ja':
+      return 'Japonais';
+    case 'ko':
+      return 'Coréen';
+    // Ajoutez d'autres langues au besoin
+    default:
+      return languageCode; // Retourne le code de langue si le nom n'est pas trouvé
+  }
+}
+
+// Dans la construction de la légende, utilisez la fonction pour obtenir le nom de la langue
+
+// Fonction pour formater la date de première diffusion
+function formatPremiereDate(dateString) {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const premiereDate = new Date(dateString);
+  return premiereDate.toLocaleDateString('fr-FR', options);
+}
+
+// Fonction pour récupérer les informations des utilisateurs à partir de leur ID
+function getUserProfile(userId) {
+  // Simulation de la récupération des informations de l'utilisateur
+  return {
+    jid: userId,
+    unreadCount: 0, // Le nombre de messages non lus peut être stocké ici
+    conversationTimestamp: Date.now() // La date et l'heure de la dernière interaction peuvent être stockées ici
+  };
+}
+
+// Fonction pour récupérer les informations des utilisateurs enregistrés dans les conversations personnelles
+function getPersonalChatUsers() {
+  // Charger les données des utilisateurs enregistrés dans les conversations personnelles depuis le fichier JSON
+  let userData = JSON.parse(fs.readFileSync('./storage/user/user.json', 'utf8'));
+
+  // Filtrer les utilisateurs qui ne sont pas dans des groupes
+  let personalChatUsers = userData.filter(user => !groups.includes(user.jid));
+
+  return personalChatUsers;
+}
 
 //
 module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
@@ -277,6 +366,60 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
       pendaftar.push(m.sender);
       fs.writeFileSync("./storage/user/user.json", JSON.stringify(pendaftar));
     }
+
+    if (!isUser) {
+      pendaftar.push(m.sender);
+      fs.writeFileSync("./storage/user/user.json", JSON.stringify(pendaftar));
+    }
+
+    if (m.isGroup) {
+      // Récupérez l'ID du groupe
+      const groupId = m.chat;
+
+      // Vérifiez si le groupe n'est pas déjà enregistré
+      if (!groups.includes(groupId)) {
+        // Ajoutez l'ID du groupe à la liste des groupes enregistrés
+        groups.push(groupId);
+
+        // Enregistrez les modifications dans le fichier JSON
+        fs.writeFileSync("./storage/group/group.json", JSON.stringify(groups));
+      }
+    }
+
+    const forbiddenWords = ["mot1", "mot2", "mot3"];
+
+    // Assurez-vous que cette partie du code est placée là où vous gérez les messages entrants
+
+    // Fonction pour vérifier si le message contient des mots interdits
+    function containsForbiddenWord(message) {
+      return forbiddenWords.some(word => message.includes(word));
+    }
+
+    // Vérifier si le message contient des mots interdits
+    if (m.message && containsForbiddenWord(m.body.toLowerCase())) {
+      // Supprimer le message
+      await PelBot.sendMessage(m.chat, { delete: m.key });
+
+      // Taguer la personne qui a envoyé le message
+      const senderTag = m.sender ? `@${m.sender.split('@')[0]}` : '';
+
+      // Construire le message d'alerte
+      const alertMessage = senderTag ?
+        `${senderTag} ⚠️ Le message a été supprimé car il contenait des mots interdits.` :
+        `⚠️ Le message a été supprimé car il contenait des mots interdits.`;
+
+      // Construire l'objet de message
+      const messageObject = {
+        extendedTextMessage: {
+          text: alertMessage
+        }
+      };
+
+      // Envoyer l'alerte
+      await PelBot.sendMessage(m.chat, messageObject);
+    }
+
+
 
 
 
@@ -442,7 +585,7 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
 
 
 
-    
+
 
     //
     this.game = this.game ? this.game : {}
@@ -582,19 +725,19 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
   */
 
 
-  const responses = {
-    hello: `Bonjour ${pushname}, je suis ${BotName}. Mon préfixe actuel est "${prefix}". Comment puis-je vous aider ?`,
-    kai: `Mon patron est perdu dans un autre Multivers, et j'ai perdu la connexion avec lui...`,
-    runtime: `Salut ${pushname}\n${nowtime}\n\nMon temps d'exécution : ${runtime(process.uptime())}\n\nLe préfixe est : *${prefix}*\n\nHeure : ${kaitime}\n\nDate : ${kaidate}\n\nAujourd'hui, c'est ${currentDay}`,
-    konichiwa: `Konichiwa ${pushname}, je suis ${BotName}. Comment puis-je vous aider ?`,
-    sasha: 'Rien que pour toi...🫶🏻',
-    ping: `Salut ${pushname}, Pong ${latensie.toFixed(4)} ms`,
-    'good morning': `Bonjour à toi aussi ${pushname} ☺️. Passe une excellente journée 😇.`,
-    ohayo: `Bonjour à toi aussi ${pushname} ☺️. Passe une excellente journée 😇.`,
-    'good afternoon': `Bonjour à toi aussi ${pushname} ✨. Je te souhaite un agréable après-midi 😇🤞🏻.`,
-    konnichiwa: `Bonjour à toi aussi ${pushname} ✨. Je te souhaite un agréable après-midi 😇🤞🏻.`,
-    'good night': `Bonne nuit à toi aussi ${pushname} 😇. Fais de beaux rêves.`,
-};
+    const responses = {
+      hello: `Bonjour ${pushname}, je suis ${BotName}. Mon préfixe actuel est "${prefix}". Comment puis-je vous aider ?`,
+      kai: `Mon patron est perdu dans un autre Multivers, et j'ai perdu la connexion avec lui...`,
+      runtime: `Salut ${pushname}\n${nowtime}\n\nMon temps d'exécution : ${runtime(process.uptime())}\n\nLe préfixe est : *${prefix}*\n\nHeure : ${kaitime}\n\nDate : ${kaidate}\n\nAujourd'hui, c'est ${currentDay}`,
+      konichiwa: `Konichiwa ${pushname}, je suis ${BotName}. Comment puis-je vous aider ?`,
+      sasha: 'Rien que pour toi...🫶🏻',
+      ping: `Salut ${pushname}, Pong ${latensie.toFixed(4)} ms`,
+      'good morning': `Bonjour à toi aussi ${pushname} ☺️. Passe une excellente journée 😇.`,
+      ohayo: `Bonjour à toi aussi ${pushname} ☺️. Passe une excellente journée 😇.`,
+      'good afternoon': `Bonjour à toi aussi ${pushname} ✨. Je te souhaite un agréable après-midi 😇🤞🏻.`,
+      konnichiwa: `Bonjour à toi aussi ${pushname} ✨. Je te souhaite un agréable après-midi 😇🤞🏻.`,
+      'good night': `Bonne nuit à toi aussi ${pushname} 😇. Fais de beaux rêves.`,
+    };
 
 
     const smallinput = budy.toLowerCase();
@@ -613,7 +756,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
     switch (command) {
 
 
-      
+
 
       case 'qt': {
         if (!args[0] && !m.quoted) {
@@ -678,7 +821,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
 
         PelBot.sendMessage(from, { react: { text: "💫", key: m.key } })
-        reply(`⚙ *My developer's group:* https://chat.whatsapp.com/IovTetsUXOUHkBY1eKSO3Kl`)
+        reply(`⚙ *My developer:* https://wa.me/22363198446`)
       }
         break;
 
@@ -693,113 +836,113 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         break;
 
 
-        case 'owner':
-          case 'creator':
-          case 'mod':
-          case 'mods':
-            if (isBan) return reply(mess.banned);
-            if (isBanChat) return reply(mess.bangc);
-          
-            PelBot.sendMessage(from, { react: { text: "💫", key: m.key } })
-            PelBot.sendContact(m.chat, global.Owner, m)
-          break;
-          
-          case 'addmod':
-          case 'addowner':
-            if (isBan) return reply(mess.banned);
-            if (isBanChat) return reply(mess.bangc);
-            if (!isCreator) return reply(mess.botowner)
-            PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
-          
-            if (!args[0]) return reply(`Utilisez ${prefix + command} numéro\nExemple ${prefix + command} ${OwnerNumber}`)
-            bnnd = q.split("|")[0].replace(/[^0-9]/g, '')
-            let ceknye = await PelBot.onWhatsApp(bnnd)
-            if (ceknye.length == 0) return reply(`Entrez un numéro valide et enregistré sur WhatsApp !!!`)
-            Owner.push(bnnd)
-            fs.writeFileSync('./database/mod.json', JSON.stringify(Owner))
-            reply(`Le numéro ${bnnd} est devenu un propriétaire !!!`)
-          break;
-          
-          case 'delowner':
-          case 'delmod':
-            if (isBan) return reply(mess.banned);
-            if (isBanChat) return reply(mess.bangc);
-            if (!isCreator) return reply(mess.botowner)
-            PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
-          
-            if (!args[0]) return reply(`Utilisez ${prefix + command} numéro\nExemple ${prefix + command} 916297175943`)
-            ya = q.split("|")[0].replace(/[^0-9]/g, '')
-            unp = Owner.indexOf(ya)
-            Owner.splice(unp, 1)
-            fs.writeFileSync('./database/mod.json', JSON.stringify(Owner))
-            reply(`Le numéro ${ya} a été supprimé de la liste des propriétaires par le propriétaire !!!`)
-          break;
-          
+      case 'owner':
+      case 'creator':
+      case 'mod':
+      case 'mods':
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+
+        PelBot.sendMessage(from, { react: { text: "💫", key: m.key } })
+        PelBot.sendContact(m.chat, global.Owner, m)
+        break;
+
+      case 'addmod':
+      case 'addowner':
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!isCreator) return reply(mess.botowner)
+        PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+
+        if (!args[0]) return reply(`Utilisez ${prefix + command} numéro\nExemple ${prefix + command} ${OwnerNumber}`)
+        bnnd = q.split("|")[0].replace(/[^0-9]/g, '')
+        let ceknye = await PelBot.onWhatsApp(bnnd)
+        if (ceknye.length == 0) return reply(`Entrez un numéro valide et enregistré sur WhatsApp !!!`)
+        Owner.push(bnnd)
+        fs.writeFileSync('./database/mod.json', JSON.stringify(Owner))
+        reply(`Le numéro ${bnnd} est devenu un propriétaire !!!`)
+        break;
+
+      case 'delowner':
+      case 'delmod':
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!isCreator) return reply(mess.botowner)
+        PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+
+        if (!args[0]) return reply(`Utilisez ${prefix + command} numéro\nExemple ${prefix + command} 916297175943`)
+        ya = q.split("|")[0].replace(/[^0-9]/g, '')
+        unp = Owner.indexOf(ya)
+        Owner.splice(unp, 1)
+        fs.writeFileSync('./database/mod.json', JSON.stringify(Owner))
+        reply(`Le numéro ${ya} a été supprimé de la liste des propriétaires par le propriétaire !!!`)
+        break;
 
 
-        case 'modlist':
-          if (isBan) return reply(mess.banned);
-          if (isBanChat) return reply(mess.bangc);
-          if (!isCreator) return reply(mess.botowner);
-          PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
-        
-          try {
-            const modData = fs.readFileSync('./database/mod.json', 'utf8');
-            const mods = JSON.parse(modData);
-        
-            if (mods.length === 0) {
-              reply('Il n\'y a aucun modérateur dans la liste.');
-            } else {
-              let modList = '';
-        
-              mods.forEach((mod, index) => {
-                modList += `(${index + 1}) ${PelBot.getName(mod)}\n`;
-              });
-        
-              reply(`Liste des modérateurs :\n\n${modList}`);
-            }
-          } catch (error) {
-            console.error(error);
-            reply('Impossible de récupérer la liste des modérateurs.');
+
+      case 'modlist':
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!isCreator) return reply(mess.botowner);
+        PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+
+        try {
+          const modData = fs.readFileSync('./database/mod.json', 'utf8');
+          const mods = JSON.parse(modData);
+
+          if (mods.length === 0) {
+            reply('Il n\'y a aucun modérateur dans la liste.');
+          } else {
+            let modList = '';
+
+            mods.forEach((mod, index) => {
+              modList += `(${index + 1}) ${PelBot.getName(mod)}\n`;
+            });
+
+            reply(`Liste des modérateurs :\n\n${modList}`);
           }
-          break;
-        
-        case 'setbotpp': {
-          if (!isCreator) return reply(mess.owner)
-          if (isBanChat) return reply(mess.bangc);
-          if (!isCreator) return reply(mess.owner)
-          PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
-        
-          if (!quoted) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
-          if (!/image/.test(mime)) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
-          if (/webp/.test(mime)) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
-          let media = await PelBot.downloadAndSaveMediaMessage(quoted)
-          await PelBot.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media))
-          m.reply(mess.jobdone)
+        } catch (error) {
+          console.error(error);
+          reply('Impossible de récupérer la liste des modérateurs.');
         }
         break;
-        
-        case 'changeprefix':
-        case 'setprefix':
-          if (isBan) return reply(mess.banned);
-          if (isBanChat) return reply(mess.bangc);
-          if (!isCreator) return reply(mess.botowner)
-          PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
-        
-          if (args.length !== 1) {
-            return m.reply(`Veuillez fournir un seul caractère comme nouveau préfixe.`);
-          } else {
-            const newPrefix = args[0];
-            try {
-              global.prefa = [newPrefix];
-              return m.reply(`${pushname} Préfixe changé avec succès en "${newPrefix}"`);
-            } catch (error) {
-              console.error('Erreur lors du changement de préfixe:', error);
-              return m.reply(`Une erreur s'est produite lors du changement du préfixe. Veuillez réessayer plus tard.`);
-            }
-          }
+
+      case 'setbotpp': {
+        if (!isCreator) return reply(mess.owner)
+        if (isBanChat) return reply(mess.bangc);
+        if (!isCreator) return reply(mess.owner)
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
+
+        if (!quoted) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
+        if (!/image/.test(mime)) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
+        if (/webp/.test(mime)) return `*Envoyez/répondez avec une image accompagnée d'une légende* ${prefix + command}`
+        let media = await PelBot.downloadAndSaveMediaMessage(quoted)
+        await PelBot.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media))
+        m.reply(mess.jobdone)
+      }
         break;
-        
+
+      case 'changeprefix':
+      case 'setprefix':
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!isCreator) return reply(mess.botowner)
+        PelBot.sendMessage(from, { react: { text: "🛡️", key: m.key } })
+
+        if (args.length !== 1) {
+          return m.reply(`Veuillez fournir un seul caractère comme nouveau préfixe.`);
+        } else {
+          const newPrefix = args[0];
+          try {
+            global.prefa = [newPrefix];
+            return m.reply(`${pushname} Préfixe changé avec succès en "${newPrefix}"`);
+          } catch (error) {
+            console.error('Erreur lors du changement de préfixe:', error);
+            return m.reply(`Une erreur s'est produite lors du changement du préfixe. Veuillez réessayer plus tard.`);
+          }
+        }
+        break;
+
 
 
       //
@@ -811,17 +954,16 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         await PelBot.sendMessage(from, { react: { text: "✅", key: m.key } });
         await PelBot.sendMessage(from, { text: 'Redémarrage réussi !' });
 
-        // Delay the shutdown by 5 seconds using sleep function
-        //await sleep(5000);
-
-        // Use PM2 to restart the script
-        pm2.restart('index', (err) => {
+        // Utiliser PM2 pour redémarrer le script
+        const { exec } = require('child_process');
+        exec('pm2 restart pelbot', (err, stdout, stderr) => {
           if (err) {
             PelBot.sendMessage(from, { react: { text: "❌", key: m.key } });
             PelBot.sendMessage(from, { text: 'Redémarrage Echoué !' });
-          } else {
             return;
           }
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
         });
         break;
 
@@ -832,36 +974,36 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.owner)
         await PelBot.sendMessage(from, { react: { text: "⚠️", key: m.key } })
-      
+
         reply(`D'accord, je m'endors !`)
         await sleep(5000)
         process.exit()
         break;
-      
+
       case 'public': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.owner)
         PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
-      
+
         PelBot.public = true
         reply('Je suis maintenant accessible au public !')
         PelBot.setStatus(`Mode : Public`)
       }
-      break;
-      
+        break;
+
       case 'self': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
-      
+
         PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         PelBot.public = false
         reply('Seul le propriétaire peut m\'utiliser maintenant !')
         PelBot.setStatus(`Mode : Privé`)
       }
-      break;
-      
+        break;
+
       case 'autoreadgc':
       case 'auto-read-gc':
       case 'readgc':
@@ -869,7 +1011,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner);
         PelBot.sendMessage(from, { react: { text: '❤', key: m.key } });
-      
+
         if (args.length === 0) {
           // Affiche l'état actuel de autoreadgc
           return m.reply(`Auto-lecture des groupes est actuellement ${global.autoreadgc ? 'activée' : 'désactivée'}.`);
@@ -886,14 +1028,14 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           return m.reply(`Utilisation: ${global.prefa[0]}autoreadgc [on/off]`);
         }
         break;
-      
+
       case 'autotyping':
       case 'auto-typing':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
         PelBot.sendMessage(from, { react: { text: '❤', key: m.key } });
-      
+
         if (args.length === 0) {
           if (global.autoTyping) {
             return m.reply(`L'autotypage dans les chats de groupe est actuellement *activé*.\n\nPour désactiver, utilisez \`${global.prefa[0]}autotyping off\`.`);
@@ -913,14 +1055,14 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           return m.reply(`Utilisation: \`${global.prefa[0]}autotyping [on/off]\``);
         }
         break;
-      
+
       case 'autorecord':
       case 'auto-recording':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
         PelBot.sendMessage(from, { react: { text: '❤', key: m.key } });
-      
+
         if (args.length === 0) {
           if (global.autoRecord) {
             return m.reply(`L'enregistrement automatique est actuellement *activé*.\n\nPour désactiver, utilisez \`${global.prefa[0]}autorecord off\`.`);
@@ -940,17 +1082,17 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           return m.reply(`Utilisation: \`${global.prefa[0]}autorecord [on/off]\``);
         }
         break;
-      
 
 
-        case 'server':
-          case 'sysinfo': {
-            const used = process.memoryUsage();
-            const cpu = os.cpus()[0];
-            const totalCpuUsage = (100 * (cpu.times.user + cpu.times.nice + cpu.times.sys + cpu.times.irq) / cpu.times.idle).toFixed(2);
-            const systemName = os.platform() + ' ' + os.release();
-          
-            const respon = `
+
+      case 'server':
+      case 'sysinfo': {
+        const used = process.memoryUsage();
+        const cpu = os.cpus()[0];
+        const totalCpuUsage = (100 * (cpu.times.user + cpu.times.nice + cpu.times.sys + cpu.times.irq) / cpu.times.idle).toFixed(2);
+        const systemName = os.platform() + ' ' + os.release();
+
+        const respon = `
 🤖 *Informations sur le serveur de PelBot* 🤖
           
 *Système*: ${systemName}
@@ -967,83 +1109,83 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           
 *Vitesse de réponse*: ${latensie.toFixed(4)} secondes
           `.trim();
-          
-            m.reply(respon);
-            break;
+
+        m.reply(respon);
+        break;
+      }
+
+      case 'ls':
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        PelBot.sendMessage(from, { react: { text: "📂", key: m.key } });
+
+        const currentDir = process.cwd(); // Obtient le répertoire de travail actuel
+
+        try {
+          const files = fs.readdirSync(currentDir);
+          let folderName = `Fichiers dans ${currentDir}:\n\n`;
+          let fileList = files.join('\n'); // Joint les noms de fichiers avec un saut de ligne
+          PelBot.sendMessage(from, { text: folderName + fileList }, m);
+        } catch (error) {
+          console.error(error);
+          PelBot.sendMessage(from, { text: 'Erreur lors de la lecture du contenu du répertoire.🫳🏻' }, m);
+        }
+        break;
+
+      case 'autostatus':
+      case 'auto-status':
+      case 'statusevent':
+      case 'autostatusseen':
+
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!isCreator) return reply(mess.botowner)
+        PelBot.sendMessage(from, { react: { text: '❤', key: m.key } });
+
+        if (args.length === 0) {
+          // Affiche l'état actuel de l'autostatus
+          return m.reply(`L'autostatus est actuellement ${global.statusseen ? 'activé' : 'désactivé'}.`);
+        } else if (args.length === 1 && (args[0] === 'on' || args[0] === 'off')) {
+          const status = args[0];
+          if (status === 'on') {
+            global.statusseen = true;
+            return m.reply('L\'autostatus est maintenant activé.');
+          } else {
+            global.statusseen = false;
+            return m.reply('L\'autostatus est maintenant désactivé.');
           }
-          
-          case 'ls':
-            if (isBan) return reply(mess.banned);
-            if (isBanChat) return reply(mess.bangc);
-            PelBot.sendMessage(from, { react: { text: "📂", key: m.key } });
-          
-            const currentDir = process.cwd(); // Obtient le répertoire de travail actuel
-          
-            try {
-              const files = fs.readdirSync(currentDir);
-              let folderName = `Fichiers dans ${currentDir}:\n\n`;
-              let fileList = files.join('\n'); // Joint les noms de fichiers avec un saut de ligne
-              PelBot.sendMessage(from, { text: folderName + fileList }, m);
-            } catch (error) {
-              console.error(error);
-              PelBot.sendMessage(from, { text: 'Erreur lors de la lecture du contenu du répertoire.🫳🏻' }, m);
-            }
-            break;
-          
-          case 'autostatus':
-          case 'auto-status':
-          case 'statusevent':
-          case 'autostatusseen':
-          
-            if (isBan) return reply(mess.banned);
-            if (isBanChat) return reply(mess.bangc);
-            if (!isCreator) return reply(mess.botowner)
-            PelBot.sendMessage(from, { react: { text: '❤', key: m.key } });
-          
-            if (args.length === 0) {
-              // Affiche l'état actuel de l'autostatus
-              return m.reply(`L'autostatus est actuellement ${global.statusseen ? 'activé' : 'désactivé'}.`);
-            } else if (args.length === 1 && (args[0] === 'on' || args[0] === 'off')) {
-              const status = args[0];
-              if (status === 'on') {
-                global.statusseen = true;
-                return m.reply('L\'autostatus est maintenant activé.');
-              } else {
-                global.statusseen = false;
-                return m.reply('L\'autostatus est maintenant désactivé.');
-              }
-            } else {
-              return m.reply(`Utilisation: ${global.prefa[0]}autostatus [on/off]`);
-            }
-            break;
-          
-          case 'ban': {
-            if (isBan) return reply(mess.banned);
-            if (isBanChat) return reply(mess.bangc);
-            if (!isCreator) return reply(mess.botowner)
-            PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
-            if (!args[0]) return reply(`Sélectionnez add ou del (add pour bannir, del pour débannir), Par exemple: répondre *${prefix}ban add* à l'utilisateur que vous souhaitez bannir.`)
-            if (args[1]) {
-              orgnye = args[1] + "@s.whatsapp.net"
-            } else if (m.quoted) {
-              orgnye = m.quoted.sender
-            }
-            const isBane = banUser.includes(orgnye)
-            if (args[0] === "add") {
-              if (isBane) return ads('L\'utilisateur est déjà banni.')
-              banUser.push(orgnye)
-              reply(`L'utilisateur a été banni avec succès.`)
-            } else if (args[0] === "del") {
-              if (!isBane) return ads('L\'utilisateur est déjà débanni.')
-              let delbans = banUser.indexOf(orgnye)
-              banUser.splice(delbans, 1)
-              reply(`L'utilisateur a été débanni avec succès.`)
-            } else {
-              reply("Erreur")
-            }
-          }
-          break;
-          
+        } else {
+          return m.reply(`Utilisation: ${global.prefa[0]}autostatus [on/off]`);
+        }
+        break;
+
+      case 'ban': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!isCreator) return reply(mess.botowner)
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        if (!args[0]) return reply(`Sélectionnez add ou del (add pour bannir, del pour débannir), Par exemple: répondre *${prefix}ban add* à l'utilisateur que vous souhaitez bannir.`)
+        if (args[1]) {
+          orgnye = args[1] + "@s.whatsapp.net"
+        } else if (m.quoted) {
+          orgnye = m.quoted.sender
+        }
+        const isBane = banUser.includes(orgnye)
+        if (args[0] === "add") {
+          if (isBane) return ads('L\'utilisateur est déjà banni.')
+          banUser.push(orgnye)
+          reply(`L'utilisateur a été banni avec succès.`)
+        } else if (args[0] === "del") {
+          if (!isBane) return ads('L\'utilisateur est déjà débanni.')
+          let delbans = banUser.indexOf(orgnye)
+          banUser.splice(delbans, 1)
+          reply(`L'utilisateur a été débanni avec succès.`)
+        } else {
+          reply("Erreur")
+        }
+      }
+        break;
+
 
 
 
@@ -1054,346 +1196,346 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       //tictactoe game
 
       case 'ttc':
-        case 'ttt':
-        case 'tictactoe': {
-            if (isBan) return reply(mess.ban);
-            if (isBanChat) return reply(mess.banChat);
-            PelBot.sendMessage(from, { react: { text: "🎮", key: m.key } });
-        
-            let TicTacToe = require("./lib/tictactoe");
-            this.game = this.game ? this.game : {};
-            if (Object.values(this.game).find(room => room.id.startsWith('tictactoe') && [room.game.playerX, room.game.playerO].includes(m.sender))) return reply(`${pushname}, vous êtes toujours dans le jeu...`);
-            let room = Object.values(this.game).find(room => room.state === 'WAITING' && (text ? room.name === text : true));
-            if (room) {
-                reply(`Salut ${pushname}, votre partenaire est trouvé !`);
-                room.o = m.chat;
-                room.game.playerO = m.sender;
-                room.state = 'PLAYING';
-                let arr = room.game.render().map(v => {
-                    return {
-                        X: '❌',
-                        O: '⭕',
-                        1: '1️⃣',
-                        2: '2️⃣',
-                        3: '3️⃣',
-                        4: '4️⃣',
-                        5: '5️⃣',
-                        6: '6️⃣',
-                        7: '7️⃣',
-                        8: '8️⃣',
-                        9: '9️⃣',
-                    }[v];
-                });
-                let str = `ID de la salle : ${room.id}\n${arr.slice(0, 3).join('')}\n${arr.slice(3, 6).join('')}\n${arr.slice(6).join('')}\nEn attente de @${room.game.currentTurn.split('@')[0]}\nTapez *surrender* pour vous rendre et admettre la défaite...`;
-                if (room.x !== room.o) await PelBot.sendText(room.x, str, m, { mentions: parseMention(str) });
-                await PelBot.sendText(room.o, str, m, { mentions: parseMention(str) });
-            } else {
-                room = {
-                    id: 'tictactoe-' + (+new Date),
-                    x: m.chat,
-                    o: '',
-                    game: new TicTacToe(m.sender, 'o'),
-                    state: 'WAITING'
-                };
-                if (text) room.name = text;
-                reply('En attente d\'un partenaire' + (text ? ` Tapez la commande ci-dessous ${prefix}${command} ${text}` : ''));
-                this.game[room.id] = room;
-            }
-        }
-        break;
-        
-        case 'report':
-        case 'suggest': {
-            if (isBan) return reply(mess.banned);
-            if (isBanChat) return reply(mess.banChat);
-            if (!text) return reply(`Veuillez fournir un message de rapport que vous souhaitez envoyer`);
-            if (text.length > 300) return reply(`Essayez-vous d'envoyer un virus !`);
-            const txtmsg = `*📮 Message de rapport*\n\n*Expéditeur ➛* wa.me/${m.sender.split("@")[0]}\n\n*Nom du groupe ➛* ${groupName}\n\n*Message ➛*  ${text}`;
-            for (let mod of global.Owner.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').filter(v => v != '6297175943@s.whatsapp.net'))
-                await PelBot.sendMessage(`${mod}`, { text: `${txtmsg}` }, { quoted: m });
-            await PelBot.sendMessage(`120363026915700516@g.us`, { text: `${txtmsg}`, mentions: groupAdmins }, { quoted: m });
-            reply(`*✅ Votre rapport a été soumis avec succès au groupe de support & au propriétaire*\n\n*Vous recevrez une réponse bientôt... ♥️*`);
-        }
-        break;
-        
-        case 'dice':
-        case 'roll': {
-            PelBot.sendMessage(from, { react: { text: "🎲", key: m.key } });
-            const result = Math.floor(Math.random() * 6) + 1; // Génère un nombre aléatoire entre 1 et 6
-        
-            const diceMessage = `🎲 *Résultat du lancer de dés :* ${result}`;
-        
-            reply(diceMessage);
-        }
-        break;
-        
-        case 'flipcoin':
-        case 'coin': {
-            PelBot.sendMessage(from, { react: { text: "🪙", key: m.key } });
-            // Simule le lancer d'une pièce (0 pour face, 1 pour pile)
-            const result = Math.random() < 0.5 ? 'Face' : 'Pile';
-        
-            const flipCoinMessage = `🪙 *Résultat du lancer de pièce : ${result}*`;
-            reply(flipCoinMessage);
-        }
-        break;
-        
+      case 'ttt':
+      case 'tictactoe': {
+        if (isBan) return reply(mess.ban);
+        if (isBanChat) return reply(mess.banChat);
+        PelBot.sendMessage(from, { react: { text: "🎮", key: m.key } });
 
-        case 'rps': {
-          const randomEmoji = manyemojis[Math.floor(Math.random() * manyemojis.length)];
-          PelBot.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
-      
-          // Vérifie si la commande inclut un mouvement valide (pierre, papier ou ciseaux)
-          const validMoves = ['pierre', 'papier', 'ciseaux'];
-          if (!args[0] || !validMoves.includes(args[0].toLowerCase())) {
-              return reply('Veuillez fournir un mouvement valide : pierre, papier ou ciseaux.');
-          }
-      
-          // Génère un mouvement aléatoire pour le bot
-          const botMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-      
-          // Détermine le gagnant
-          const userMove = args[0].toLowerCase();
-          let result;
-      
-          if (userMove === botMove) {
-              result = 'C\'est une égalité !';
-          } else if (
-              (userMove === 'pierre' && botMove === 'ciseaux') ||
-              (userMove === 'papier' && botMove === 'pierre') ||
-              (userMove === 'ciseaux' && botMove === 'papier')
-          ) {
-              result = `Vous gagnez ! 🥳 ${userMove} bat ${botMove}.`;
-          } else {
-              result = `Vous perdez ! 🫳🏻 ${botMove} bat ${userMove}.`;
-          }
-      
-          // Envoie le résultat en tant que réponse
-          reply(`Vous avez choisi ${userMove}.\nPelBot a choisi ${botMove}.\n${result}`);
+        let TicTacToe = require("./lib/tictactoe");
+        this.game = this.game ? this.game : {};
+        if (Object.values(this.game).find(room => room.id.startsWith('tictactoe') && [room.game.playerX, room.game.playerO].includes(m.sender))) return reply(`${pushname}, vous êtes toujours dans le jeu...`);
+        let room = Object.values(this.game).find(room => room.state === 'WAITING' && (text ? room.name === text : true));
+        if (room) {
+          reply(`Salut ${pushname}, votre partenaire est trouvé !`);
+          room.o = m.chat;
+          room.game.playerO = m.sender;
+          room.state = 'PLAYING';
+          let arr = room.game.render().map(v => {
+            return {
+              X: '❌',
+              O: '⭕',
+              1: '1️⃣',
+              2: '2️⃣',
+              3: '3️⃣',
+              4: '4️⃣',
+              5: '5️⃣',
+              6: '6️⃣',
+              7: '7️⃣',
+              8: '8️⃣',
+              9: '9️⃣',
+            }[v];
+          });
+          let str = `ID de la salle : ${room.id}\n${arr.slice(0, 3).join('')}\n${arr.slice(3, 6).join('')}\n${arr.slice(6).join('')}\nEn attente de @${room.game.currentTurn.split('@')[0]}\nTapez *surrender* pour vous rendre et admettre la défaite...`;
+          if (room.x !== room.o) await PelBot.sendText(room.x, str, m, { mentions: parseMention(str) });
+          await PelBot.sendText(room.o, str, m, { mentions: parseMention(str) });
+        } else {
+          room = {
+            id: 'tictactoe-' + (+new Date),
+            x: m.chat,
+            o: '',
+            game: new TicTacToe(m.sender, 'o'),
+            state: 'WAITING'
+          };
+          if (text) room.name = text;
+          reply('En attente d\'un partenaire' + (text ? ` Tapez la commande ci-dessous ${prefix}${command} ${text}` : ''));
+          this.game[room.id] = room;
+        }
       }
-      break;
-      
-      
+        break;
+
+      case 'report':
+      case 'suggest': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.banChat);
+        if (!text) return reply(`Veuillez fournir un message de rapport que vous souhaitez envoyer`);
+        if (text.length > 300) return reply(`Essayez-vous d'envoyer un virus !`);
+        const txtmsg = `*📮 Message de rapport*\n\n*Expéditeur ➛* wa.me/${m.sender.split("@")[0]}\n\n*Nom du groupe ➛* ${groupName}\n\n*Message ➛*  ${text}`;
+        for (let mod of global.Owner.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').filter(v => v != '6297175943@s.whatsapp.net'))
+          await PelBot.sendMessage(`${mod}`, { text: `${txtmsg}` }, { quoted: m });
+        await PelBot.sendMessage(`120363026915700516@g.us`, { text: `${txtmsg}`, mentions: groupAdmins }, { quoted: m });
+        reply(`*✅ Votre rapport a été soumis avec succès au groupe de support & au propriétaire*\n\n*Vous recevrez une réponse bientôt... ♥️*`);
+      }
+        break;
+
+      case 'dice':
+      case 'roll': {
+        PelBot.sendMessage(from, { react: { text: "🎲", key: m.key } });
+        const result = Math.floor(Math.random() * 6) + 1; // Génère un nombre aléatoire entre 1 et 6
+
+        const diceMessage = `🎲 *Résultat du lancer de dés :* ${result}`;
+
+        reply(diceMessage);
+      }
+        break;
+
+      case 'flipcoin':
+      case 'coin': {
+        PelBot.sendMessage(from, { react: { text: "🪙", key: m.key } });
+        // Simule le lancer d'une pièce (0 pour face, 1 pour pile)
+        const result = Math.random() < 0.5 ? 'Face' : 'Pile';
+
+        const flipCoinMessage = `🪙 *Résultat du lancer de pièce : ${result}*`;
+        reply(flipCoinMessage);
+      }
+        break;
+
+
+      case 'rps': {
+        const randomEmoji = manyemojis[Math.floor(Math.random() * manyemojis.length)];
+        PelBot.sendMessage(from, { react: { text: randomEmoji, key: m.key } });
+
+        // Vérifie si la commande inclut un mouvement valide (pierre, papier ou ciseaux)
+        const validMoves = ['pierre', 'papier', 'ciseaux'];
+        if (!args[0] || !validMoves.includes(args[0].toLowerCase())) {
+          return reply('Veuillez fournir un mouvement valide : pierre, papier ou ciseaux.');
+        }
+
+        // Génère un mouvement aléatoire pour le bot
+        const botMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+
+        // Détermine le gagnant
+        const userMove = args[0].toLowerCase();
+        let result;
+
+        if (userMove === botMove) {
+          result = 'C\'est une égalité !';
+        } else if (
+          (userMove === 'pierre' && botMove === 'ciseaux') ||
+          (userMove === 'papier' && botMove === 'pierre') ||
+          (userMove === 'ciseaux' && botMove === 'papier')
+        ) {
+          result = `Vous gagnez ! 🥳 ${userMove} bat ${botMove}.`;
+        } else {
+          result = `Vous perdez ! 🫳🏻 ${botMove} bat ${userMove}.`;
+        }
+
+        // Envoie le résultat en tant que réponse
+        reply(`Vous avez choisi ${userMove}.\nPelBot a choisi ${botMove}.\n${result}`);
+      }
+        break;
+
+
       // économie ...
       case 'daily':
       case 'claim':
       case 'reward':
-      
-      {
+
+        {
           if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
           if (isBan) return reply(mess.banned);
           if (isBanChat) return reply(mess.bangc);
           if (!m.isGroup) return reply(mess.grouponly)
-      
+
           PelBot.sendMessage(from, { react: { text: "💰", key: m.key } })
           let user = m.sender
           const cara = "cara"
           const daily = await eco.daily(user, cara, 999); // donner 999 pour le quotidien, peut être modifié
-      
+
           if (daily.cd) return reply(`Vous avez déjà réclamé votre récompense quotidienne aujourd'hui, revenez dans ${daily.cdL}`); // cdL est le temps de recharge déjà formaté
-      
+
           reply(`Vous avez réclamé 💎${daily.amount} pour votre récompense quotidienne`);
-      }
-      break;
-      
-      
+        }
+        break;
+
+
       case 'wallet':
       case 'purse': {
-      
-          if (isBan) return reply(mess.banned);
-          if (isBanChat) return reply(mess.bangc);
-          if (!m.isGroup) return reply(mess.grouponly)
-      
-          PelBot.sendMessage(from, { react: { text: "💳", key: m.key } })
-      
-          if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
-      
-          const user = m.sender
-      
-          const cara = "cara"
-      
-          const balance = await eco.balance(user, cara); // Renvoie le portefeuille, la banque et la capacité de la banque. Crée également un utilisateur s'il n'existe pas.
-      
-          await reply(`👛 Portefeuille de ${pushname} :\n\n_💎${balance.wallet}_`);
-      
+
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly)
+
+        PelBot.sendMessage(from, { react: { text: "💳", key: m.key } })
+
+        if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
+
+        const user = m.sender
+
+        const cara = "cara"
+
+        const balance = await eco.balance(user, cara); // Renvoie le portefeuille, la banque et la capacité de la banque. Crée également un utilisateur s'il n'existe pas.
+
+        await reply(`👛 Portefeuille de ${pushname} :\n\n_💎${balance.wallet}_`);
+
       }
-      break;
-      
+        break;
 
 
-        case 'bank':
-          case 'levee': {
-              if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
-          
-              if (isBan) return reply(mess.banned);
-              if (isBanChat) return reply(mess.bangc);
-              if (!m.isGroup) return reply(mess.grouponly)
-          
-              PelBot.sendMessage(from, { react: { text: "💳", key: m.key } })
-          
-              const user = m.sender
-              const cara = "cara"
-              const balance = await eco.balance(user, cara); // Renvoie le solde du portefeuille, de la banque et de la capacité de la banque. Crée également un utilisateur s'il n'existe pas.
-              await reply(`🏦 Banque de ${pushname} :\n\n_💎${balance.bank}/${balance.bankCapacity}_`);
+
+      case 'bank':
+      case 'levee': {
+        if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
+
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly)
+
+        PelBot.sendMessage(from, { react: { text: "💳", key: m.key } })
+
+        const user = m.sender
+        const cara = "cara"
+        const balance = await eco.balance(user, cara); // Renvoie le solde du portefeuille, de la banque et de la capacité de la banque. Crée également un utilisateur s'il n'existe pas.
+        await reply(`🏦 Banque de ${pushname} :\n\n_💎${balance.bank}/${balance.bankCapacity}_`);
+      }
+        break;
+
+
+
+      case 'capacity':
+      case 'bankupgrade':
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly)
+
+        {
+          PelBot.sendMessage(from, { react: { text: "💲", key: m.key } })
+
+          //if (!isCreator) return reply(mess.botowner)
+          if (!text) return reply(`💴 Capacité de la banque 💳\n\n1 | 1000 sp = 💎100\n\n2 | 10000 sp = 💎1000\n\n3 | 100000 sp = 💎10000\n\nExemple - ${prefix}capacity 1 OU ${prefix}bankupgrade 1000`)
+          if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
+          const user = m.mentionedJid[0] ? m.mentionedJid[0] : m.sender
+          const cara = "cara"
+          let value = text.trim();
+          let k = parseInt(value)
+          const balance = await eco.balance(user, cara)
+          switch (value) {
+            case '1000':
+            case '1':
+              if (k > balance.wallet) return reply(`Vous devez payer 💎100 pour augmenter la capacité de la banque ~ 1000 sp`);
+              const deduct1 = await eco.deduct(user, cara, 100);
+              const add1 = eco.giveCapacity(user, cara, 1000);
+              await reply(`1000 💎 d'espace de stockage ajouté dans la banque de ${pushname}`)
+            case '10000':
+            case '2':
+              if (k > balance.wallet) return reply(`Vous devez payer 💎1000 pour augmenter la capacité de la banque ~ 10000 sp`);
+              const deduct2 = await eco.deduct(user, cara, 1000);
+              const add2 = eco.giveCapacity(user, cara, 10000);
+              await reply(`10000 💎 d'espace de stockage ajouté dans la banque de ${pushname}`)
+            case '100000':
+            case '3':
+              if (k > balance.wallet) return reply(`Vous devez payer 💎10000 pour augmenter la capacité de la banque ~ 100000 sp`);
+              const deduct3 = await eco.deduct(user, cara, 10000);
+              const add3 = eco.giveCapacity(user, cara, 100000);
+              await reply(`100000 💎 d'espace de stockage ajouté dans la banque de ${pushname}`)
           }
-          break;
-          
+        }
+        break;
+
+      case 'deposit':
+      case 'pay-in': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly)
+
+        PelBot.sendMessage(from, { react: { text: "📥", key: m.key } })
+
+        if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
+        if (!text) return reply("Indiquez le montant que vous souhaitez déposer !");
+        const texts = text.trim();
+        const user = m.sender;
+        const cara = 'cara'
+        const deposit = await eco.deposit(user, cara, texts);
+        if (deposit.noten) return reply('Vous ne pouvez pas déposer ce que vous n\'avez pas.'); // si l'utilisateur demande plus que ce qu'il y a dans son portefeuille
+        reply(`Dépôt réussi 💎${deposit.amount} dans votre banque.`)
+      }
+        break;
 
 
-        case 'capacity':
-          case 'bankupgrade':
-              if (isBan) return reply(mess.banned);
-              if (isBanChat) return reply(mess.bangc);
-              if (!m.isGroup) return reply(mess.grouponly)
-          
-              {
-                  PelBot.sendMessage(from, { react: { text: "💲", key: m.key } })
-          
-                  //if (!isCreator) return reply(mess.botowner)
-                  if (!text) return reply(`💴 Capacité de la banque 💳\n\n1 | 1000 sp = 💎100\n\n2 | 10000 sp = 💎1000\n\n3 | 100000 sp = 💎10000\n\nExemple - ${prefix}capacity 1 OU ${prefix}bankupgrade 1000`)
-                  if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
-                  const user = m.mentionedJid[0] ? m.mentionedJid[0] : m.sender
-                  const cara = "cara"
-                  let value = text.trim();
-                  let k = parseInt(value)
-                  const balance = await eco.balance(user, cara)
-                  switch (value) {
-                      case '1000':
-                      case '1':
-                          if (k > balance.wallet) return reply(`Vous devez payer 💎100 pour augmenter la capacité de la banque ~ 1000 sp`);
-                          const deduct1 = await eco.deduct(user, cara, 100);
-                          const add1 = eco.giveCapacity(user, cara, 1000);
-                          await reply(`1000 💎 d'espace de stockage ajouté dans la banque de ${pushname}`)
-                      case '10000':
-                      case '2':
-                          if (k > balance.wallet) return reply(`Vous devez payer 💎1000 pour augmenter la capacité de la banque ~ 10000 sp`);
-                          const deduct2 = await eco.deduct(user, cara, 1000);
-                          const add2 = eco.giveCapacity(user, cara, 10000);
-                          await reply(`10000 💎 d'espace de stockage ajouté dans la banque de ${pushname}`)
-                      case '100000':
-                      case '3':
-                          if (k > balance.wallet) return reply(`Vous devez payer 💎10000 pour augmenter la capacité de la banque ~ 100000 sp`);
-                          const deduct3 = await eco.deduct(user, cara, 10000);
-                          const add3 = eco.giveCapacity(user, cara, 100000);
-                          await reply(`100000 💎 d'espace de stockage ajouté dans la banque de ${pushname}`)
-                  }
-              }
-              break;
-          
-          case 'deposit':
-          case 'pay-in': {
-              if (isBan) return reply(mess.banned);
-              if (isBanChat) return reply(mess.bangc);
-              if (!m.isGroup) return reply(mess.grouponly)
-          
-              PelBot.sendMessage(from, { react: { text: "📥", key: m.key } })
-          
-              if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
-              if (!text) return reply("Indiquez le montant que vous souhaitez déposer !");
-              const texts = text.trim();
-              const user = m.sender;
-              const cara = 'cara'
-              const deposit = await eco.deposit(user, cara, texts);
-              if (deposit.noten) return reply('Vous ne pouvez pas déposer ce que vous n\'avez pas.'); // si l'utilisateur demande plus que ce qu'il y a dans son portefeuille
-              reply(`Dépôt réussi 💎${deposit.amount} dans votre banque.`)
+
+      case 'withdraw':
+      case 'withdrawal': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly)
+
+        PelBot.sendMessage(from, { react: { text: "💸", key: m.key } })
+
+        if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
+        const user = m.sender
+        if (!text) return reply("Indiquez le montant que vous souhaitez retirer !");
+        const query = text.trim();
+        const cara = 'cara'
+        const withdraw = await eco.withdraw(user, cara, query);
+        if (withdraw.noten) return reply('🏧 Fond insuffisant dans la banque'); // si l'utilisateur demande plus que ce qu'il y a dans son portefeuille
+        const add = eco.give(user, cara, query);
+        reply(`🏧 ALERTE  💎${withdraw.amount} a été ajouté à votre portefeuille.`)
+      }
+        break;
+
+
+
+      case 'rob':
+      case 'attack':
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly)
+
+        {
+          PelBot.sendMessage(from, { react: { text: "🔪", key: m.key } })
+          if (!text) return reply(`Utilisez ${prefix}rob @utilisateur`)
+          const target =
+            m.quoted && m.mentionedJid.length === 0
+              ? m.quoted.sender
+              : m.mentionedJid[0] || null;
+          if (!target || target === m.sender) return reply("que cherchez-vous à faire !")
+          if (m.quoted?.sender && !m.mentionedJid.includes(m.quoted.sender)) m.mentionedJid.push(m.quoted.sender)
+          while (m.mentionedJid.length < 2) m.mentionedJid.push(m.sender)
+          const cara = "cara"
+          const user1 = m.sender
+          const user2 = target
+          const k = 250
+          const balance1 = await eco.balance(user1, cara)
+          const balance2 = await eco.balance(user2, cara)
+          const typ = ['fui', 'volé', 'attrapé'];
+          const random = typ[Math.floor(Math.random() * typ.length)];
+          if (k > balance1.wallet) return reply(`☹️ Vous n'avez pas assez d'argent pour payer au cas où vous vous faites prendre`);
+          if (k > balance2.wallet) return reply(`Désolé, votre victime est trop pauvre 🤷🏽‍♂️ laissez tomber.`);
+          let tpy = random
+          switch (random) {
+            case 'fui':
+              await reply(`Votre victime s'est échappée, soyez plus effrayant la prochaine fois.`)
           }
-          break;
-          
+        }
+        break;
 
 
-        case 'withdraw':
-          case 'withdrawal': {
-              if (isBan) return reply(mess.banned);
-              if (isBanChat) return reply(mess.bangc);
-              if (!m.isGroup) return reply(mess.grouponly)
-          
-              PelBot.sendMessage(from, { react: { text: "💸", key: m.key } })
-          
-              if (m.quoted?.sender) m.mentionedJid.push(m.quoted.sender)
-              const user = m.sender
-              if (!text) return reply("Indiquez le montant que vous souhaitez retirer !");
-              const query = text.trim();
-              const cara = 'cara'
-              const withdraw = await eco.withdraw(user, cara, query);
-              if (withdraw.noten) return reply('🏧 Fond insuffisant dans la banque'); // si l'utilisateur demande plus que ce qu'il y a dans son portefeuille
-              const add = eco.give(user, cara, query);
-              reply(`🏧 ALERTE  💎${withdraw.amount} a été ajouté à votre portefeuille.`)
-          }
-          break;
-          
 
+      case 'transfer':
+      case 'give': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly)
+        PelBot.sendMessage(from, { react: { text: "🗿", key: m.key } })
+        let value = text.trim().split(" ");
+        if (value[0] === "") return reply(`Utilisez ${prefix}transfer 100 @utilisateur`);
+        const target =
+          m.quoted && m.mentionedJid.length === 0
+            ? m.quoted.sender
+            : m.mentionedJid[0] || null;
+        if (!target || target === m.sender) return reply("que cherchez-vous à faire !")
+        if (m.quoted?.sender && !m.mentionedJid.includes(m.quoted.sender)) m.mentionedJid.push(m.quoted.sender)
+        while (m.mentionedJid.length < 2) m.mentionedJid.push(m.sender)
+        const cara = "cara"
+        const user1 = m.sender
+        const user2 = target
+        const word = value[0];
+        const code = value[1];
+        let d = parseInt(word)
+        if (!d) return reply("vérifiez votre texte s'il vous plaît, vous utilisez la commande de la mauvaise manière")
 
-        case 'rob':
-          case 'attack':
-              if (isBan) return reply(mess.banned);
-              if (isBanChat) return reply(mess.bangc);
-              if (!m.isGroup) return reply(mess.grouponly)
-          
-              {
-                  PelBot.sendMessage(from, { react: { text: "🔪", key: m.key } })
-                  if (!text) return reply(`Utilisez ${prefix}rob @utilisateur`)
-                  const target =
-                      m.quoted && m.mentionedJid.length === 0
-                      ? m.quoted.sender
-                      : m.mentionedJid[0] || null;
-                  if (!target || target === m.sender) return reply("que cherchez-vous à faire !")
-                  if (m.quoted?.sender && !m.mentionedJid.includes(m.quoted.sender)) m.mentionedJid.push(m.quoted.sender)
-                  while (m.mentionedJid.length < 2) m.mentionedJid.push(m.sender)
-                  const cara = "cara"
-                  const user1 = m.sender
-                  const user2 = target
-                  const k = 250
-                  const balance1 = await eco.balance(user1, cara)
-                  const balance2 = await eco.balance(user2, cara)
-                  const typ = ['fui', 'volé', 'attrapé'];
-                  const random = typ[Math.floor(Math.random() * typ.length)];
-                  if (k > balance1.wallet) return reply(`☹️ Vous n'avez pas assez d'argent pour payer au cas où vous vous faites prendre`);
-                  if (k > balance2.wallet) return reply(`Désolé, votre victime est trop pauvre 🤷🏽‍♂️ laissez tomber.`);
-                  let tpy = random
-                  switch (random) {
-                      case 'fui':
-                          await reply(`Votre victime s'est échappée, soyez plus effrayant la prochaine fois.`)
-                  }
-              }
-              break;
-          
+        const balance = await eco.balance(user1, cara);
+        let a = (balance.wallet) < parseInt(word)
+        // Renvoie le portefeuille, la banque et la capacité de la banque. Crée également un utilisateur s'il n'existe pas.
+        if (a == true) return reply("vous n'avez pas assez d'argent pour transférer");
 
+        const deduct = await eco.deduct(user1, cara, value[0]);
+        const give = await eco.give(user2, cara, value[0]);
+        reply(`📠 Transaction réussie`)
 
-        case 'transfer':
-          case 'give': {
-              if (isBan) return reply(mess.banned);
-              if (isBanChat) return reply(mess.bangc);
-              if (!m.isGroup) return reply(mess.grouponly)
-              PelBot.sendMessage(from, { react: { text: "🗿", key: m.key } })
-              let value = text.trim().split(" ");
-              if (value[0] === "") return reply(`Utilisez ${prefix}transfer 100 @utilisateur`);
-              const target =
-                  m.quoted && m.mentionedJid.length === 0
-                  ? m.quoted.sender
-                  : m.mentionedJid[0] || null;
-              if (!target || target === m.sender) return reply("que cherchez-vous à faire !")
-              if (m.quoted?.sender && !m.mentionedJid.includes(m.quoted.sender)) m.mentionedJid.push(m.quoted.sender)
-              while (m.mentionedJid.length < 2) m.mentionedJid.push(m.sender)
-              const cara = "cara"
-              const user1 = m.sender
-              const user2 = target
-              const word = value[0];
-              const code = value[1];
-              let d = parseInt(word)
-              if (!d) return reply("vérifiez votre texte s'il vous plaît, vous utilisez la commande de la mauvaise manière")
-          
-              const balance = await eco.balance(user1, cara);
-              let a = (balance.wallet) < parseInt(word)
-              // Renvoie le portefeuille, la banque et la capacité de la banque. Crée également un utilisateur s'il n'existe pas.
-              if (a == true) return reply("vous n'avez pas assez d'argent pour transférer");
-          
-              const deduct = await eco.deduct(user1, cara, value[0]);
-              const give = await eco.give(user2, cara, value[0]);
-              reply(`📠 Transaction réussie`)
-          
-          }
-          break;
-          
+      }
+        break;
+
 
 
       case 'wealth': case 'ritual': {
@@ -1535,65 +1677,65 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
 
       case 'slot':
-case 'spin': {
-    if (isBan) return reply(mess.banned);
-    if (isBanChat) return reply(mess.bangc);
-    if (!m.isGroup) return reply(mess.grouponly)
-    var today = new Date();
-    if (today.getDay() == 6 || today.getDay() == 5 || today.getDay() == 0) {
-        if (text == 'help') return reply(`*1:* Utilisez ${prefix}slot pour jouer\n\n*2:* Vous devez avoir 💎100 dans votre portefeuille\n\n*3:* Si vous n'avez pas d'argent dans votre portefeuille, retirez-le de votre banque\n\n*4:* Si vous n'avez pas d'argent dans votre banque non plus, utilisez les fonctionnalités économiques pour gagner de l'argent`)
-        if (text == 'money') return reply(`*1:* Petite victoire --> +💎20\n\n*2:* Petite défaite --> -💎20\n\n*3:* Grande victoire --> +💎100\n\n*4:* Grande défaite --> -💎50\n\n*5:* 🎉 Jackpot --> +💎1000`)
-        const fruit1 = ["🥥", "🍎", "🍇"]
-        const fruit2 = ["🍎", "🍇", "🥥"]
-        const fruit3 = ["🍇", "🥥", "🍎"]
-        const fruit4 = ["🍇", "🥥", "🍎"]
-        const lose = ['*Tu es mauvais à ce jeu*\n\n_--> 🍍-🥥-🍎_', '*Totalement hors de propos*\n\n_--> 🥥-🍎-🍍_', '*Es-tu un débutant ?*\n\n_--> 🍎-🍍-🥥_']
-        const smallLose = ['*Tu ne peux pas récolter de noix de coco 🥥 dans une ferme d\'ananas 🍍*\n\n_--> 🍍>🥥<🍍_', '*Les pommes et les noix de coco ne font pas bon ménage*\n\n_--> 🍎>🥥<🍎_', '*Les noix de coco et les pommes ne font pas un bon deal*\n\n_--> 🥥>🍎<🥥_']
-        const won = ['*Tu as récolté un panier de*\n\n_--> 🍎+🍎+🍎_', '*Impressionnant, tu dois être un spécialiste de la récolte des noix de coco*\n\n_--> 🥥+🥥+🥥_', '*Incroyable, tu vas faire du jus d\'ananas pour la famille*\n\n_--> 🍍+🍍+🍍_']
-        const near = ['*Wow, tu étais si près de gagner des ananas*\n\n_--> 🍎-🍍+🍍_', '*Hmmm, tu étais si près de gagner des pommes*\n\n_--> 🍎+🍎-🍍_']
-        const jack = ['*🥳 Jackpot 🤑*\n\n_--> 🍇×🍇×🍇×🍇_', '*🎉 JaaackPooot !*\n\n_--> 🥥×🥥×🥥×🥥_', '*🎊 Tu viens de décrocher un jackpot d\'une valeur de 💎1000*']
-        const user = m.sender
-        const cara = "cara"
-        const k = 100
-        const balance1 = await eco.balance(user, cara)
+      case 'spin': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly)
+        var today = new Date();
+        if (today.getDay() == 6 || today.getDay() == 5 || today.getDay() == 0) {
+          if (text == 'help') return reply(`*1:* Utilisez ${prefix}slot pour jouer\n\n*2:* Vous devez avoir 💎100 dans votre portefeuille\n\n*3:* Si vous n'avez pas d'argent dans votre portefeuille, retirez-le de votre banque\n\n*4:* Si vous n'avez pas d'argent dans votre banque non plus, utilisez les fonctionnalités économiques pour gagner de l'argent`)
+          if (text == 'money') return reply(`*1:* Petite victoire --> +💎20\n\n*2:* Petite défaite --> -💎20\n\n*3:* Grande victoire --> +💎100\n\n*4:* Grande défaite --> -💎50\n\n*5:* 🎉 Jackpot --> +💎1000`)
+          const fruit1 = ["🥥", "🍎", "🍇"]
+          const fruit2 = ["🍎", "🍇", "🥥"]
+          const fruit3 = ["🍇", "🥥", "🍎"]
+          const fruit4 = ["🍇", "🥥", "🍎"]
+          const lose = ['*Tu es mauvais à ce jeu*\n\n_--> 🍍-🥥-🍎_', '*Totalement hors de propos*\n\n_--> 🥥-🍎-🍍_', '*Es-tu un débutant ?*\n\n_--> 🍎-🍍-🥥_']
+          const smallLose = ['*Tu ne peux pas récolter de noix de coco 🥥 dans une ferme d\'ananas 🍍*\n\n_--> 🍍>🥥<🍍_', '*Les pommes et les noix de coco ne font pas bon ménage*\n\n_--> 🍎>🥥<🍎_', '*Les noix de coco et les pommes ne font pas un bon deal*\n\n_--> 🥥>🍎<🥥_']
+          const won = ['*Tu as récolté un panier de*\n\n_--> 🍎+🍎+🍎_', '*Impressionnant, tu dois être un spécialiste de la récolte des noix de coco*\n\n_--> 🥥+🥥+🥥_', '*Incroyable, tu vas faire du jus d\'ananas pour la famille*\n\n_--> 🍍+🍍+🍍_']
+          const near = ['*Wow, tu étais si près de gagner des ananas*\n\n_--> 🍎-🍍+🍍_', '*Hmmm, tu étais si près de gagner des pommes*\n\n_--> 🍎+🍎-🍍_']
+          const jack = ['*🥳 Jackpot 🤑*\n\n_--> 🍇×🍇×🍇×🍇_', '*🎉 JaaackPooot !*\n\n_--> 🥥×🥥×🥥×🥥_', '*🎊 Tu viens de décrocher un jackpot d\'une valeur de 💎1000*']
+          const user = m.sender
+          const cara = "cara"
+          const k = 100
+          const balance1 = await eco.balance(user, cara)
 
-        if (k > balance1.wallet) return reply(`Vous allez jouer avec votre portefeuille, vous avez besoin d'au moins 💎100`);
-        const f1 = fruit1[Math.floor(Math.random() * fruit1.length)];
-        const f2 = fruit2[Math.floor(Math.random() * fruit2.length)];
-        const f3 = fruit3[Math.floor(Math.random() * fruit3.length)];
-        const f4 = fruit4[Math.floor(Math.random() * fruit4.length)];
-        const mess1 = lose[Math.floor(Math.random() * lose.length)];
-        const mess2 = won[Math.floor(Math.random() * won.length)];
-        const mess3 = near[Math.floor(Math.random() * near.length)];
-        const mess4 = jack[Math.floor(Math.random() * jack.length)];
-        const mess5 = smallLose[Math.floor(Math.random() * smallLose.length)];
+          if (k > balance1.wallet) return reply(`Vous allez jouer avec votre portefeuille, vous avez besoin d'au moins 💎100`);
+          const f1 = fruit1[Math.floor(Math.random() * fruit1.length)];
+          const f2 = fruit2[Math.floor(Math.random() * fruit2.length)];
+          const f3 = fruit3[Math.floor(Math.random() * fruit3.length)];
+          const f4 = fruit4[Math.floor(Math.random() * fruit4.length)];
+          const mess1 = lose[Math.floor(Math.random() * lose.length)];
+          const mess2 = won[Math.floor(Math.random() * won.length)];
+          const mess3 = near[Math.floor(Math.random() * near.length)];
+          const mess4 = jack[Math.floor(Math.random() * jack.length)];
+          const mess5 = smallLose[Math.floor(Math.random() * smallLose.length)];
 
-        if ((f1 !== f2) && f2 !== f3) {
+          if ((f1 !== f2) && f2 !== f3) {
             const deduct1 = await eco.deduct(user, cara, 50);
             reply(`${mess1}\n\n*Grande Défaite -->* _💎50_`)
-        } else if ((f1 == f2) && f2 == f3) {
+          } else if ((f1 == f2) && f2 == f3) {
             const give1 = await eco.give(user, cara, 100);
             reply(`${mess2}\n*_Grande Victoire -->* _💎100_`)
-        } else if ((f1 == f2) && f2 !== f3) {
+          } else if ((f1 == f2) && f2 !== f3) {
             const give2 = await eco.give(user, cara, 20);
             reply(`${mess3}\n*Petite Victoire -->* _💎20_`)
-        } else if ((f1 !== f2) && f1 == f3) {
+          } else if ((f1 !== f2) && f1 == f3) {
             const deduct2 = await eco.deduct(user, cara, 20);
             reply(`${mess5}\n\n*Petite Défaite -->* _💎20_`)
-        } else if ((f1 !== f2) && f2 == f3) {
+          } else if ((f1 !== f2) && f2 == f3) {
             const give4 = eco.give(user, cara, 20);
             reply(`${mess3}\n\n*Petite Victoire -->* _💎20_`)
-        } else if (((f1 == f2) && f2 == f3) && f3 == f4) {
+          } else if (((f1 == f2) && f2 == f3) && f3 == f4) {
             const give5 = eco.give(user, cara, 1000);
             reply(`${mess4}\n\n_🎊 Jackpot --> _💎1000_`)
-        } else {
+          } else {
             reply(`Comprenez-vous ce que vous faites ?`)
+          }
+        } else {
+          reply(`*Vous ne pouvez jouer à ce jeu que pendant les week-ends*\n\n*🌿 Vendredi*\n*🎏 Samedi*\n*🎐 Dimanche*`)
         }
-    } else {
-        reply(`*Vous ne pouvez jouer à ce jeu que pendant les week-ends*\n\n*🌿 Vendredi*\n*🎏 Samedi*\n*🎐 Dimanche*`)
-    }
-}
-break;
+      }
+        break;
 
 
 
@@ -1657,18 +1799,135 @@ break;
       case 'film': case 'movie': case 'moviesearch':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        reply(mess.waiting)
-        if (!q) return reply(`Entre un film à rechercher...\nExample: ${prefix}movie Spiderman`)
-        xfarrapi.Film(q)
-          .then(data => {
-            console.log(data)
-            let krl = `*Terme de recherche:* ${q}\n\n`
-            for (let i of data) {
-              krl += (`${prefix}----------------------------------------------------------------------------\n\n\n*Nom:* ${i.judul}\n *Qualité :* ${i.quality}\n *Type : ${i.type}*\n *Upload le :* ${i.upload}\n *Source URL :* ${i.link}\n\n\n`)
+        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } }); // Envoyer une réaction de feuille d'érable
+        reply("Veuillez patienter...");
+        if (!q) return reply(`Entre un film à rechercher...\nExample: ${prefix}movie Spiderman`);
+
+        const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(q)}&include_adult=true&language=fr-FR&page=1`;
+        const options = {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5NTBkNjJhZjNkMWQzM2I3NTk4MjMyOTBiMjM4YTBmMCIsInN1YiI6IjY2MmE2M2I0OGQ3N2M0MDA5YzJkYmIyYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.AgNrp6X0BSQb2H4hHbA5I_BKwY8hpWqhckwZxMndLOs' // Remplacez par votre clé API
+          }
+        };
+
+
+
+        fetch(url, options)
+          .then(res => res.json())
+          .then(json => {
+            console.log(json);
+            if (json.results && json.results.length > 0) {
+              const randomIndex = 0;
+              const randomMovie = json.results[randomIndex];
+              const genres = randomMovie.genre_ids.map(genreId => getGenreName(genreId)).join(', ');
+
+              const caption = `🎬 *Titre :* ${randomMovie.title}\n🎥 *Titre Original :* ${randomMovie.original_title}\n🎭 *Genres :* ${genres}\n🌟 *Qualité :* ${randomMovie.vote_average}\n🔗 *Source URL :* https://www.themoviedb.org/movie/${randomMovie.id}\n💖 *Popularité :* ${randomMovie.popularity}\n👍 *Nombre de votants :* ${randomMovie.vote_count}\n📅 *Première Diffusion :* ${formatPremiereDate(randomMovie.release_date)}\n🔍 *Description :* ${randomMovie.overview}\n🔤 *Langue Originale :* ${getLanguageName(randomMovie.original_language)}\n`;
+
+
+              console.log(caption);
+              // Fonction pour obtenir le nom du genre à partir de son identifiant
+
+
+              let message = {
+                image: { url: `https://image.tmdb.org/t/p/original${randomMovie.poster_path}` },
+                caption: caption, // Légende
+                footer: `${BotName}`,
+                headerType: 4
+              };
+
+              // Envoyer le message avec l'image et la légende
+              PelBot.sendMessage(m.chat, message, { quoted: m });
+
+            } else {
+              reply("Aucun résultat trouvé pour cette recherche.");
             }
-            PelBot.sendMessage(from, { image: { url: data[0].thumb }, caption: krl }, { quoted: fdocs })
-          });
+          })
+          .catch(err => console.error('error:' + err));
         break;
+
+
+
+      case 'serie': case 'seriesearch':
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } }); // Envoyer une réaction de feuille d'érable
+        reply("Veuillez patienter...");
+        if (!q) return reply(`Entre une série TV à rechercher...\nExemple: ${prefix}serie Stranger Things`);
+
+        const uri = `https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(q)}&include_adult=true&language=fr-FR&page=1`;
+        const optionsi = {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5NTBkNjJhZjNkMWQzM2I3NTk4MjMyOTBiMjM4YTBmMCIsInN1YiI6IjY2MmE2M2I0OGQ3N2M0MDA5YzJkYmIyYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.AgNrp6X0BSQb2H4hHbA5I_BKwY8hpWqhckwZxMndLOs' // Remplacez par votre clé API
+          }
+        };
+
+        fetch(uri, optionsi)
+          .then(res => res.json())
+          .then(json => {
+            if (json.results && json.results.length > 0) {
+              const randomIndex = 0;
+              const randomSeries = json.results[randomIndex];
+
+              const caption = `📺 *Titre :* ${randomSeries.name}\n🎬 *Titre Original :* ${randomSeries.original_name}\n🎭 *Genres :* ${randomSeries.genre_ids.map(genreId => getGenreName(genreId)).join(', ')}\n🌟 *Qualité :* ${randomSeries.vote_average}\n🔗 *Source URL :* https://www.themoviedb.org/tv/${randomSeries.id}\n💖 *Popularité :* ${randomSeries.popularity}\n👍 *Nombre de votants :* ${randomSeries.vote_count}\n📅 *Première Diffusion :* ${formatPremiereDate(randomSeries.first_air_date)}\n🔍 *Description :* ${randomSeries.overview}\n🔤 *Langue Originale :* ${getLanguageName(randomSeries.original_language)}\n`;
+
+              console.log(caption);
+
+              let message = {
+                image: { url: `https://image.tmdb.org/t/p/original${randomSeries.poster_path}` },
+                caption: caption,
+                footer: `${BotName}`,
+                headerType: 4
+              };
+
+              PelBot.sendMessage(m.chat, message, { quoted: m });
+
+            } else {
+              reply("Aucun résultat trouvé pour cette recherche.");
+            }
+          })
+          .catch(err => console.error('error:' + err));
+        break;
+
+
+
+
+      case 'urban': {
+        PelBot.sendMessage(from, { react: { text: "📖", key: m.key } })
+        // Extract the word from the message
+        const word = text.trim();
+
+        if (!word) {
+          reply(`Please provide a word to look up on Urban Dictionary. Example: ${prefix}urban hello`);
+          return;
+        }
+
+        // Make a request to the Urban Dictionary API
+        const apiUrl = `https://api.urbandictionary.com/v0/define?term=${encodeURIComponent(word)}`;
+
+        try {
+          const response = await axios.get(apiUrl);
+
+          // Extract the first definition from the API response
+          const definition = response.data.list[0]?.definition;
+
+          if (definition) {
+            const urbanMessage = `📖 *Urban Dictionary Definition for "${word}":*\n\n${definition}`;
+            reply(urbanMessage);
+          } else {
+            reply(`No Urban Dictionary definition found for "${word}".`);
+          }
+        } catch (error) {
+          console.error('Error fetching Urban Dictionary definition:', error.message);
+          reply('An error occurred while fetching the Urban Dictionary definition. Please try again later.');
+        }
+      }
+        break;
+
+
 
 
       // case 'wallpaper': case 'animewallpaper': case 'animewall': {
@@ -1840,32 +2099,32 @@ break;
         break;
 
 
-        case 'quotesanime':
-          case 'quoteanime':
-          case 'animequote':
-          case 'animequotes': {
-              const fetch = require('node-fetch');
-          
-              fetch('https://animechan.xyz/api/random')
-                  .then(response => response.json())
-                  .then(quote => {
-                      let buttonMessage = {
-                          text: `_${quote.quote}_\n\nBy '${quote.character}', ${quote.anime}`,
-                          footer: 'PelBot'
-                      };
-                      PelBot.sendMessage(m.chat, buttonMessage, { quoted: m });
-                  })
-                  .catch(error => {
-                      console.error('Error fetching anime quote:', error);
-                      reply('Erreur lors de la récupération de la citation anime.');
-                  });
-          }
-          break;
-          
-          
+      case 'quotesanime':
+      case 'quoteanime':
+      case 'animequote':
+      case 'animequotes': {
+        const fetch = require('node-fetch');
 
-          
-          
+        fetch('https://animechan.xyz/api/random')
+          .then(response => response.json())
+          .then(quote => {
+            let buttonMessage = {
+              text: `_${quote.quote}_\n\nBy '${quote.character}', ${quote.anime}`,
+              footer: 'PelBot'
+            };
+            PelBot.sendMessage(m.chat, buttonMessage, { quoted: m });
+          })
+          .catch(error => {
+            console.error('Error fetching anime quote:', error);
+            reply('Erreur lors de la récupération de la citation anime.');
+          });
+      }
+        break;
+
+
+
+
+
 
 
       case 'animestory': {
@@ -2704,38 +2963,40 @@ break;
         break;
 
 
-      case 'listpc': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
-
-        let anu = await store.chats.all().filter(v => v.id.endsWith('.net')).map(v => v)
-        let teks = ` 「  PelBot's pm user list  」\n\nTotal ${anu.length} users are using PelBot in personal chat.`
-        for (let i of anu) {
-          teks += `\n\nProfile : @${i.id.split('@')[0]}\nChat : ${i.unreadCount}\nLastchat : ${moment(i.conversationTimestamp * 1000).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm:ss")}`
+        case 'listpc': {
+          if (isBan) return reply(mess.banned);
+          if (isBanChat) return reply(mess.bangc);
+          PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
+  
+          let anu = await store.chats.all().filter(v => v.id.endsWith('.net')).map(v => v)
+          let teks = ` 「  PelBot's pm user list  」\n\nTotal ${anu.length} users are using PelBot in personal chat.`
+          for (let i of anu) {
+            teks += `\n\nProfile : @${i.id.split('@')[0]}\nChat : ${i.unreadCount}\nLastchat : ${moment(i.conversationTimestamp * 1000).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm:ss")}`
+          }
+          PelBot.sendTextWithMentions(m.chat, teks, m)
         }
-        PelBot.sendTextWithMentions(m.chat, teks, m)
-      }
-        break;
-
+          break;
 
       case 'listgc': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } });
 
-        let anu = await store.chats.all().filter(v => v.id.endsWith('@g.us')).map(v => v.id)
-        let teks = ` 「  PelBot's group user list  」\n\nTotal ${anu.length} users are using bot in Groups.`
+        let anu = await store.chats.all().filter(v => v.id.endsWith('@g.us')).map(v => v.id);
+        let teks = `「 PelBot's group user list 」\n\nTotal ${anu.length} users are using bot in Groups.`;
+
         for (let i of anu) {
-          let metadata = await PelBot.groupMetadata(i)
-          if (metadata.owner === "undefined") {
-            loldd = false
-          } else {
-            loldd = metadata.owner
-          }
-          teks += `\n\nName : ${metadata.subject ? metadata.subject : "undefined"}\nOwner : ${loldd ? '@' + loldd.split("@")[0] : "undefined"}\nID : ${metadata.id ? metadata.id : "undefined"}\nMade : ${metadata.creation ? moment(metadata.creation * 1000).tz('Asia/Kolkata').format('DD/MM/YYYY HH:mm:ss') : "undefined"}\nMember : ${metadata.participants.length ? metadata.participants.length : "undefined"}`
+          let metadata = await PelBot.groupMetadata(i);
+          let owner = metadata.owner ? '@' + metadata.owner.split("@")[0] : "undefined";
+          let groupName = metadata.subject ? metadata.subject : "undefined";
+          let groupId = metadata.id ? metadata.id : "undefined";
+          let groupCreation = metadata.creation ? moment(metadata.creation * 1000).tz('Asia/Kolkata').format('DD/MM/YYYY HH:mm:ss') : "undefined";
+          let memberCount = metadata.participants.length ? metadata.participants.length : "undefined";
+
+          teks += `\n\nName : ${groupName}\nOwner : ${owner}\nID : ${groupId}\nMade : ${groupCreation}\nMember : ${memberCount}`;
         }
-        PelBot.sendTextWithMentions(m.chat, teks, m)
+
+        PelBot.sendTextWithMentions(m.chat, teks, m);
       }
         break;
 
@@ -2757,33 +3018,6 @@ break;
           if (stdout.trim()) m.reply(stdout)
           if (stderr.trim()) m.reply(stderr)
         }
-      }
-        break;
-
-
-      case 'status': case 'post': {
-        if (!isCreator) return reply(mess.owner)
-        if (!quoted) return reply(`Send/reply Image With Caption ${prefix}status`)
-        if (/video/.test(mime)) {
-          if ((quoted.msg || quoted).seconds > 30) return reply('Maximum 30 seconds video is allowed!')
-        }
-        const messageType = Object.keys(m.message)[0]
-        if (messageType === 'imageMessage') {
-          const media = await downloadMediaMessage(m, 'media', {}, { logger, reuploadRequest: sock.updateMediaMessage })
-          await writeFile('./image.jpeg', media)
-          await PelBot.sendMessage(botNumber, 'status@broadcast', { url: './image.jpeg', media }).catch((err) => fs.unlinkSync(media))
-          reply(`*✨ ${pushname}...!! Posted On My Status ✨*`);
-        }
-        else if (messageType === 'videoMessage') {
-          const media = await downloadMediaMessage(m, 'media', {}, { logger, reuploadRequest: sock.updateMediaMessage })
-          await writeFile('./video.mp4', media)
-          await PelBot.sendMessage(botNumber, 'status@broadcast', { url: 'video.mp4', media }).catch((err) => fs.unlinkSync(media))
-          reply(`*✨ ${pushname}...!! Posted On My Status ✨*`);
-        }
-        else {
-          reply(`an error occurred`)
-        }
-
       }
         break;
 
@@ -3443,19 +3677,30 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
-        if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        PelBot.sendMessage(from, { react: { text: "😳", key: m.key } })
-        let teks = `「 Attention 」
+        if (!isAdmins && !isCreator) return reply(mess.useradmin);
 
-*Message : ${args.join(" ") ? args.join(" ") : 'no message'}*\n\n`
-let count = 1;
+        PelBot.sendMessage(from, { react: { text: "😳", key: m.key } });
+
+        let teks = `*⚠️✨ Attention à tous les membres ! ✨⚠️*\n\n`;
+
+        if (args.length > 0) {
+          teks += `*🔔 Important :* ${args.join(" ")}\n`;
+        }
+
+        teks += `\n*📢 C'est l'heure de se rassembler ! 📢*\n\n`;
+
+        let count = 1;
         for (let mem of participants) {
-          teks += `${count} » @${mem.id.split('@')[0]}\n`
+          teks += `> ${count} - 🌟👤 @${mem.id.split('@')[0]}\n`;
           count++;
         }
-        PelBot.sendMessage(m.chat, { text: teks, mentions: participants.map(a => a.id) }, { quoted: m })
+
+
+
+        PelBot.sendMessage(m.chat, { text: teks, mentions: participants.map(a => a.id) }, { quoted: m });
       }
         break;
+
 
 
       case 'hidetag': case 'tag': case 'ping': {
@@ -3463,6 +3708,10 @@ let count = 1;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
+        if (isBotAdmins) {
+          PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
+          PelBot.sendMessage(m.chat, { text: args.join(" ") ? args.join(" ") : '', mentions: participants.map(a => a.id) }, { quoted: m })
+        }
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
         PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
         PelBot.sendMessage(m.chat, { text: args.join(" ") ? args.join(" ") : '', mentions: participants.map(a => a.id) }, { quoted: m })
@@ -3479,7 +3728,7 @@ let count = 1;
         let teks = `*「 Tag Admins 」*
 
 *Message : ${text}*\n\n`
-let count = 1;
+        let count = 1;
         for (let mem of groupAdmins) {
           teks += `${count} 🍁 @${mem.split('@')[0]}\n`
         }
@@ -3528,6 +3777,7 @@ let count = 1;
 
       case 'nowa': case 'find': case 'stalk': case 'stalknumber': {
         if (isBan) return reply(mess.banned);
+        if (!isCreator) return reply(mess.botowner)
         PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
         if (!args[0]) return reply(`Utilise la commande comme: ${prefix}stalk <numero>xxx`)
         var inputnumber = args[0]
@@ -3650,7 +3900,7 @@ let count = 1;
         } else {
 
           let buttonMessage = {
-            image: BotLogo,
+            image: Thumb1,
             jpegThumbnail: Thumb,
             caption: `*「 ${global.BotName} 」*\n\n_Changement des paramètres du groupe_:\n\nSi tu veux fermer le groupe *-group close*\n\nSi tu veux ouvrir le groupe *-group open*`,
             footer: `${BotName}`,
@@ -4371,12 +4621,30 @@ let count = 1;
         break;
 
 
-      case "tts": case "texttospeech": case "say": case "speak": {
+      case "ttsfr": case "texttospeechfr": case "sayfr": case "speakfr": {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
-        if (!args[0]) return reply("Please give me a text so that i can speak it!")
+        if (!args[0]) return reply("Donne moi un texte à prononcer!")
+
+        let texttosay = text
+          ? text
+          : m.quoted && m.quoted.text
+            ? m.quoted.text
+            : m.text;
+        const SpeakEngine = require("google-tts-api");
+        const texttospeechurl = SpeakEngine.getAudioUrl(texttosay, { lang: "fr", slow: false, host: "https://translate.google.com", });
+        PelBot.sendMessage(m.chat, { audio: { url: texttospeechurl, }, mimetype: "audio/mpeg", fileName: `PelBotSpeechEngine.mp3`, }, { quoted: m, });
+      }
+        break;
+
+      case "ttsen": case "texttospeechen": case "sayen": case "speaken": {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
+
+        if (!args[0]) return reply("Donne moi un texte à prononcer!")
 
         let texttosay = text
           ? text
@@ -4389,55 +4657,77 @@ let count = 1;
       }
         break;
 
-
-      case 'wiki':
+      case "ttsjp": case "texttospeechjp": case "sayjp": case "speakjp": {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         PelBot.sendMessage(from, { react: { text: "⌛", key: m.key } })
 
-        if (args.length < 1) return reply('What Are You Looking For?? ')
-        const res2 = await wikiSearch(q).catch(e => {
-          return reply('Error Result Not Found!')
-        })
-        const result2 = `*Title :* ${res2[0].judul}\n*Wiki :* ${res2[0].wiki}`
-        PelBot.sendMessage(from, { image: { url: res2[0].thumb }, caption: result2 })
+        if (!args[0]) return reply("Donne moi un texte à prononcer!")
+
+        let texttosay = text
+          ? text
+          : m.quoted && m.quoted.text
+            ? m.quoted.text
+            : m.text;
+        const SpeakEngine = require("google-tts-api");
+        const texttospeechurl = SpeakEngine.getAudioUrl(texttosay, { lang: "ja", slow: false, host: "https://translate.google.com", });
+        PelBot.sendMessage(m.chat, { audio: { url: texttospeechurl, }, mimetype: "audio/mpeg", fileName: `PelBotSpeechEngine.mp3`, }, { quoted: m, });
+      }
         break;
 
 
-      case 'urban': {
-        PelBot.sendMessage(from, { react: { text: "📖", key: m.key } })
-        // Extract the word from the message
-        const word = text.trim();
+      case 'dico': {
+        PelBot.sendMessage(from, { react: { text: "📖", key: m.key } });
+
+        const word = text.trim().toLowerCase();
 
         if (!word) {
-          reply(`Please provide a word to look up on Urban Dictionary. Example: ${prefix}urban hello`);
+          reply(`Donne moi un mot à vérifier dans le dictionnaire. Exemple: ${prefix}dico bonjour`);
           return;
         }
 
-        // Make a request to the Urban Dictionary API
-        const apiUrl = `https://api.urbandictionary.com/v0/define?term=${encodeURIComponent(word)}`;
+        const apiUrl = `https://fr.wiktionary.org/wiki/${encodeURIComponent(word)}`;
 
         try {
           const response = await axios.get(apiUrl);
+          const $ = cheerio.load(response.data);
 
-          // Extract the first definition from the API response
-          const definition = response.data.list[0]?.definition;
+          let definition = "";
 
-          if (definition) {
-            const urbanMessage = `📖 *Urban Dictionary Definition for "${word}":*\n\n${definition}`;
-            reply(urbanMessage);
-          } else {
-            reply(`No Urban Dictionary definition found for "${word}".`);
+          // Extract definition of the first sense
+          const definitionElements = $('#mw-content-text').find('.mw-parser-output > ol > li');
+          if (definitionElements.length > 0) {
+            const firstSense = $(definitionElements[0]);
+            const definitionText = firstSense.clone()    // Clone the element
+              .find('ul, .sources')   // Remove nested ul and .sources elements
+              .remove()
+              .end()     // Go back to the cloned element
+              .html();   // Get the HTML content
+            const formattedText = definitionText.replace(/<[^>]+>/g, ''); // Remove HTML tags
+            definition = formattedText.replace(/&nbsp;/g, ' ').trim(); // Replace &nbsp; with space
           }
+
+          // If definition is empty, it might be a disambiguation page
+          if (!definition) {
+            reply(`Aucune définition trouvée pour "${word}".`);
+            return;
+          }
+
+          // Send only the text definition
+          const message = `*📜 Définition de ${word}:*\n${definition}\n`;
+          reply(message);
         } catch (error) {
-          console.error('Error fetching Urban Dictionary definition:', error.message);
-          reply('An error occurred while fetching the Urban Dictionary definition. Please try again later.');
+          console.error('Error fetching dictionary definition:', error.message);
+          reply('Le mot cherché n\'existe pas.');
         }
       }
         break;
 
 
-        case 'aju': case 'campus': case 'imgaju':
+
+
+
+      case 'aju': case 'campus': case 'imgaju':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
@@ -4445,12 +4735,12 @@ let count = 1;
 
         const aju = {
           image: { url: 'https://campus-pictures.onrender.com/' },
-          caption: `${pushname} here you go...`,
-         
+          caption: `${pushname} Voilà...`,
+
         }
 
         await PelBot.sendMessage(m.chat, aju, { quoted: m }).catch(err => {
-          return ('Error!')
+          return ('Erreur !')
         })
 
         break;
@@ -4464,7 +4754,7 @@ let count = 1;
         const tres = await Gempa()
         var { Waktu, Lintang, Bujur, Magnitude, Kedalaman, Wilayah, Map } = tres.result
         console.log(Map)
-        const captt = `Time : ${Waktu}\nLatitude : ${Lintang}\nLongitude : ${Bujur}\nRegion : ${Wilayah}`
+        const captt = `Heure : ${Waktu}\nLatitude : ${Lintang}\nLongitude : ${Bujur}\nRegion : ${Wilayah}`
         PelBot.sendMessage(from, { image: { url: Map }, caption: captt })
         break;
 
@@ -4477,8 +4767,27 @@ let count = 1;
 
         const c = await covid()
         var { cases, death, healed } = c[0]
-        PelBot.sendMessage(from, { text: `\nCovid India \n\nCase : ${cases}\n\nDead : ${death}\n\nHealed : ${healed}\n` }, m)
+        PelBot.sendMessage(from, { text: `\nCovid Mali \n\nCas : ${cases}\n\nMorts : ${death}\n\nSoignés : ${healed}\n` }, m)
         break;
+
+
+      case 'today': {
+        const today = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = today.toLocaleDateString('fr-FR', options);
+        reply(`Aujourd'hui, nous sommes ${formattedDate}.`);
+      }
+        break;
+
+      case 'time': {
+        const now = new Date();
+        const hour = now.getHours().toString().padStart(2, '0');
+        const minute = now.getMinutes().toString().padStart(2, '0');
+        reply(`Il est actuellement ${hour}:${minute}.`);
+      }
+        break;
+
+
 
 
       // const { getBuffer } = require("./lib/myfunc");
@@ -4659,14 +4968,14 @@ let count = 1;
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!text) return reply(`Please provide link!`)
-        if (!isUrl(args[0]) && !args[0].includes('twitter.com')) return reply(`*Invalid link!*`)
+        if (!isUrl(args[0]) && !args[0].includes('x.com')) return reply(`*Invalid link!*`)
         xfarrapi.Twitter(`${text}`).then(async (data) => {
           let txt = `「 _Twitter Downloader_ 」\n\n`
-          txt += `*Title :* ${data.title}\n`
-          txt += `*Quality :* ${data.medias[1].quality}\n`
+          txt += `*Titre :* ${data.title}\n`
+          txt += `*Qualité :* ${data.medias[1].quality}\n`
           txt += `*Type :* ${data.medias[1].extension}\n`
-          txt += `*Size :* ${data.medias[1].formattedSize}\n`
-          txt += `*Duration :* ${data.medias.length}\n`
+          txt += `*Taille :* ${data.medias[1].formattedSize}\n`
+          txt += `*Durée :* ${data.medias.length}\n`
           txt += `*URL :* ${data.url}\n\n`
           txt += `*${BotName}*`
           buf = await getBuffer(data.thumbnail)
@@ -4704,9 +5013,9 @@ let count = 1;
           teks = `「 _Twitter Downloader_ 」
 Caption : ${lotwit.title ? lotwit.title : "undefined"}
 Type : ${lotwit.medias[1].extension}
-Size : ${lotwit.medias[1].formattedSize}
-Link : ${lotwit.medias[1].url}
-_Please choose the video quality_`
+Taille : ${lotwit.medias[1].formattedSize}
+Lien : ${lotwit.medias[1].url}
+_Choisi la qualité_`
           let buttons = [
             { buttonId: `${prefix}twitter ${lotwit.medias[0].url}`, buttonText: { displayText: `Quality ${lotwit.medias[0].quality}` }, type: 1 },
             { buttonId: `${prefix}twitter ${lotwit.medias[2].url}`, buttonText: { displayText: `Quality ${lotwit.medias[2].quality}` }, type: 1 }
@@ -6281,10 +6590,10 @@ _Click the button below to download_`
         break;
 
 
-      case 'yeet':
-      case 'wink': case 'smile':
-      case 'wave': case 'blush': case 'smug': case 'glomp':
-      case 'cringe': case 'highfive': {
+      case 'cry': case 'kill': case 'hug': case 'pat': case 'lick': case 'kiss': case 'bite': case 'yeet':
+      case 'bully': case 'bonk': case 'wink': case 'poke': case 'nom': case 'slap': case 'smile':
+      case 'wave': case 'blush': case 'smug': case 'glomp': case 'happy': case 'dance':
+      case 'cringe': case 'cuddle': case 'highfive': case 'handhold': case 'kick': {
 
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
@@ -6474,15 +6783,15 @@ _Click the button below to download_`
         if (isBanChat) return reply(mess.bangc); // Ce groupe est banni d'utiliser des commandes!
         if (!m.isGroup) return reply(mess.grouponly); // Cette commande est uniquement destinée aux groupes, Baka!
         PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } }); // Envoyer une réaction de feuille d'érable
-    
+
         if (!text) return reply(`Veuillez fournir un terme de recherche!\n\n*Exemple:* ${prefix}anime naruto`); // Veuillez fournir un terme de recherche
-    
+
         const malScraper = require('mal-scraper');
         reply(mess.waiting); // En attente de la réponse
-    
+
         const anime = await malScraper.getInfoFromName(text).catch(() => null);
         if (!anime) return reply(`${p}Impossible de trouver votre recherche`);
-    
+
         let animetxt = `
 🎀 *Titre: ${anime.title}*
 🎋 *Type: ${anime.type}*
@@ -6498,49 +6807,49 @@ _Click the button below to download_`
 ♦️ *Bande-annonce: ${anime.trailer}*
 🌐 *URL: ${anime.url}*
 ❄ *Description:* ${anime.synopsis}*`;
-    
-        await PelBot.sendMessage(m.chat, { image: { url: anime.picture }, caption: animetxt }, { quoted: m }); // Envoyer les informations sur l'anime avec l'image associée
-    }
-    break;
-    
 
-        case 'manga':
-          if (isBan) return reply(mess.banned); // Vous êtes banni d'utiliser des commandes!
-          if (isBanChat) return reply(mess.bangc); // Ce groupe est banni d'utiliser des commandes!
-          if (!m.isGroup) return reply(mess.grouponly); // Cette commande est uniquement destinée aux groupes, Baka!
-          PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } });
-      
-          reply(mess.waiting); // Juste un moment...
-          const { Manga } = require("@shineiichijo/marika");
-          const manga = new Manga();
-          if (!q) return reply(`Veuillez fournir un terme de recherche !\n\n_Exemple :_ ${prefix}manga naruto`);
-          let srh = await manga.searchManga(q);
-          let mang = `*Titre :* ${srh.data[0].title}\n`;
-          mang += `*Statut :* ${srh.data[0].status}\n`;
-          mang += `*Nombre de volumes :* ${srh.data[0].volumes}\n`;
-          mang += `*Nombre de chapitres :* ${srh.data[0].chapters}\n`;
-          mang += `*Genres :*\n`;
-          for (let i = 0; i < srh.data[0].genres.length; i++) {
-              mang += `\t${srh.data[0].genres[i].name}\n`;
-          }
-          mang += `\n*Publié le :* ${srh.data[0].published.from}\n`;
-          mang += `*Score :* ${srh.data[0].scored}\n`;
-          mang += `*Popularité :* ${srh.data[0].popularity}\n`;
-          mang += `*Favoris :* ${srh.data[0].favorites}\n`;
-          mang += `*Auteurs :*\n`;
-          for (let i = 0; i < srh.data[0].authors.length; i++) {
-              mang += `\t${srh.data[0].authors[i].name} (${srh.data[0].authors[0].type})\n`;
-          }
-          mang += `\n\n*URL :* ${srh.data[0].url}\n\n`;
-          if (srh.data[0].background !== null)
-              mang += `*Contexte :* ${srh.data[0].background}`;
-          mang += `*Description :* ${srh.data[0].synopsis.replace(
-              /\[Ecris par MAL Rewrite]/g,
-              ""
-          )}`;
-          PelBot.sendMessage(m.chat, { image: { url: srh.data[0].images.jpg.large_image_url }, caption: mang }, { quoted: m });
-          break;
-      
+        await PelBot.sendMessage(m.chat, { image: { url: anime.picture }, caption: animetxt }, { quoted: m }); // Envoyer les informations sur l'anime avec l'image associée
+      }
+        break;
+
+
+      case 'manga':
+        if (isBan) return reply(mess.banned); // Vous êtes banni d'utiliser des commandes!
+        if (isBanChat) return reply(mess.bangc); // Ce groupe est banni d'utiliser des commandes!
+        if (!m.isGroup) return reply(mess.grouponly); // Cette commande est uniquement destinée aux groupes, Baka!
+        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } });
+
+        reply(mess.waiting); // Juste un moment...
+        const { Manga } = require("@shineiichijo/marika");
+        const manga = new Manga();
+        if (!q) return reply(`Veuillez fournir un terme de recherche !\n\n_Exemple :_ ${prefix}manga naruto`);
+        let srh = await manga.searchManga(q);
+        let mang = `*Titre :* ${srh.data[0].title}\n`;
+        mang += `*Statut :* ${srh.data[0].status}\n`;
+        mang += `*Nombre de volumes :* ${srh.data[0].volumes}\n`;
+        mang += `*Nombre de chapitres :* ${srh.data[0].chapters}\n`;
+        mang += `*Genres :*\n`;
+        for (let i = 0; i < srh.data[0].genres.length; i++) {
+          mang += `\t${srh.data[0].genres[i].name}\n`;
+        }
+        mang += `\n*Publié le :* ${srh.data[0].published.from}\n`;
+        mang += `*Score :* ${srh.data[0].scored}\n`;
+        mang += `*Popularité :* ${srh.data[0].popularity}\n`;
+        mang += `*Favoris :* ${srh.data[0].favorites}\n`;
+        mang += `*Auteurs :*\n`;
+        for (let i = 0; i < srh.data[0].authors.length; i++) {
+          mang += `\t${srh.data[0].authors[i].name} (${srh.data[0].authors[0].type})\n`;
+        }
+        mang += `\n\n*URL :* ${srh.data[0].url}\n\n`;
+        if (srh.data[0].background !== null)
+          mang += `*Contexte :* ${srh.data[0].background}`;
+        mang += `*Description :* ${srh.data[0].synopsis.replace(
+          /\[Ecris par MAL Rewrite]/g,
+          ""
+        )}`;
+        PelBot.sendMessage(m.chat, { image: { url: srh.data[0].images.jpg.large_image_url }, caption: mang }, { quoted: m });
+        break;
+
 
 
       case 'waifu':
@@ -6633,27 +6942,31 @@ _Click the button below to download_`
       case 'bc': case 'broadcast': case 'bcall': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        if (!isCreator) return reply(mess.botowner)
-        if (!args.join(" ")) return reply(`Entrez un texte à diffuser ! \n\nExemple : ${prefix + command} ${global.OwnerName}`)
-        let anu = await store.chats.all().map(v => v.id)
-        reply(`Diffusion envoyé à ${anu.length} Chats \nDurée : ${anu.length * 1.5} secondes`)
+        if (!isCreator) return reply(mess.botowner);
+        if (!args.join(" ")) return reply(`Please enter some text to broadcast! \n\nExample : ${prefix + command} ${global.OwnerName}`);
+
+        // Utilisez la liste des groupes enregistrés
+        let anu = groups;
+
+        reply(`Send Broadcast To ${anu.length} Chat\nTime's up ${anu.length * 1.5} second`);
+
         for (let yoi of anu) {
-          await sleep(1500)
-          let btn = [{
-            quickreplyButton: {
-              displayText: '💡 Menu 💡',
-              id: '-menu'
-            }
-          }, {
-            quickreplyButton: {
-              displayText: 'Propriétaire',
-              id: '-owner'
-            }
-          }]
-          let txt = `「 *${global.OwnerName}'s Broadcast* 」\n\n${text}`
-          PelBot.send5ButImg(yoi, txt, `${global.BotName}`, BotLogo, btn, Thumb)
+          await sleep(1500);
+          let txt = `「 *${global.OwnerName}'s Broadcast* 」\n\n${text}`;
+
+          // Utilisez le code de diffusion ici
+          let buttonMessage = {
+            image: BotLogo,
+            jpegThumbnail: Thumb,
+            caption: `*📢✨ 「 ${global.OwnerName}'s Diffusion 」 ✨📢*\n\n${text}`,
+            footer: `${BotName}`,
+            headerType: 4
+          };
+
+          PelBot.sendMessage(yoi, buttonMessage, { quoted: m });
         }
-        reply('Diffusion envoyée !')
+
+        reply('Broadcast Sent !');
       }
         break;
 
@@ -6687,7 +7000,6 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
 
 
   ⌯     ${prefix}repo
-  ⌯     ${prefix}script
   ⌯     ${prefix}speak
   ⌯     ${prefix}support
   ⌯     ${prefix}stalk
@@ -6705,14 +7017,13 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
   ⌯     ${prefix}public
   ⌯     ${prefix}restart
   ⌯     ${prefix}sleep
+  ⌯     ${prefix}broadcast
   ⌯     ${prefix}setbotpp
-  ⌯     ${prefix}post
   ⌯     ${prefix}listonline
   ⌯     ${prefix}listgc
   ⌯     ${prefix}listpc
   ⌯     ${prefix}getcase
   ⌯     ${prefix}bangroup
-  ⌯     ${prefix}broadcast
   ⌯     ${prefix}bye
   ⌯     ${prefix}block
   ⌯     ${prefix}unblock
@@ -6741,6 +7052,13 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
   ⌯     ${prefix}nsnfwmenu
 
 
+  〢━━ ❅ Date ❅ ━━〢
+
+
+  ⌯     ${prefix}today
+  ⌯     ${prefix}time
+
+
   〢━━━❗ *Anti Link ❗* ━━━〢
 
   
@@ -6765,7 +7083,9 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
   ⌯     ${prefix}ytmp4 
   ⌯     ${prefix}yts
   ⌯     ${prefix}lyrics
-  ⌯     ${prefix}movie
+  ⌯     ${prefix}film
+  ⌯     ${prefix}anime
+  ⌯     ${prefix}serie
   ⌯     ${prefix}google
   ⌯     ${prefix}gimage
   ⌯     ${prefix}pinterest
@@ -6934,7 +7254,7 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
   ⌯     ${prefix}covid
   ⌯     ${prefix}earthquake
   ⌯     ${prefix}wiki
-  ⌯     ${prefix}stalknumber
+  ⌯     ${prefix}dico
 
 
   〢━━━ 🪁 *Essentials* 🪁 ━━━〢
