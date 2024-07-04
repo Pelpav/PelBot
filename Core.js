@@ -187,8 +187,11 @@ var tgel = new Date();
 var thisHari = tgel.getDay(),
   thisDaye = myHari[thisHari];
 var yye = tgel.getYear();
-const badWords = JSON.parse(fs.readFileSync('./storage/word/badwords.json'));
-
+const badWordsFilePath = './storage/word/badwords.json';
+let badWords = [];
+if (fs.existsSync(badWordsFilePath)) {
+  badWords = JSON.parse(fs.readFileSync(badWordsFilePath, 'utf8'));
+}
 
 function getGenreName(genreId) {
   // Liste des genres
@@ -360,67 +363,70 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
       return Math.floor(Math.random() * angka) + 1;
     }
 
-    if (m.message && m.isGroup) {
-      // Fonction pour vérifier si le message contient des mots interdits
-      function containsBadWord(message) {
-        return badWords.find(word => message.includes(word.toLowerCase()));
-      }
+    if (!isCreator) {
+      if (m.message && m.isGroup) {
 
-      // Vérifier si le message contient des mots interdits
-      const badWord = containsBadWord(m.body.toLowerCase());
-      if (badWord) {
-        // Vérifier si l'utilisateur est le propriétaire du bot
-        if (isCreator) return;
-
-        // Supprimer le message
-        await PelBot.sendMessage(m.chat, { delete: m.key });
-
-        // Vérifier si l'utilisateur est administrateur
-        const isAdmin = groupAdmins.includes(m.sender);
-
-        // Si l'utilisateur est administrateur, ne pas envoyer d'avertissement
-        if (isAdmin) {
-          await PelBot.sendMessage(m.chat, { text: `⚠️ Le message a été supprimé car il contenait des mots interdits.` });
-          return;
+        // Fonction pour vérifier si le message contient des mots interdits
+        function containsBadWord(message) {
+          return badWords.find(word => message.includes(word.toLowerCase()));
         }
 
-        // Initialiser les avertissements pour l'utilisateur s'il n'existe pas
-        if (!warnings[m.sender]) {
-          warnings[m.sender] = 0;
-        }
+        // Vérifier si le message contient des mots interdits
+        const badWord = containsBadWord(m.body.toLowerCase());
+        if (badWord) {
+          // Vérifier si l'utilisateur est le propriétaire du bot
 
-        // Incrémenter les avertissements
-        warnings[m.sender] += 1;
 
-        // Écrire les avertissements dans le fichier JSON
-        fs.writeFileSync(warningsFilePath, JSON.stringify(warnings));
+          // Supprimer le message
+          await PelBot.sendMessage(m.chat, { delete: m.key });
 
-        // Vérifier le nombre d'avertissements
-        if (warnings[m.sender] >= 3) {
-          // Retirer l'utilisateur du groupe après trois avertissements
-          if (isBotAdmins) {
-            await PelBot.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
+          // Vérifier si l'utilisateur est administrateur
+          const isAdmin = groupAdmins.includes(m.sender);
+
+          // Si l'utilisateur est administrateur, ne pas envoyer d'avertissement
+          if (isAdmin) {
+            await PelBot.sendMessage(m.chat, { text: `⚠️ Le message a été supprimé car il contenait des mots interdits.` });
+            return;
           }
 
-          // Construire le message d'alerte
-          const alertMessage = `⚠️ Vous avez été retiré du groupe après trois avertissements pour avoir envoyé des messages contenant des mots interdits.`;
+          // Initialiser les avertissements pour l'utilisateur s'il n'existe pas
+          if (!warnings[m.sender]) {
+            warnings[m.sender] = 0;
+          }
 
-          // Envoyer l'alerte
-          await PelBot.sendMessage(m.chat, { text: alertMessage }, { mentions: [m.sender] });
+          // Incrémenter les avertissements
+          warnings[m.sender] += 1;
 
-          // Réinitialiser les avertissements pour l'utilisateur
-          delete warnings[m.sender];
-          
+          // Écrire les avertissements dans le fichier JSON
           fs.writeFileSync(warningsFilePath, JSON.stringify(warnings));
-        } else {
-          // Construire le message d'avertissement
-          const alertMessage = `@${m.sender.split("@")[0]} ⚠️ Avertissement ${warnings[m.sender]}/3 : Mot interdit "${badWord}".`;
 
-          // Envoyer l'avertissement
-          await PelBot.sendMessage(m.chat, { text: alertMessage }, { mentions: [m.sender] });
+          // Vérifier le nombre d'avertissements
+          if (warnings[m.sender] >= 10) {
+            // Retirer l'utilisateur du groupe après trois avertissements
+            if (isBotAdmins) {
+              await PelBot.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
+            }
+
+            // Construire le message d'alerte
+            const alertMessage = `⚠️ Vous avez été retiré du groupe après trois avertissements pour avoir envoyé des messages contenant des mots interdits.`;
+
+            // Envoyer l'alerte
+            await PelBot.sendMessage(m.chat, { text: alertMessage }, { mentions: [m.sender] });
+
+            // Réinitialiser les avertissements pour l'utilisateur
+            delete warnings[m.sender];
+
+            fs.writeFileSync(warningsFilePath, JSON.stringify(warnings));
+          } else {
+            // Construire le message d'avertissement
+            const alertMessage = `@${m.sender.split("@")[0]} ⚠️ Avertissement ${warnings[m.sender]}/10 : Mot interdit "${badWord}".`;
+            // Envoyer l'avertissement
+            await PelBot.sendMessage(m.chat, { text: alertMessage });
+          }
         }
       }
     }
+
     if (isCmd && !isUser) {
       pendaftar.push(m.sender);
       fs.writeFileSync("./storage/user/user.json", JSON.stringify(pendaftar));
@@ -460,7 +466,7 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
       await PelBot.sendMessage(m.chat, { delete: m.key });
 
       // Taguer la personne qui a envoyé le message
-      const senderTag = m.sender ? `@${m.sender.split('@')[0]}` : '';
+      const senderTag = m.sender ? `@${m.sender.split("@")[0]}` : '';
 
       // Construire le message d'alerte
       const alertMessage = senderTag ?
@@ -979,6 +985,79 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         await PelBot.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media))
         m.reply(mess.jobdone)
       }
+        break;
+
+      case 'addbadword':
+      case 'abd':
+
+        if (!isCreator) return reply(mess.owner)
+        if (isBanChat) return reply(mess.bangc);
+
+        if (!args[0]) return reply('Veuillez fournir un mot à ajouter.');
+
+        // Lire la liste des mots interdits depuis le fichier
+        badWords = JSON.parse(fs.readFileSync(badWordsFilePath, 'utf8'));
+
+        const newWord = args.join(' ').trim().toLowerCase();
+        if (!newWord) return reply('Veuillez fournir un mot à ajouter.');
+
+        if (!badWords.includes(newWord)) {
+          badWords.push(newWord);
+          fs.writeFileSync(badWordsFilePath, JSON.stringify(badWords, null, 2));
+          reply(`Le mot "${newWord}" a été ajouté à la liste des mots interdits.`);
+        } else {
+          reply(`Le mot "${newWord}" est déjà dans la liste des mots interdits.`);
+        }
+        break;
+
+      case 'removebadword':
+      case 'rbd':
+
+        if (!isCreator) return reply(mess.owner)
+        if (isBanChat) return reply(mess.bangc);
+
+        if (!args[0]) return reply('Veuillez fournir un mot à retirer.');
+
+        // Lire la liste des mots interdits depuis le fichier
+        badWords = JSON.parse(fs.readFileSync(badWordsFilePath, 'utf8'));
+
+        const wordToRemove = args.join(' ').trim().toLowerCase();
+        console.log('Mot à retirer :', wordToRemove);
+
+        if (!wordToRemove) return reply('Veuillez fournir un mot à retirer.');
+
+        const index = badWords.indexOf(wordToRemove);
+        if (index !== -1) {
+          badWords.splice(index, 1);
+          fs.writeFileSync(badWordsFilePath, JSON.stringify(badWords, null, 2));
+          console.log(`Le mot "${wordToRemove}" a été retiré de la liste des mots interdits.`);
+          reply(`Le mot "${wordToRemove}" a été retiré de la liste des mots interdits.`);
+        } else {
+          console.log(`Le mot "${wordToRemove}" n'est pas dans la liste des mots interdits.`);
+          reply(`Le mot "${wordToRemove}" n'est pas dans la liste des mots interdits.`);
+        }
+        break;
+
+      case 'viewbadwords':
+      case 'listbadwords':
+      case 'lbd':
+
+        if (!isCreator) return reply(mess.owner)
+        if (isBanChat) return reply(mess.bangc);
+
+        // Lire le fichier JSON contenant les mots interdits
+        badWords = JSON.parse(fs.readFileSync(badWordsFilePath, 'utf8'));
+
+        if (badWords.length === 0) {
+          reply('Il n\'y a aucun mot interdit dans la liste.');
+        } else {
+          let badWordsList = 'Liste des mots interdits :\n\n';
+          badWords.forEach((word, index) => {
+            const capitalizedWord = word.charAt(0).toUpperCase() + word.slice(1);
+            badWordsList += `*${index + 1}.* ${capitalizedWord}\n`;
+          });
+          reply(badWordsList);
+        }
         break;
 
       case 'changeprefix':
@@ -4030,7 +4109,8 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         break;
 
 
-      case 'remove': {
+      case 'remove':
+        case 'bye': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
