@@ -187,6 +187,8 @@ var tgel = new Date();
 var thisHari = tgel.getDay(),
   thisDaye = myHari[thisHari];
 var yye = tgel.getYear();
+const badWords = JSON.parse(fs.readFileSync('./storage/word/badwords.json'));
+
 
 function getGenreName(genreId) {
   // Liste des genres
@@ -275,6 +277,16 @@ function getPersonalChatUsers() {
   return personalChatUsers;
 }
 
+const warningsFilePath = './storage/word/warnings.json';
+let warnings = {};
+
+// Lire les avertissements depuis le fichier JSON
+if (fs.existsSync(warningsFilePath)) {
+  warnings = JSON.parse(fs.readFileSync(warningsFilePath));
+} else {
+  fs.writeFileSync(warningsFilePath, JSON.stringify(warnings));
+}
+
 //
 module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
   try {
@@ -348,20 +360,67 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
       return Math.floor(Math.random() * angka) + 1;
     }
 
-    if (m.message) {
-      addBalance(m.sender, randomNomor(574), balance);
-      console.log(
-        chalk.black(chalk.bgWhite("[ MESSAGE ]")),
-        chalk.black(chalk.bgGreen(new Date())),
-        chalk.black(chalk.bgBlue(budy || m.mtype)) +
-        "\n" +
-        chalk.magenta("=> From"),
-        chalk.green(pushname),
-        chalk.yellow(m.sender) + "\n" + chalk.blueBright("=> In"),
-        chalk.green(m.isGroup ? pushname : "Private Chat", m.chat)
-      );
-    }
+    if (m.message && m.isGroup) {
+      // Fonction pour vérifier si le message contient des mots interdits
+      function containsBadWord(message) {
+        return badWords.find(word => message.includes(word.toLowerCase()));
+      }
 
+      // Vérifier si le message contient des mots interdits
+      const badWord = containsBadWord(m.body.toLowerCase());
+      if (badWord) {
+        // Vérifier si l'utilisateur est le propriétaire du bot
+        if (isCreator) return;
+
+        // Supprimer le message
+        await PelBot.sendMessage(m.chat, { delete: m.key });
+
+        // Vérifier si l'utilisateur est administrateur
+        const isAdmin = groupAdmins.includes(m.sender);
+
+        // Si l'utilisateur est administrateur, ne pas envoyer d'avertissement
+        if (isAdmin) {
+          await PelBot.sendMessage(m.chat, { text: `⚠️ Le message a été supprimé car il contenait des mots interdits.` });
+          return;
+        }
+
+        // Initialiser les avertissements pour l'utilisateur s'il n'existe pas
+        if (!warnings[m.sender]) {
+          warnings[m.sender] = 0;
+        }
+
+        // Incrémenter les avertissements
+        warnings[m.sender] += 1;
+
+        // Écrire les avertissements dans le fichier JSON
+        fs.writeFileSync(warningsFilePath, JSON.stringify(warnings));
+
+        // Vérifier le nombre d'avertissements
+        if (warnings[m.sender] >= 3) {
+          // Retirer l'utilisateur du groupe après trois avertissements
+          if (isBotAdmins) {
+            await PelBot.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
+          }
+
+          // Construire le message d'alerte
+          const alertMessage = `⚠️ Vous avez été retiré du groupe après trois avertissements pour avoir envoyé des messages contenant des mots interdits.`;
+
+          // Envoyer l'alerte
+          await PelBot.sendMessage(m.chat, { text: alertMessage }, { mentions: [m.sender] });
+
+          // Réinitialiser les avertissements pour l'utilisateur
+          delete warnings[m.sender];
+          
+          fs.writeFileSync(warningsFilePath, JSON.stringify(warnings));
+        } else {
+          // Construire le message d'avertissement
+          const alertMessage = `@${m.sender.split("@")[0]} ⚠️ Avertissement ${warnings[m.sender]}/3 : Mot interdit "${badWord}".`;
+
+          // Envoyer l'avertissement
+          await PelBot.sendMessage(m.chat, { text: alertMessage }, { mentions: [m.sender] });
+        }
+      }
+    }
     if (isCmd && !isUser) {
       pendaftar.push(m.sender);
       fs.writeFileSync("./storage/user/user.json", JSON.stringify(pendaftar));
@@ -2963,19 +3022,19 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         break;
 
 
-        case 'listpc': {
-          if (isBan) return reply(mess.banned);
-          if (isBanChat) return reply(mess.bangc);
-          PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
-  
-          let anu = await store.chats.all().filter(v => v.id.endsWith('.net')).map(v => v)
-          let teks = ` 「  PelBot's pm user list  」\n\nTotal ${anu.length} users are using PelBot in personal chat.`
-          for (let i of anu) {
-            teks += `\n\nProfile : @${i.id.split('@')[0]}\nChat : ${i.unreadCount}\nLastchat : ${moment(i.conversationTimestamp * 1000).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm:ss")}`
-          }
-          PelBot.sendTextWithMentions(m.chat, teks, m)
+      case 'listpc': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
+
+        let anu = await store.chats.all().filter(v => v.id.endsWith('.net')).map(v => v)
+        let teks = ` 「  PelBot's pm user list  」\n\nTotal ${anu.length} users are using PelBot in personal chat.`
+        for (let i of anu) {
+          teks += `\n\nProfile : @${i.id.split('@')[0]}\nChat : ${i.unreadCount}\nLastchat : ${moment(i.conversationTimestamp * 1000).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm:ss")}`
         }
-          break;
+        PelBot.sendTextWithMentions(m.chat, teks, m)
+      }
+        break;
 
       case 'listgc': {
         if (isBan) return reply(mess.banned);
