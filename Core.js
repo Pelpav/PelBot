@@ -435,7 +435,7 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
             }
 
             // Construire le message d'alerte
-            const alertMessage = `⚠️ Vous avez été retiré du groupe après cinq avertissements pour avoir envoyé des messages contenant des mots interdits.`;
+            const alertMessage = `⚠️ Vous avez été retiré du groupe après dix avertissements pour avoir envoyé des messages contenant des mots interdits.`;
 
             // Envoyer l'alerte
             await PelBot.sendMessage(m.chat, { text: alertMessage }, { mentions: [m.sender] });
@@ -447,7 +447,7 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
             // Construire le message d'avertissement
             const alertMessage = `@${m.sender.split("@")[0]} ⚠️ Avertissement ${warnings[m.chat][m.sender].count}/10 : Mot interdit "${badWord}".`;
             // Envoyer l'avertissement
-            await PelBot.sendMessage(m.chat, { text: alertMessage , mentions: [m.sender]});
+            await PelBot.sendMessage(m.chat, { text: alertMessage, mentions: [m.sender] });
           }
         }
       }
@@ -906,6 +906,53 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       }
 
 
+// ... existing code ...
+
+case 'vv':
+  case 'retrieve': {
+  try {
+    if (isBan) return reply(mess.banned);
+    if (isBanChat) return reply(mess.bangc);
+    if (!m.quoted) return reply(`Veuillez répondre à une image ou une vidéo vue unique avec la commande ${prefix + command}`);
+
+    console.log("Message cité trouvé");
+
+    const quotedMessage = m.quoted.message;
+    const messageType = quotedMessage.imageMessage ? 'imageMessage' : quotedMessage.videoMessage ? 'videoMessage' : null;
+
+    if (!messageType || !quotedMessage[messageType].viewOnce) {
+      return reply(`Veuillez répondre à une image ou une vidéo vue unique avec la commande ${prefix + command}`);
+    }
+
+    console.log("Le message est de type 'viewOnceMessage' ou contient l'attribut 'viewOnce'");
+
+    const mediaMessage = quotedMessage[messageType];
+    if (!mediaMessage) {
+      console.log("Le message vue unique ne contient pas de média valide.");
+      return reply("Le message vue unique ne contient pas de média valide.");
+    }
+
+    const buffer = await PelBot.downloadMediaMessage(mediaMessage);
+
+    console.log("Média téléchargé avec succès");
+
+    if (messageType === 'imageMessage') {
+      await PelBot.sendMessage(m.chat, { image: buffer, caption: 'Voici votre image en mode normal.' }, { quoted: m });
+      console.log("Image envoyée avec succès");
+    } else if (messageType === 'videoMessage') {
+      await PelBot.sendMessage(m.chat, { video: buffer, caption: 'Voici votre vidéo en mode normal.' }, { quoted: m });
+      console.log("Vidéo envoyée avec succès");
+    }
+  } catch (error) {
+    console.error("Erreur dans la commande 'vv':", error);
+    reply(`Une erreur est survenue lors du traitement de votre demande : ${error.message}`);
+  }
+}
+break;
+
+      // ... existing code ...
+
+
 
       case 'support': case 'supportgc': {
         if (isBan) return reply(mess.banned);
@@ -1110,8 +1157,8 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
 
       case 'advert':
-        if (!m.isGroup) return reply(mess.grouponly);
-        if (!isAdmins && !isCreator) return reply(mess.useradmin);
+        // if (!m.isGroup) return reply(mess.grouponly);
+        if (!isAdmins) return reply(mess.useradmin);
         if (!m.mentionedJid[0] && !m.quoted) return reply('Veuillez mentionner un utilisateur ou répondre à un message.');
 
         const targetUser = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : null;
@@ -4253,13 +4300,35 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       case 'add': {
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
-        if (!isCreator) return reply(mess.botowner)
-        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
+        if (!isCreator) return reply(mess.botowner);
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } });
 
+        let users = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+        if (users.length == 0) return reply(`Ecris le numéro de la personne que tu veux ajouter au groupe`);
 
-        let users = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-        if (users.length == 0) return reply(`Ecris le numéro de la personne que tu veux ajouter au groupe`)
-        await PelBot.groupParticipantsUpdate(m.chat, [users], 'add').then((res) => reply(`Utilisateur ajouté avec succès !`)).catch((err) => reply(`Impossible d'ajouter cet utilisateur au groupe !`))
+        // Nettoyer le numéro de téléphone
+        users = users.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+
+        // Vérification du format du numéro
+        if (!/^\d+@s\.whatsapp\.net$/.test(users)) {
+          return reply(`Le numéro de téléphone fourni n'est pas valide.`);
+        }
+
+        // Ajout de l'utilisateur au groupe
+        await PelBot.groupParticipantsUpdate(m.chat, [users], 'add')
+          .then((res) => {
+            if (res[0].status == 200) {
+              reply(`Utilisateur ajouté avec succès !`);
+            } else if (res[0].status == 403) {
+              reply(`Impossible d'ajouter cet utilisateur au groupe. Statut: 403. L'utilisateur a peut-être configuré ses paramètres de confidentialité pour empêcher d'être ajouté à des groupes.`);
+            } else {
+              reply(`Impossible d'ajouter cet utilisateur au groupe. Statut: ${res[0].status}`);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            reply(`Erreur lors de l'ajout de l'utilisateur au groupe.`);
+          });
       }
         break;
 
@@ -4337,15 +4406,15 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
 
       case 'leavegc': case 'leavegroup': case 'leave': {
-        if (isBan) return reply(mess.banned);	 			
+        if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-            reply(mess.waiting)
-                        if (!isCreator) return reply(`${mess.botowner}`)
-                        PelBot.sendMessage(from, { react: { text: "☯️" , key: m.key }})
-                        await PelBot.groupLeave(m.chat).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
-                    }
-                    break;
+        reply(mess.waiting)
+        if (!isCreator) return reply(`${mess.botowner}`)
+        PelBot.sendMessage(from, { react: { text: "☯️", key: m.key } })
+        await PelBot.groupLeave(m.chat).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+      }
+        break;
 
 
       //

@@ -6,21 +6,19 @@
         "@22377146815 Test"
       ]
     },
-    "22382008800@s.whatsapp.net": {
-      "count": 5,
-      "reasons": [
-        "Blabla",
-        "@22382008800 Tu es chien",
-        "Bien",
-        "chien",
-        "chien"
-      ]
-    },
     "212715888557@s.whatsapp.net": {
       "count": 2,
       "reasons": [
         "Mot interdit \"pops\"",
         "Mot interdit \"pops\""
+      ]
+    }
+  },
+  "120363160747680368@g.us": {
+    "22382008800@s.whatsapp.net": {
+      "count": 1,
+      "reasons": [
+        "Tu es un chien"
       ]
     }
   }
