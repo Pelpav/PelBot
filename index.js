@@ -76,7 +76,7 @@ async function startPelBot() {
   store.bind(PelBot.ev);
 
 
- //
+  //
   PelBot.ws.on('CB:call', async (json) => {
     const callerId = json.content[0].attrs['call-creator']
     if (json.content[0].tag === 'offer') {
@@ -143,19 +143,19 @@ async function startPelBot() {
     if (pea[0].announce == true) {
       //PelBot.send5ButImg(pea[0].id, `Grop has been *Closed!* Only *Admins* can send Messages!`, `PelBot Bot`, wm_fatih, [])
 
-      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'Grop has been *Closed!* Only *Admins* can send Messages!' })
+      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'Le groupe a été *Fermé !* Seuls les  *Admins* peuvent envoyer des Messages !' })
     } else if (pea[0].announce == false) {
       // PelBot.send5ButImg(pea[0].id, `Grop has been *Opened!* Now *Everyone* can send Messages!`, `PelBot Bot`, wm_fatih, [])
-      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'Grop has been *Opened!* Now *Everyone* can send Messages!' })
+      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'Le groupe a été *Ouvert !* Maintenant,  *Tout le monde* peut envoyer des messages!' })
     } else if (pea[0].restrict == true) {
       //PelBot.send5ButImg(pea[0].id, `Group Info modification has been *Restricted*, Now only *Admins* can edit Group Info !`, `PelBot Bot`, wm_fatih, [])
-      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'Group Info modification has been *Restricted*, Now only *Admins* can edit Group Info !' })
+      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'La modification des informations du groupe a été *Restreinte*, Seuls les *Admins* peuvent modifier les informations du groupe !' })
     } else if (pea[0].restrict == false) {
-      //PelBot.send5ButImg(pea[0].id, `Group Info modification has been *Un-Restricted*, Now only *Everyone* can edit Group Info !`, `PelBot Bot`, wm_fatih, [])
-      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'Group Info modification has been *Un-Restricted*, Now only *Everyone* can edit Group Info !' })
+      //PelBot.send5ButImg(pea[0].id, `La modification des informations du groupe a été *Dérestrictive*, Maintenant, seulement *Tout le monde* peut modifier les informations du groupe !`, `PelBot Bot`, wm_fatih, [])
+      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'La modification des informations du groupe a été *Dérestrictive*, Maintenant, seulement *Tout le monde* peut modifier les informations du groupe !' })
     } else {
       //PelBot.send5ButImg(pea[0].id, `Group Subject has been uhanged To:\n\n*${pea[0].subject}*`, `PelBot Bot`, wm_fatih, [])
-      PelBottextddfq = `Group Subject has been updated To:\n\n*${pea[0].subject}*`
+      PelBottextddfq = `Le nom du groupe a été mis à jour en :\n\n*${pea[0].subject}*`
       PelBot.sendMessage(pea[0].id, { image: wm_fatih, caption: PelBottextddfq })
     }
   })
@@ -268,16 +268,15 @@ async function startPelBot() {
           let targetname = await PelBot.getName(num)
           grpmembernum = metadata.participants.length
 
-
           if (anu.action == 'add') {
             // ... existing logic for welcoming new participants ...
             let WAuserName = num
             PelBottext = `
-Hello @${WAuserName.split("@")[0]},
+Bienvenue @${WAuserName.split("@")[0]},
 
-I am *PelBot Bot*, Welcome to ${metadata.subject}.
+Je suis *PelBot* un bot développé par Pelpav, Bienvenue sur${metadata.subject}.
 
-*Group Description:*
+*Description du groupe :*
 ${metadata.desc}
 `
 
@@ -293,9 +292,9 @@ ${metadata.desc}
             // ... existing logic for saying goodbye to departing participants ...
             let WAuserName = num
             PelBottext = `
-Okay Bye 👋, @${WAuserName.split("@")[0]},
+Okay Aurevoir 👋, @${WAuserName.split("@")[0]},
 
-You'll be a noticeable absence!
+Tu vas pas nous manquer !
 `
 
             let buttonMessage = {
@@ -426,30 +425,30 @@ You'll be a noticeable absence!
         ? lastDisconnect?.error?.output.statusCode
         : 0;
       if (reason === DisconnectReason.badSession) {
-        console.log(`Bad Session File, Please Delete Session and Scan Again`);
+        console.log(`Fichier de session incorrect, veuillez supprimer la session et scanner à nouveau`);
         process.exit();
       } else if (reason === DisconnectReason.connectionClosed) {
-        console.log("Connection closed, reconnecting....");
+        console.log("Connexion fermée, reconnexion en cours....");
         startPelBot();
       } else if (reason === DisconnectReason.connectionLost) {
-        console.log("Connection Lost from Server, reconnecting...");
+        console.log("Connexion perdue avec le serveur, reconnexion en cours...");
         startPelBot();
       } else if (reason === DisconnectReason.connectionReplaced) {
         console.log(
-          "Connection Replaced, Another New Session Opened, Please Close Current Session First"
+          "Connexion remplacée, une nouvelle session a été ouverte, veuillez fermer la session actuelle en premier"
         );
         process.exit();
       } else if (reason === DisconnectReason.loggedOut) {
-        console.log(`Device Logged Out, Please Delete Session and Scan Again.`);
+        console.log(`Appareil déconnecté, veuillez supprimer la session et scanner à nouveau.`);
         process.exit();
       } else if (reason === DisconnectReason.restartRequired) {
-        console.log("Restart Required, Restarting...");
+        console.log("Redémarrage requis, redémarrage en cours...");
         startPelBot();
       } else if (reason === DisconnectReason.timedOut) {
-        console.log("Connection TimedOut, Reconnecting...");
+        console.log("Connexion expirée, reconnexion en cours...");
         startPelBot();
       } else {
-        console.log(`Unknown DisconnectReason: ${reason}|${connection}`);
+        console.log(`Raison de déconnexion inconnue : ${reason}|${connection}`);
       }
     }
     //console.log('Connected...', update)
@@ -1071,15 +1070,15 @@ You'll be a noticeable absence!
 startPelBot();
 
 process.on('uncaughtException', function (err) {
-let e = String(err)
-if (e.includes("Socket connection timeout")) return
-if (e.includes("not-authorized")) return
-if (e.includes("already-exists")) return
-if (e.includes("rate-overlimit")) return
-if (e.includes("Connection Closed")) return
-if (e.includes("Timed Out")) return
-if (e.includes("Value not found")) return
-console.log('Caught exception: ', err)
+  let e = String(err)
+  if (e.includes("Socket connection timeout")) return
+  if (e.includes("not-authorized")) return
+  if (e.includes("already-exists")) return
+  if (e.includes("rate-overlimit")) return
+  if (e.includes("Connection Closed")) return
+  if (e.includes("Timed Out")) return
+  if (e.includes("Value not found")) return
+  console.log('Caught exception: ', err)
 })
 
 let file = require.resolve(__filename);

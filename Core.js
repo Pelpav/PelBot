@@ -290,6 +290,33 @@ if (fs.existsSync(warningsFilePath)) {
   fs.writeFileSync(warningsFilePath, JSON.stringify(warnings));
 }
 
+const pollsFilePath = './storage/polls/polls.json';
+
+// Charger les sondages depuis le fichier JSON
+let polls = [];
+if (fs.existsSync(pollsFilePath)) {
+  try {
+    const data = fs.readFileSync(pollsFilePath, 'utf8');
+    polls = JSON.parse(data);
+    if (!Array.isArray(polls)) {
+      polls = [];
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des sondages:', error);
+    polls = [];
+  }
+} else {
+  fs.writeFileSync(pollsFilePath, JSON.stringify(polls));
+}
+
+let currentPoll = {
+  question: '',
+  options: [],
+  votes: {},
+  active: false
+};
+
+
 //
 module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
   try {
@@ -365,7 +392,6 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
 
     if (!isCreator) {
       if (m.message && m.isGroup) {
-
         // Fonction pour vérifier si le message contient des mots interdits
         function containsBadWord(message) {
           return badWords.find(word => message.includes(word.toLowerCase()));
@@ -374,9 +400,6 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
         // Vérifier si le message contient des mots interdits
         const badWord = containsBadWord(m.body.toLowerCase());
         if (badWord) {
-          // Vérifier si l'utilisateur est le propriétaire du bot
-
-
           // Supprimer le message
           await PelBot.sendMessage(m.chat, { delete: m.key });
 
@@ -389,39 +412,42 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
             return;
           }
 
-          // Initialiser les avertissements pour l'utilisateur s'il n'existe pas
-          if (!warnings[m.sender]) {
-            warnings[m.sender] = 0;
+          // Initialiser les avertissements pour le groupe et l'utilisateur s'ils n'existent pas
+          if (!warnings[m.chat]) {
+            warnings[m.chat] = {};
+          }
+          if (!warnings[m.chat][m.sender]) {
+            warnings[m.chat][m.sender] = { count: 0, reasons: [] };
           }
 
-          // Incrémenter les avertissements
-          warnings[m.sender] += 1;
+          // Incrémenter les avertissements et ajouter la raison
+          warnings[m.chat][m.sender].count += 1;
+          warnings[m.chat][m.sender].reasons.push(`Mot interdit "${badWord}"`);
 
           // Écrire les avertissements dans le fichier JSON
-          fs.writeFileSync(warningsFilePath, JSON.stringify(warnings));
+          fs.writeFileSync(warningsFilePath, JSON.stringify(warnings, null, 2));
 
           // Vérifier le nombre d'avertissements
-          if (warnings[m.sender] >= 10) {
-            // Retirer l'utilisateur du groupe après trois avertissements
+          if (warnings[m.chat][m.sender].count >= 10) {
+            // Retirer l'utilisateur du groupe après cinq avertissements
             if (isBotAdmins) {
               await PelBot.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
             }
 
             // Construire le message d'alerte
-            const alertMessage = `⚠️ Vous avez été retiré du groupe après trois avertissements pour avoir envoyé des messages contenant des mots interdits.`;
+            const alertMessage = `⚠️ Vous avez été retiré du groupe après cinq avertissements pour avoir envoyé des messages contenant des mots interdits.`;
 
             // Envoyer l'alerte
             await PelBot.sendMessage(m.chat, { text: alertMessage }, { mentions: [m.sender] });
 
-            // Réinitialiser les avertissements pour l'utilisateur
-            delete warnings[m.sender];
-
-            fs.writeFileSync(warningsFilePath, JSON.stringify(warnings));
+            // Réinitialiser les avertissements pour l'utilisateur dans ce groupe
+            delete warnings[m.chat][m.sender];
+            fs.writeFileSync(warningsFilePath, JSON.stringify(warnings, null, 2));
           } else {
             // Construire le message d'avertissement
-            const alertMessage = `@${m.sender.split("@")[0]} ⚠️ Avertissement ${warnings[m.sender]}/10 : Mot interdit "${badWord}".`;
+            const alertMessage = `@${m.sender.split("@")[0]} ⚠️ Avertissement ${warnings[m.chat][m.sender].count}/10 : Mot interdit "${badWord}".`;
             // Envoyer l'avertissement
-            await PelBot.sendMessage(m.chat, { text: alertMessage });
+            await PelBot.sendMessage(m.chat, { text: alertMessage , mentions: [m.sender]});
           }
         }
       }
@@ -987,11 +1013,164 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       }
         break;
 
+
+      case 'poll':
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        switch (args[0]) {
+          case 'create':
+            if (!isCreator) return reply(mess.owner)
+            if (isBanChat) return reply(mess.bangc);
+            if (!isCreator) return reply(mess.owner)
+            if (currentPoll.active) return reply('Un sondage est déjà en cours.');
+            currentPoll.question = args.slice(1).join(' ');
+            currentPoll.options = [];
+            currentPoll.votes = {};
+            currentPoll.active = true;
+            reply(`Sondage créé : ${currentPoll.question}`);
+            break;
+
+          case 'add':
+            if (!isCreator) return reply(mess.owner)
+            if (isBanChat) return reply(mess.bangc);
+            if (!isCreator) return reply(mess.owner)
+            if (!currentPoll.active) return reply('Aucun sondage en cours.');
+            const option = args.slice(1).join(' ');
+            currentPoll.options.push(option);
+            currentPoll.votes[option] = 0;
+            reply(`Option ajoutée : ${option}`);
+            break;
+
+          case 'vote':
+            if (!currentPoll.active) return reply('Aucun sondage en cours.');
+            const voteOption = args.slice(1).join(' ');
+            if (!currentPoll.options.includes(voteOption)) return reply('Option invalide.');
+            currentPoll.votes[voteOption] += 1;
+            reply(`Vote enregistré pour : ${voteOption}`);
+            break;
+
+          case 'results':
+            if (!currentPoll.active) return reply('Aucun sondage en cours.');
+            let results = `Résultats du sondage : ${currentPoll.question}\n\n`;
+            for (let option of currentPoll.options) {
+              results += `${option} : ${currentPoll.votes[option]} votes\n`;
+            }
+            reply(results);
+            break;
+
+          case 'end':
+            if (!isCreator) return reply(mess.owner)
+            if (isBanChat) return reply(mess.bangc);
+            if (!isCreator) return reply(mess.owner)
+            if (!currentPoll.active) return reply('Aucun sondage en cours.');
+            let finalResults = `Sondage terminé : ${currentPoll.question}\n\n`;
+            for (let option of currentPoll.options) {
+              finalResults += `${option} : ${currentPoll.votes[option]} votes\n`;
+            }
+            currentPoll.active = false;
+            polls.push(currentPoll);
+            fs.writeFileSync(pollsFilePath, JSON.stringify(polls, null, 2));
+            reply(finalResults);
+            break;
+
+          case 'list':
+            if (polls.length === 0) return reply('Aucun sondage précédent trouvé.');
+            let pollList = 'Liste des sondages précédents :\n\n';
+            polls.forEach((poll, index) => {
+              pollList += `${index + 1}. ${poll.question}\n`;
+            });
+            reply(pollList);
+            break;
+
+          case 'show':
+            if (!args[1] || isNaN(args[1])) return reply('Veuillez fournir un identifiant de sondage valide.');
+            const pollId = parseInt(args[1]) - 1;
+            if (pollId < 0 || pollId >= polls.length) return reply('Identifiant de sondage invalide.');
+            const selectedPoll = polls[pollId];
+            let pollDetails = `Détails du sondage : ${selectedPoll.question}\n\n`;
+            for (let option of selectedPoll.options) {
+              pollDetails += `${option} : ${selectedPoll.votes[option]} votes\n`;
+            }
+            reply(pollDetails);
+            break;
+
+          case 'delete':
+            if (!args[1] || isNaN(args[1])) return reply('Veuillez fournir un identifiant de sondage valide.');
+            const deletePollId = parseInt(args[1]) - 1;
+            if (deletePollId < 0 || deletePollId >= polls.length) return reply('Identifiant de sondage invalide.');
+            const deletedPoll = polls.splice(deletePollId, 1)[0];
+            fs.writeFileSync(pollsFilePath, JSON.stringify(polls, null, 2));
+            reply(`Sondage "${deletedPoll.question}" supprimé avec succès.`);
+            break;
+
+          default:
+            reply('Commande de sondage invalide.');
+        }
+        break;
+
+
+      case 'advert':
+        if (!m.isGroup) return reply(mess.grouponly);
+        if (!isAdmins && !isCreator) return reply(mess.useradmin);
+        if (!m.mentionedJid[0] && !m.quoted) return reply('Veuillez mentionner un utilisateur ou répondre à un message.');
+
+        const targetUser = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : null;
+        if (!targetUser) return reply('Utilisateur non trouvé.');
+
+        if (groupAdmins.includes(targetUser)) return reply('Vous ne pouvez pas donner un avertissement à un administrateur.');
+
+        // Extraire la raison après le tag de l'utilisateur
+        const reasonIndex = m.body.indexOf(targetUser.split('@')[0]) + targetUser.split('@')[0].length + 1;
+        const reason = m.body.slice(reasonIndex).trim();
+        if (!reason) return reply('Veuillez fournir une raison pour l\'avertissement.');
+
+        // Initialiser les avertissements pour le groupe et l'utilisateur s'ils n'existent pas
+        if (!warnings[m.chat]) {
+          warnings[m.chat] = {};
+        }
+        if (!warnings[m.chat][targetUser]) {
+          warnings[m.chat][targetUser] = { count: 0, reasons: [] };
+        }
+
+        // Incrémenter les avertissements et ajouter la raison
+        warnings[m.chat][targetUser].count += 1;
+        if (!warnings[m.chat][targetUser].reasons) {
+          warnings[m.chat][targetUser].reasons = [];
+        }
+        warnings[m.chat][targetUser].reasons.push(reason);
+
+        // Écrire les avertissements dans le fichier JSON
+        fs.writeFileSync(warningsFilePath, JSON.stringify(warnings, null, 2));
+
+        // Vérifier le nombre d'avertissements
+        if (warnings[m.chat][targetUser].count >= 10) {
+          // Retirer l'utilisateur du groupe après 10 avertissements
+          if (isBotAdmins) {
+            await PelBot.groupParticipantsUpdate(m.chat, [targetUser], 'remove');
+          }
+
+          // Construire le message d'alerte
+          const alertMessage = `⚠️ Vous avez été retiré du groupe après 10 avertissements. Raison : ${reason}`;
+
+          // Envoyer l'alerte
+          await PelBot.sendMessage(m.chat, { text: alertMessage }, { mentions: [targetUser] });
+
+          // Réinitialiser les avertissements pour l'utilisateur dans ce groupe
+          delete warnings[m.chat][targetUser];
+          fs.writeFileSync(warningsFilePath, JSON.stringify(warnings, null, 2));
+        } else {
+          // Construire le message d'avertissement
+          const alertMessage = `@${targetUser.split("@")[0]} ⚠️ Avertissement N°${warnings[m.chat][targetUser].count}/10 : ${reason}`;
+          // Envoyer l'avertissement
+          await PelBot.sendMessage(m.chat, { text: alertMessage, mentions: [targetUser] });
+        }
+        break;
+
       case 'addbadword':
       case 'abd':
-
         if (!isCreator) return reply(mess.owner)
         if (isBanChat) return reply(mess.bangc);
+        if (!isAdmins && !isCreator) return reply(mess.useradmin);
 
         if (!args[0]) return reply('Veuillez fournir un mot à ajouter.');
 
@@ -1041,9 +1220,8 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       case 'viewbadwords':
       case 'listbadwords':
       case 'lbd':
-
-        if (!isCreator) return reply(mess.owner)
         if (isBanChat) return reply(mess.bangc);
+        if (isBan) return reply(mess.banned);
 
         // Lire le fichier JSON contenant les mots interdits
         badWords = JSON.parse(fs.readFileSync(badWordsFilePath, 'utf8'));
@@ -3846,10 +4024,6 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
-        if (isBotAdmins) {
-          PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
-          PelBot.sendMessage(m.chat, { text: args.join(" ") ? args.join(" ") : '', mentions: participants.map(a => a.id) }, { quoted: m })
-        }
         if (!isAdmins && !isCreator) return reply(mess.useradmin)
         PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
         PelBot.sendMessage(m.chat, { text: args.join(" ") ? args.join(" ") : '', mentions: participants.map(a => a.id) }, { quoted: m })
@@ -4110,7 +4284,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
 
       case 'remove':
-        case 'bye': {
+      case 'bye': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
@@ -4162,16 +4336,16 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         break;
 
 
-      // case 'leavegc': case 'leavegroup': case 'bye': {
-      //   if (isBan) return reply(mess.banned);	 			
-      //   if (isBanChat) return reply(mess.bangc);
-      //   if (!m.isGroup) return reply(mess.grouponly);
-      //       reply(mess.waiting)
-      //                   if (!isCreator) return reply(`${mess.botowner}`)
-      //                   PelBot.sendMessage(from, { react: { text: "☯️" , key: m.key }})
-      //                   await PelBot.groupLeave(m.chat).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
-      //               }
-      //               break;
+      case 'leavegc': case 'leavegroup': case 'leave': {
+        if (isBan) return reply(mess.banned);	 			
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly);
+            reply(mess.waiting)
+                        if (!isCreator) return reply(`${mess.botowner}`)
+                        PelBot.sendMessage(from, { react: { text: "☯️" , key: m.key }})
+                        await PelBot.groupLeave(m.chat).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+                    }
+                    break;
 
 
       //

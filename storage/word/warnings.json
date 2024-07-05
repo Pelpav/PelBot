@@ -1,1 +1,27 @@
-{"22382470628@s.whatsapp.net":1,"22378845758@s.whatsapp.net":1}
+{
+  "120363315370574972@g.us": {
+    "22377146815@s.whatsapp.net": {
+      "count": 1,
+      "reasons": [
+        "@22377146815 Test"
+      ]
+    },
+    "22382008800@s.whatsapp.net": {
+      "count": 5,
+      "reasons": [
+        "Blabla",
+        "@22382008800 Tu es chien",
+        "Bien",
+        "chien",
+        "chien"
+      ]
+    },
+    "212715888557@s.whatsapp.net": {
+      "count": 2,
+      "reasons": [
+        "Mot interdit \"pops\"",
+        "Mot interdit \"pops\""
+      ]
+    }
+  }
+}
