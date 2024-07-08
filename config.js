@@ -4,14 +4,14 @@ const chalk = require("chalk");
 
 //
 global.available = true;
-global.autoReadAll = false;
-global.antitags = true;
+global.autoReadAll = true;
+global.antitags = false;
 
 
 //auto functioner
 global.autoTyping = false;                //auto tying by default off.
 global.autoRecord = false;                //auto recording by default off.
-global.groupevent = false;                //This is the new variable for controlling group event handling.
+global.groupevent = true;                //This is the new variable for controlling group event handling.
 global.statusseen = true;                 //This is the new variable for controlling status seen.
 global.autoreadgc = true;
 
@@ -28,8 +28,8 @@ global.OwnerName = "Christian";
 global.BotName = "PelBot";
 global.packname = "Pelpav Bot";                             //Do not change.
 global.author = "By: Christian";                               //Do not change.
-global.BotSourceCode = "https://github.com/Pelpav"; //Do not change.
-global.SupportGroupLink = "https://chat.whatsapp.com/GhRGdwfaMVDCoeAdzILfl";
+global.BotSourceCode = "https://github.com/Pelpav/PelBot"; //Do not change.
+global.SupportGroupLink = "https://chat.whatsapp.com/DKBtyt9jGeCL3z8wSOItCy";
 
 
 //
@@ -46,7 +46,7 @@ global.reactmoji = "❤️";
 global.themeemoji = "💖";
 global.vidmenu = { url: 'https://media.tenor.com/Jdu0Ov8X2sIAAAAC/PelBot-Bot.mp4' };
 global.websitex = "https://github.com/Pelpav";
-global.lolhuman = "KaysaS";
+global.lolhuman = "Pelpav";
 
 
 //
