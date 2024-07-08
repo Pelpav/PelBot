@@ -841,7 +841,18 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
 
     //-----------------------------------------------------------------------------------------------------------------------------------//
+    // Afficher chaque message dans la console avec des détails sur l'origine et le pseudo de l'expéditeur
+    const senderName = await PelBot.getName(m.sender);
 
+    if (m.isGroup) {
+      const groupMetadata = await PelBot.groupMetadata(m.chat);
+      console.log(chalk.blue(`📨 Group ${chalk.yellow(groupMetadata.subject)} | Message from ${chalk.green(senderName)} :  ${chalk.white(m.body)}`));
+    } else {
+      console.log(chalk.blue(`📨 PM Message from ${chalk.green(senderName)} : ${chalk.white(m.body)}`));
+    }
+    // Vérifier si le message est textuel avant de continue
+
+    const textuel = m.message.conversation.toLowerCase();
 
     //
     switch (command) {
@@ -906,49 +917,53 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       }
 
 
-// ... existing code ...
+      // ... existing code ...
 
-case 'vv':
-  case 'retrieve': {
-  try {
-    if (isBan) return reply(mess.banned);
-    if (isBanChat) return reply(mess.bangc);
-    if (!m.quoted) return reply(`Veuillez répondre à une image ou une vidéo vue unique avec la commande ${prefix + command}`);
+      case 'vv':
+      case 'retrieve': {
+        try {
+          if (isBan) return reply(mess.banned);
+          if (isBanChat) return reply(mess.bangc);
+          if (!m.quoted) return reply(`Veuillez répondre à une image, une vidéo ou un message vocal vue unique avec la commande ${prefix + command}`);
 
-    console.log("Message cité trouvé");
+          console.log("Message cité trouvé");
 
-    const quotedMessage = m.quoted.message;
-    const messageType = quotedMessage.imageMessage ? 'imageMessage' : quotedMessage.videoMessage ? 'videoMessage' : null;
+          const quotedMessage = m.quoted.message;
+          const messageType = quotedMessage.imageMessage ? 'imageMessage' : quotedMessage.videoMessage ? 'videoMessage' : quotedMessage.audioMessage ? 'audioMessage' : null;
 
-    if (!messageType || !quotedMessage[messageType].viewOnce) {
-      return reply(`Veuillez répondre à une image ou une vidéo vue unique avec la commande ${prefix + command}`);
-    }
+          if (!messageType || !quotedMessage[messageType].viewOnce) {
+            return reply(`Veuillez répondre à une image, une vidéo ou un message vocal vue unique avec la commande ${prefix + command}`);
+          }
 
-    console.log("Le message est de type 'viewOnceMessage' ou contient l'attribut 'viewOnce'");
+          console.log("Le message est de type 'viewOnceMessage' ou contient l'attribut 'viewOnce'");
 
-    const mediaMessage = quotedMessage[messageType];
-    if (!mediaMessage) {
-      console.log("Le message vue unique ne contient pas de média valide.");
-      return reply("Le message vue unique ne contient pas de média valide.");
-    }
+          const mediaMessage = quotedMessage[messageType];
+          if (!mediaMessage) {
+            console.log("Le message vue unique ne contient pas de média valide.");
+            return reply("Le message vue unique ne contient pas de média valide.");
+          }
 
-    const buffer = await PelBot.downloadMediaMessage(mediaMessage);
+          const buffer = await PelBot.downloadMediaMessage(mediaMessage);
 
-    console.log("Média téléchargé avec succès");
+          console.log("Média téléchargé avec succès");
 
-    if (messageType === 'imageMessage') {
-      await PelBot.sendMessage(m.chat, { image: buffer, caption: 'Voici votre image en mode normal.' }, { quoted: m });
-      console.log("Image envoyée avec succès");
-    } else if (messageType === 'videoMessage') {
-      await PelBot.sendMessage(m.chat, { video: buffer, caption: 'Voici votre vidéo en mode normal.' }, { quoted: m });
-      console.log("Vidéo envoyée avec succès");
-    }
-  } catch (error) {
-    console.error("Erreur dans la commande 'vv':", error);
-    reply(`Une erreur est survenue lors du traitement de votre demande : ${error.message}`);
-  }
-}
-break;
+          if (messageType === 'imageMessage') {
+            await PelBot.sendMessage(m.chat, { image: buffer, caption: 'Voici votre image en mode normal.' }, { quoted: m });
+            console.log("Image envoyée avec succès");
+          } else if (messageType === 'videoMessage') {
+            await PelBot.sendMessage(m.chat, { video: buffer, caption: 'Voici votre vidéo en mode normal.' }, { quoted: m });
+            console.log("Vidéo envoyée avec succès");
+          } else if (messageType === 'audioMessage') {
+            await PelBot.sendMessage(m.chat, { video: buffer, caption: 'Voici votre vocal en mode normal :' }, { quoted: m });
+            await PelBot.sendMessage(m.chat, { audio: buffer, mimetype: 'audio/ogg; codecs=opus', ptt: true }, { quoted: m });
+            console.log("Message vocal envoyé avec succès");
+          }
+        } catch (error) {
+          console.error("Erreur dans la commande 'vv':", error);
+          reply(`Une erreur est survenue lors du traitement de votre demande : ${error.message}`);
+        }
+      }
+        break;
 
       // ... existing code ...
 
@@ -969,7 +984,7 @@ break;
         if (isBanChat) return reply(mess.bangc);
 
         PelBot.sendMessage(from, { react: { text: "💫", key: m.key } })
-        reply(`⚙ Mon code source est </> - non disponible`)
+        reply(`⚙ Mon code source est </> - https://github.com/Pelpav/PelBot`)
       }
         break;
 
@@ -4078,6 +4093,49 @@ break;
         break;
 
 
+      // case 'hidetag': case 'tag': case 'ping': {
+      //   if (isBan) return reply(mess.banned);
+      //   if (isBanChat) return reply(mess.bangc);
+      //   if (!m.isGroup) return reply(mess.grouponly);
+      //   if (!isBotAdmins) return reply(mess.botadmin);
+      //   if (!isAdmins && !isCreator) return reply(mess.useradmin)
+      //   PelBot.sendMessage(from, { react: { text: "✨", key: m.key } })
+
+      //   let messageToSend = args.join(" ") ? args.join(" ") : '';
+      //   console.log("Arguments:", args);
+      //   console.log("Message cité:", m.quoted);
+      //   if (m.quoted) {
+      //     const quotedMessage = m.quoted;
+      //     console.log("Message cité trouvé:", quotedMessage);
+      //     const messageType = quotedMessage.mtype
+      //     console.log("MESSAGE TYPE =", messageType);
+      //     if (messageType === 'conversation' || messageType === 'extendedTextMessage') {
+      //       messageToSend = quotedMessage[messageType].text || quotedMessage[messageType].caption || messageToSend;
+      //       PelBot.sendMessage(m.chat, { text: messageToSend, mentions: participants.map(a => a.id) }, { quoted: m })
+      //     } else if (messageType === 'imageMessage') {
+      //       PelBot.sendMessage(m.chat, { text: '', image: quotedMessage.imageMessage.url, caption: quotedMessage.imageMessage.caption }, { quoted: m });
+      //     } else if (messageType === 'videoMessage') {
+      //       PelBot.sendMessage(m.chat, { text: '', video: quotedMessage.url, caption: quotedMessage.text }, { quoted: m });
+      //     } else if (messageType === 'audioMessage') {
+      //       PelBot.sendMessage(m.chat, { audio: quotedMessage.audioMessage.url }, { quoted: m });
+      //     } else if (messageType === 'stickerMessage') {
+      //       messageToSend = 'Sticker';
+      //     } else if (messageType === 'documentMessage') {
+      //       messageToSend = quotedMessage[messageType].title || 'Document';
+      //     } else {
+      //       messageToSend = 'Message';
+      //     }
+      //   }
+
+      //   if (!messageToSend) {
+      //     messageToSend = 'Message';
+      //   }
+
+      //   // PelBot.sendMessage(m.chat, { text: messageToSend, mentions: participants.map(a => a.id) }, { quoted: m })
+      // }
+      //   break;
+
+
       case 'tagadmins': case 'admins': case 'tagadmin': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
@@ -4096,42 +4154,37 @@ break;
         break;
 
 
-      /*
-      case 'purge':{
-        if (isBan) return reply(mess.banned);	 			
-      if (isBanChat) return reply(mess.bangc);
-      if (!m.isGroup) return reply(mess.grouponly);
-      if (!isBotAdmins) return reply(mess.botadmin);
-      if (!isAdmins && !isCreator) return reply(mess.useradmin)
-      
-        const delay = time => new Promise(res=>setTimeout(res,time));
-      
-        let users = (await PelBot.fetchGroupMetadataFromWA(m.chat)).participants.map(u => u.jid)
-        for (let user of users){
-      
-            await PelBot.groupParticipantsUpdate(m.chat, [user], 'remove')
-            await delay(3000)
-        }
-      }
-      break;
-      
-      */
+      // case 'purge': {
+      //   if (isBan) return reply(mess.banned);
+      //   if (isBanChat) return reply(mess.bangc);
+      //   if (!m.isGroup) return reply(mess.grouponly);
+      //   if (!isBotAdmins) return reply(mess.botadmin);
+      //   if (!isAdmins && !isCreator) return reply(mess.useradmin);
+      //   const delay = time => new Promise(res => setTimeout(res, time));
 
-      case 'purge': {
-        mess
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly);
-        if (!isBotAdmins) return reply(mess.botadmin);
-        if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        const delay = time => new Promise(res => setTimeout(res, time));
-        let mentioned = participants.map(v => v.jid)
-        for (let member of mentioned) {
-          PelBot.groupParticipantsUpdate(m.chat, [member], 'remove')
-        }
-      }
+      //   async function removeAllMembers() {
+      //     let teks = `*⚠️✨ Tous les membres ont été retirés du groupe sauf le bot ! ✨⚠️*\n\n`;
 
-        break;
+      //     let count = 1;
+      //     for (let mem of participants) {
+      //       if (mem.id !== botNumber) {
+      //         teks += `> ${count} - 🌟👤 @${mem.id.split('@')[0]}\n`;
+      //         count++;
+      //         await PelBot.groupParticipantsUpdate(m.chat, [mem.id], 'remove');
+      //         await delay(1000); // Delay between removals
+      //       }
+      //     }
+
+      //     // Retirer le bot en dernier
+      //     await delay(1000); // Ajouter un délai avant que le bot se retire
+      //     await PelBot.groupParticipantsUpdate(m.chat, [botNumber], 'remove');
+
+      //     PelBot.sendMessage(m.chat, { text: teks, mentions: participants.map(a => a.id) }, { quoted: m });
+      //   }
+
+      //   removeAllMembers();
+      // }
+      //   break;
 
 
       case 'nowa': case 'find': case 'stalk': case 'stalknumber': {
@@ -4276,10 +4329,16 @@ break;
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
         if (!isBotAdmins) return reply(mess.botadmin);
-        if (!isAdmins && !isCreator) return reply(mess.useradmin)
-        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
-        let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-        await PelBot.groupParticipantsUpdate(m.chat, [users], 'promote').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+        if (!isAdmins && !isCreator) return reply(mess.useradmin);
+        PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } });
+        let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+        
+        await PelBot.groupParticipantsUpdate(m.chat, [users], 'promote')
+          .then((res) => {
+            let promotedMember = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '');
+            reply(`Membre @${promotedMember.split('@')[0]} promu administrateur.`);
+          })
+          .catch((err) => reply(jsonformat(err)));
       }
         break;
 
@@ -5838,19 +5897,33 @@ _Click the button below to download_`
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
-        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } })
-        if (!text) return reply(`Comand usage: ${prefix}lyrics Thunder`)
-        reply(mess.waiting)
-        const { lyrics, lyricsv2 } = require('@bochilteam/scraper')
-        const result = await lyricsv2(text).catch(async _ => await lyrics(text))
-        reply(`
-*Title :* ${result.title}
-*Author :* ${result.author}
-*Url :* ${result.link}
+        PelBot.sendMessage(from, { react: { text: "🍁", key: m.key } });
+        if (!text) return reply(`Utilisation de la commande : ${prefix}lyrics <titre de la chanson>`);
+        reply(mess.waiting);
 
-*Lyrics :* ${result.lyrics}
+        try {
+          const { lyrics, lyricsv2 } = require('@bochilteam/scraper');
+          const result = await lyricsv2(text).catch(async _ => await lyrics(text));
+          if (!result) {
+            return reply(`Désolé, je n'ai pas pu trouver les paroles pour "${text}".`);
+          }
+          reply(`
+        *Titre :* ${result.title}
+        *Auteur :* ${result.author}
+        *Url :* ${result.link}
+        
+        *Paroles :* ${result.lyrics}
+            `.trim());
+        } catch (error) {
+          if (error.code == "ERR_NON_2XX_3XX_RESPONSE") {
+            reply(`Chansons toujours précaire.`);
+            console.error("Erreur lors de la récupération des paroles :", error.code);
+          } else {
+            console.error("Erreur lors de la récupération des paroles :", error.code);
+            reply(`Une erreur est survenue lors de la récupération des paroles. Veuillez réessayer plus tard.`);
+          }
 
-`.trim())
+        }
       }
         break;
 
@@ -7382,7 +7455,9 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
 
 
   ⌯     ${prefix}repo
-  ⌯     ${prefix}speak
+  ⌯     ${prefix}speakfr
+  ⌯     ${prefix}speaken
+  ⌯     ${prefix}speakjp
   ⌯     ${prefix}support
   ⌯     ${prefix}stalk
   ⌯     ${prefix}setprefix
@@ -7895,8 +7970,11 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
     if (e.includes("Timed Out")) return
     if (e.includes("Value not found")) return
     if (e.includes("Socket connection timeout")) return
+    console.log(err);
   }
 }
+
+
 
 let file = require.resolve(__filename)
 fs.watchFile(file, () => {

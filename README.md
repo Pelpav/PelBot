@@ -12,7 +12,7 @@
 <h1 align="center"> PelBot (Beta)</h1>
 
 <p align="center"> 
-  Hi there, I'm "PelBot," a versatile WhatsApp bot created and reprogrammed by Kai to perform a wide array of functions based on WhatsApp Multi-Device (MD) Support.
+  Hi there, I'm "PelBot," a versatile WhatsApp bot created and reprogrammed by Pelpav to perform a wide array of functions based on WhatsApp Multi-Device (MD) Support.
 
 <p align="center">
   <a href="https://github.com/Pelpav">

@@ -8,7 +8,8 @@
     },
     "scripts": {
         "start": "node index.js",
-        "test": "node index.js"
+        "test": "node index.js",
+        "build": "tsc"
     },
     "repository": {
         "type": "git",
@@ -28,7 +29,8 @@
         "@hapi/boom": "^10.0.1",
         "jimp": "^0.16.13",
         "pino": "^7.0.5",
-        "qrcode-terminal": "^0.12.0"
+        "qrcode-terminal": "^0.12.0",
+        "typescript": "^5.5.3"
     },
     "dependencies": {
         "@adiwajshing/keyed-db": "^0.2.4",
