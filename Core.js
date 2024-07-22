@@ -1372,28 +1372,6 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         break;
 
 
-      case 'mess': {
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        if (!m.isGroup) return reply(mess.grouponly);
-
-        PelBot.sendMessage(from, { react: { text: "📊", key: m.key } });
-
-        let targetUser = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : null;
-        if (!targetUser) return reply('Veuillez mentionner un utilisateur ou répondre à un message.');
-
-        const groupId = m.chat;
-        const groupName = await getEncodedGroupName(PelBot, groupId);
-        const messageCount = loadMessageCount(groupName);
-
-        if (!messageCount[targetUser]) {
-          return PelBot.sendMessage(m.chat, { text: `L'utilisateur @${targetUser.split('@')[0]} n'a envoyé aucun message dans ce groupe.`, mentions: [targetUser] }, { quoted: m });
-        }
-
-        const userMessageCount = messageCount[targetUser].count;
-        PelBot.sendMessage(m.chat, { text: `L'utilisateur @${targetUser.split('@')[0]} a envoyé ${userMessageCount} messages dans ce groupe.`, mentions: [targetUser] }, { quoted: m });
-      }
-        break;
 
       case 'baltop': {
         if (isBan) return reply(mess.banned);
@@ -8152,6 +8130,26 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
   ⌯     ${prefix}auto-typing
   ⌯     ${prefix}auto-recoding
 
+  
+  〢━━━ 🧩 *Quizz* 🧩 ━━━〢
+
+
+  ⌯     ${prefix}quizz create <nom>
+  ⌯     ${prefix}quizz name <nouveau nom>
+  ⌯     ${prefix}quizz time <heure de début>
+  ⌯     ${prefix}quizz modo <@modérateur>
+  ⌯     ${prefix}quizz start
+  ⌯     ${prefix}quizz stop
+  ⌯     ${prefix}quizz show
+  ⌯     ${prefix}quizz showtagall
+
+
+  〢━━━ 📊 *Group Stats* 📊 ━━━〢
+
+
+  ⌯     ${prefix}mess <@utilisateur>
+  ⌯     ${prefix}baltop
+  ⌯     ${prefix}baldown
 
   〢━━━ ⌬ Owner Only ⌬ ━━━〢
 
