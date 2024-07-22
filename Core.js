@@ -1,7 +1,9 @@
 process.on("uncaughtException", console.error);
 require("./config");
-
 const fs = require('fs');
+const path = require('path');
+const moments = require('moment');
+require('moment/locale/fr'); // Importer la locale française pour moment
 const pm2 = require('pm2');
 const util = require("util");
 const { promisify } = require('util');
@@ -40,6 +42,12 @@ const { isLimit, limitAdd, getLimit, giveLimit, kurangBalance, getBalance, isGam
 const githubstalk = require('./lib/githubstalk');
 let { covid } = require('./lib/covid.js');
 const { Gempa } = require("./lib/gempa.js");
+
+const messageCountFilePath = './storage/group/messageCount.json';
+let messageCount = {};
+
+// Configurer moment pour utiliser la locale française
+moments.locale('fr');
 
 const spaceemojis = ["🌌", "🌠", "🚀", "🪐", "🌟"];     // list of emojis for Space CMDs.
 const manyemojis = ["😄", "👍", "👏", "👌", "🥇", "🌟", "🎉", "🙌", "🤩", "💯", "🔥", "✨", "🚀", "💖", "🌈", "🌞", "🌠", "🌼", "💪", "😎", "💫", "💓", "🎈", "🎁", "🍾", "🎊", "🥳", "👑", "🌺", "🌻", "🌸"];
@@ -138,16 +146,18 @@ if (global.db)
 
 
 //
-let isSleeping = false; // Move the declaration here.
+const banUserFilePath = './database/banUser.json';
+const banChatFilePath = './database/banChat.json';
 let banUser = JSON.parse(fs.readFileSync('./database/banUser.json'));
 let banchat = JSON.parse(fs.readFileSync('./database/banChat.json'));
 let kaiaudio = JSON.parse(fs.readFileSync('./Media-Database/audio.json'));
+let isSleeping = false; // Move the declaration here.
 let _limit = JSON.parse(fs.readFileSync('./storage/user/limit.json'));
 let _buruan = JSON.parse(fs.readFileSync('./storage/user/bounty.json'));
 let _darahOrg = JSON.parse(fs.readFileSync('./storage/user/blood.json'))
 let ntnsfw = JSON.parse(fs.readFileSync('./database/nsfw.json')); //
 let pendaftar = JSON.parse(fs.readFileSync('./storage/user/user.json'))
-let groups = JSON.parse(fs.readFileSync('./storage/group/group.json'))
+let groups = JSON.parse(fs.readFileSync('./storage/group.json'))
 let balance = JSON.parse(fs.readFileSync('./database/balance.json'))
 let ssewa = JSON.parse(fs.readFileSync('./database/sewa.json'))
 let ban = JSON.parse(fs.readFileSync('./database/ban.json'))
@@ -164,7 +174,7 @@ const sewa = JSON.parse(fs.readFileSync('./database/sewa.json'))
 const time = moment.tz('Asia/Kolkata').format('DD/MM HH:mm:ss')
 const ucap = moment(Date.now()).tz('Asia/Kolkata').locale('id').format('a')
 var buln = ['/01/', '/02/', '/03/', '/04/', '/05/', '/06/', '/07/', '/08/', '/09/', '/10/', '/11/', '/12/'];
-var myHari = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var myHari = ['Dimanche', 'Lundi', 'Mardi', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var tgel = new Date();
 var hri = tgel.getDate();
 var bulnh = tgel.getMonth();
@@ -225,12 +235,157 @@ function getGenreName(genreId) {
     10768: "Guerre & Politiques"
   };
 
+
+
   // Vérifie si l'identifiant du genre existe dans la liste des genres
   if (genres.hasOwnProperty(genreId)) {
     return genres[genreId]; // Retourne le nom du genre correspondant à l'identifiant
   } else {
     return "Genre inconnu"; // Retourne un message d'erreur si l'identifiant du genre n'est pas trouvé
   }
+}
+
+// Fonction pour obtenir le nom du groupe et l'encoder pour l'utiliser comme nom de fichier
+async function getEncodedGroupName(PelBot, groupId) {
+  const groupMetadata = await PelBot.groupMetadata(groupId);
+  return encodeURIComponent(groupMetadata.subject);
+}
+
+// Fonction pour charger les données de comptage des messages depuis le fichier JSON
+function loadMessageCount(groupName) {
+  const filePath = path.join('./storage/group/', `${groupName}.json`);
+  if (fs.existsSync(filePath)) {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } else {
+    return {};
+  }
+}
+
+
+// Fonction pour sauvegarder les données de comptage des messages dans le fichier JSON
+function saveMessageCount(groupName, data) {
+  const filePath = path.join('./storage/group/', `${groupName}.json`);
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
+// Fonction pour charger les groupes gérés
+function loadManagedGroups() {
+  const filePath = './storage/group/managedGroups.json';
+  if (fs.existsSync(filePath)) {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } else {
+    return {};
+  }
+}
+
+// Fonction pour sauvegarder les groupes gérés
+function saveManagedGroups(data) {
+  const filePath = './storage/group/managedGroups.json';
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
+
+// Charger les groupes gérés au démarrage
+let managedGroups = loadManagedGroups();
+
+
+
+// Fonction pour obtenir un nouvel ID de groupe
+function getNewGroupId() {
+  const ids = Object.values(managedGroups).map(group => group.id);
+  return ids.length ? Math.max(...ids) + 1 : 1;
+}
+
+// Fonction pour vérifier et charger les groupes gérés depuis les fichiers JSON
+function checkAndLoadGroups() {
+  const groupFiles = fs.readdirSync('./storage/group/').filter(file => file.endsWith('.json') && file !== 'managedGroups.json');
+  groupFiles.forEach(file => {
+    const groupName = file.replace('.json', '');
+    const groupData = loadMessageCount(groupName);
+    if (!Object.values(managedGroups).some(group => group.name === groupName)) {
+      const newGroupId = getNewGroupId();
+      managedGroups[newGroupId] = {
+        name: groupName,
+        id: newGroupId
+      };
+    }
+  });
+  saveManagedGroups(managedGroups);
+}
+// Vérifier et charger les groupes gérés au démarrage
+checkAndLoadGroups();
+
+// Fonction pour parcourir tous les groupes et ajouter les membres dans les fichiers JSON
+async function initializeGroupMembers(PelBot) {
+  console.log("Initialisation des membres des groupes en cours...");
+  const groups = await PelBot.groupFetchAllParticipating();
+  console.log(`Nombre de groupes trouvés: ${Object.keys(groups).length}`);
+  for (const groupId in groups) {
+    const groupMetadata = groups[groupId];
+    const groupName = encodeURIComponent(groupMetadata.subject);
+    console.log(`Traitement du groupe: ${groupName}`);
+
+    // Ajouter le groupe à la liste des groupes gérés s'il n'existe pas
+    if (!Object.values(managedGroups).some(group => group.name === groupName)) {
+      const newGroupId = getNewGroupId();
+      managedGroups[newGroupId] = {
+        name: groupName,
+        id: newGroupId
+      };
+      saveManagedGroups(managedGroups);
+      console.log(`Groupe ${groupName} ajouté avec l'ID ${newGroupId}`);
+    }
+
+    const simpleGroupId = Object.keys(managedGroups).find(key => managedGroups[key].name === groupName);
+
+    // Charger les données de comptage des messages pour le groupe
+    let messageCount = loadMessageCount(groupName);
+    console.log(`Données de comptage des messages pour ${groupName} chargées`);
+
+    // Parcourir les participants du groupe et initialiser leurs données
+    groupMetadata.participants.forEach(participant => {
+      if (!messageCount[participant.id]) {
+        messageCount[participant.id] = {
+          count: 0,
+          lastMessageDate: null
+        };
+        console.log(`Participant ${participant.id} ajouté au groupe ${groupName}`);
+      }
+    });
+
+    // Sauvegarder les données de comptage des messages pour le groupe
+    saveMessageCount(groupName, messageCount);
+    console.log(`Données de comptage des messages pour ${groupName} sauvegardées`);
+  }
+  console.log("Initialisation des membres des groupes terminée.");
+}
+
+
+// Fonction pour récupérer les membres d'un groupe par son ID et les afficher triés par dernier message envoyé
+async function getGroupMembersById(PelBot, groupId) {
+  const group = managedGroups[groupId];
+  if (!group) {
+    return `Groupe avec l'ID ${groupId} non trouvé.`;
+  }
+
+  const groupName = group.name;
+  const messageCount = loadMessageCount(groupName);
+
+  // Trier les membres par la date du dernier message envoyé
+  const sortedMembers = Object.entries(messageCount).sort((a, b) => {
+    const dateA = new Date(a[1].lastMessageDate);
+    const dateB = new Date(b[1].lastMessageDate);
+    return dateB - dateA;
+  });
+
+  // Construire le message à afficher
+  let memberList = `Membres du groupe ${decodeURIComponent(groupName)} (ID: ${groupId}) triés par dernier message envoyé :\n\n`;
+  const mentions = [];
+  sortedMembers.forEach(([memberId, data]) => {
+    const formattedDate = moments(data.lastMessageDate).format('Le D MMMM YYYY à HH[h]mm');    
+    memberList += `ID: @${memberId.split('@')[0]}\nNombre de messages: ${data.count}\nDernier message: ${formattedDate}\n\n`;
+    mentions.push(memberId);
+  });
+
+  return { memberList, mentions };
 }
 
 // Fonction pour mapper les codes de langue aux noms des langues correspondants
@@ -318,7 +473,7 @@ let currentPoll = {
 
 
 //
-module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
+module.exports = {PelBot} = async (PelBot, m, chatUpdate, store) => {
   try {
     var body = (m.mtype === 'conversation') ? m.message.conversation : (m.mtype == 'imageMessage') ? m.message.imageMessage.caption : (m.mtype == 'videoMessage') ? m.message.videoMessage.caption : (m.mtype == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.mtype == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.mtype == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectreply.selectedRowId : (m.mtype == 'templateButtonreplyMessage') ? m.message.templateButtonreplyMessage.selectedId : (m.mtype === 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectreply.selectedRowId || m.text) : ''
     var budy = (typeof m.text == 'string' ? m.text : '')
@@ -389,6 +544,48 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
     function randomNomor(angka) {
       return Math.floor(Math.random() * angka) + 1;
     }
+
+    if (m.isGroup) {
+      const groupId = m.chat;
+      const senderId = m.sender;
+
+      // Obtenir le nom du groupe encodé
+      const groupName = await getEncodedGroupName(PelBot, groupId);
+
+      // Ajouter le groupe à la liste des groupes gérés s'il n'existe pas
+      if (!Object.values(managedGroups).some(group => group.name === groupName)) {
+        const newGroupId = getNewGroupId();
+        managedGroups[newGroupId] = {
+          name: groupName,
+          id: newGroupId
+        };
+        saveManagedGroups(managedGroups);
+      }
+
+      const simpleGroupId = Object.keys(managedGroups).find(key => managedGroups[key].name === groupName);
+
+      // Charger les données de comptage des messages pour le groupe
+      let messageCount = loadMessageCount(groupName);
+
+      // Initialiser le compteur de messages pour l'utilisateur s'il n'existe pas
+      if (!messageCount[senderId]) {
+        messageCount[senderId] = {
+          count: 0,
+          lastMessageDate: null
+        };
+      }
+
+      // Incrémenter le compteur de messages pour l'utilisateur
+      messageCount[senderId].count += 1;
+
+      // Mettre à jour la date du dernier message
+      messageCount[senderId].lastMessageDate = new Date().toISOString();
+
+      // Sauvegarder les données de comptage des messages pour le groupe
+      saveMessageCount(groupName, messageCount);
+    }
+
+
 
     if (!isCreator) {
       if (m.message && m.isGroup) {
@@ -473,7 +670,7 @@ module.exports = PelBot = async (PelBot, m, chatUpdate, store) => {
         groups.push(groupId);
 
         // Enregistrez les modifications dans le fichier JSON
-        fs.writeFileSync("./storage/group/group.json", JSON.stringify(groups));
+        fs.writeFileSync("./storage/group.json", JSON.stringify(groups));
       }
     }
 
@@ -830,11 +1027,13 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       'good night': `Bonne nuit à toi aussi ${pushname} 😇. Fais de beaux rêves.`,
     };
 
-
     const smallinput = budy.toLowerCase();
 
-    if (responses.hasOwnProperty(smallinput)) {
-      reply(responses[smallinput]);
+    for (const key in responses) {
+      if (smallinput.includes(key)) {
+        reply(responses[key]);
+        break;
+      }
     }
 
 
@@ -1074,6 +1273,43 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         m.reply(mess.jobdone)
       }
         break;
+
+
+      case 'listgroups':
+        if (!isCreator) return reply(mess.owner)
+        if (isBanChat) return reply(mess.bangc);
+        if (!isCreator) return reply(mess.owner)
+
+        // Vérifier et charger les groupes gérés depuis les fichiers JSON
+        checkAndLoadGroups();
+
+        let groupList = 'Groupes gérés :\n\n';
+        for (let groupId in managedGroups) {
+          groupList += `${decodeURIComponent(managedGroups[groupId].name)}\nID : ${managedGroups[groupId].id}\n\n`;
+        }
+        reply(groupList);
+        break;
+
+        case 'groupmembers':
+          if (!isCreator) return reply(mess.owner)
+          if (isBan) return reply(mess.banned);
+          if (isBanChat) return reply(mess.bangc);
+  
+          const groupId = args[0];
+          if (!groupId) {
+            return reply('Veuillez fournir un ID de groupe.');
+          }
+  
+          const { memberList, mentions } = await getGroupMembersById(PelBot, groupId);
+  
+          // Filtrer les membres avec un count > 0
+          const filteredMembers = memberList.filter(member => member.count > 0);
+          const filteredMentions = mentions.filter((mention, index) => memberList[index].count > 0);
+  
+          const filteredMemberList = filteredMembers.map(member => member.name).join('\n');
+  
+          await PelBot.sendMessage(m.chat, { text: filteredMemberList, mentions: filteredMentions }, { quoted: m });
+          break;
 
 
       case 'poll':
@@ -1542,7 +1778,8 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (isBanChat) return reply(mess.bangc);
         if (!isCreator) return reply(mess.botowner)
         PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
-        if (!args[0]) return reply(`Sélectionnez add ou del (add pour bannir, del pour débannir), Par exemple: répondre *${prefix}ban add* à l'utilisateur que vous souhaitez bannir.`)
+
+        if (!args[0]) return reply(`Sélectionnez add ou del (add pour bannir, del pour débannir), par exemple : répondez *${prefix}ban add* à l'utilisateur que vous souhaitez bannir.`)
         if (args[1]) {
           orgnye = args[1] + "@s.whatsapp.net"
         } else if (m.quoted) {
@@ -1550,14 +1787,16 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         }
         const isBane = banUser.includes(orgnye)
         if (args[0] === "add") {
-          if (isBane) return ads('L\'utilisateur est déjà banni.')
+          if (isBane) return reply('L\'utilisateur était déjà banni.')
           banUser.push(orgnye)
-          reply(`L'utilisateur a été banni avec succès.`)
+          fs.writeFileSync(banUserFilePath, JSON.stringify(banUser, null, 2)); // Écrire dans le fichier JSON
+          reply(`L\'utilisateur a été banni avec succès.`)
         } else if (args[0] === "del") {
-          if (!isBane) return ads('L\'utilisateur est déjà débanni.')
+          if (!isBane) return reply('L\'utilisateur était déjà débanni.')
           let delbans = banUser.indexOf(orgnye)
           banUser.splice(delbans, 1)
-          reply(`L'utilisateur a été débanni avec succès.`)
+          fs.writeFileSync(banUserFilePath, JSON.stringify(banUser, null, 2)); // Écrire dans le fichier JSON
+          reply(`L\'utilisateur a été débanni avec succès.`)
         } else {
           reply("Erreur")
         }
@@ -3963,6 +4202,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (args[0] === "on") {
           if (isBanChat) return reply('This Group is Already Banned from using me!');
           banchat.push(from);
+          fs.writeFileSync(banChatFilePath, JSON.stringify(banchat, null, 2)); // Écrire dans le fichier JSON
           reply('This Group has been banned from using me!');
 
           var groupe = await PelBot.groupMetadata(from);
@@ -3977,6 +4217,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           if (!isBanChat) return reply('This Group is Already Banned from using me!');
           let off = banchat.indexOf(from);
           banchat.splice(off, 1);
+          fs.writeFileSync(banChatFilePath, JSON.stringify(banchat, null, 2)); // Écrire dans le fichier JSON
           reply('This Group has been *unbanned* from using me!');
         } else {
           reply('Please choose either *"on"* or *"off"* to ban or unban the group from using the bot.');
@@ -4332,7 +4573,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         if (!isAdmins && !isCreator) return reply(mess.useradmin);
         PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } });
         let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
-        
+
         await PelBot.groupParticipantsUpdate(m.chat, [users], 'promote')
           .then((res) => {
             let promotedMember = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '');
@@ -7486,6 +7727,7 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
   ⌯     ${prefix}unblock
   ⌯     ${prefix}ban add
   ⌯     ${prefix}ban del
+  ⌯     ${prefix}list
 
  
   〢━━ ❅ Group Moderation ❅ ━━〢
@@ -7721,7 +7963,8 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
   ⌯     ${prefix}say
   ⌯     ${prefix}fliptext
   ⌯     ${prefix}toletter
-  ⌯     ${prefix}translate, 
+  ⌯     ${prefix}translate
+  ⌯     ${prefix}poll
   
  
   〢━━━ 🎗 *Others* 🎗 ━━━〢
@@ -7973,6 +8216,7 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
     console.log(err);
   }
 }
+
 
 
 

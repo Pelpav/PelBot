@@ -24,6 +24,164 @@ const PhoneNumber = require("awesome-phonenumber");
 const { promisify } = require("util");
 const writeFileAsync = promisify(fs.writeFile);
 const path = require("path");
+// Fonction pour obtenir le nom du groupe et l'encoder pour l'utiliser comme nom de fichier
+async function getEncodedGroupName(PelBot, groupId) {
+  const groupMetadata = await PelBot.groupMetadata(groupId);
+  return encodeURIComponent(groupMetadata.subject);
+}
+
+// Fonction pour charger les données de comptage des messages depuis le fichier JSON
+function loadMessageCount(groupName) {
+  const filePath = path.join('./storage/group/', `${groupName}.json`);
+  if (fs.existsSync(filePath)) {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } else {
+    return {};
+  }
+}
+
+
+// Fonction pour sauvegarder les données de comptage des messages dans le fichier JSON
+function saveMessageCount(groupName, data) {
+  const filePath = path.join('./storage/group/', `${groupName}.json`);
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
+// Fonction pour charger les groupes gérés
+function loadManagedGroups() {
+  const filePath = './storage/group/managedGroups.json';
+  if (fs.existsSync(filePath)) {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } else {
+    return {};
+  }
+}
+
+// Fonction pour sauvegarder les groupes gérés
+function saveManagedGroups(data) {
+  const filePath = './storage/group/managedGroups.json';
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
+
+// Charger les groupes gérés au démarrage
+let managedGroups = loadManagedGroups();
+
+
+
+// Fonction pour obtenir un nouvel ID de groupe
+function getNewGroupId() {
+  const ids = Object.values(managedGroups).map(group => group.id);
+  return ids.length ? Math.max(...ids) + 1 : 1;
+}
+
+// Fonction pour vérifier et charger les groupes gérés depuis les fichiers JSON
+function checkAndLoadGroups() {
+  const groupFiles = fs.readdirSync('./storage/group/').filter(file => file.endsWith('.json') && file !== 'managedGroups.json');
+  groupFiles.forEach(file => {
+    const groupName = file.replace('.json', '');
+    const groupData = loadMessageCount(groupName);
+    if (!Object.values(managedGroups).some(group => group.name === groupName)) {
+      const newGroupId = getNewGroupId();
+      managedGroups[newGroupId] = {
+        name: groupName,
+        id: newGroupId
+      };
+    }
+  });
+  saveManagedGroups(managedGroups);
+}
+// Vérifier et charger les groupes gérés au démarrage
+checkAndLoadGroups();
+
+// Fonction pour parcourir tous les groupes et ajouter les membres dans les fichiers JSON
+async function initializeGroupMembers(PelBot) {
+  console.log("Initialisation des membres des groupes en cours...");
+  const groups = await PelBot.groupFetchAllParticipating();
+  console.log(`Nombre de groupes trouvés: ${Object.keys(groups).length}`);
+
+  // Charger les utilisateurs existants de user.json
+  const usersFilePath = 'storage/user/user.json';
+  let users = JSON.parse(fs.readFileSync(usersFilePath, 'utf8'));
+
+  for (const groupId in groups) {
+    const groupMetadata = groups[groupId];
+    const groupName = encodeURIComponent(groupMetadata.subject);
+    console.log(`Traitement du groupe: ${groupName}`);
+
+    // Ajouter le groupe à la liste des groupes gérés s'il n'existe pas
+    if (!Object.values(managedGroups).some(group => group.name === groupName)) {
+      const newGroupId = getNewGroupId();
+      managedGroups[newGroupId] = {
+        name: groupName,
+        id: newGroupId
+      };
+      saveManagedGroups(managedGroups);
+      console.log(`Groupe ${groupName} ajouté avec l'ID ${newGroupId}`);
+    }
+
+    const simpleGroupId = Object.keys(managedGroups).find(key => managedGroups[key].name === groupName);
+
+    // Charger les données de comptage des messages pour le groupe
+    let messageCount = loadMessageCount(groupName);
+    console.log(`Données de comptage des messages pour ${groupName} chargées`);
+
+    // Parcourir les participants du groupe et initialiser leurs données
+    groupMetadata.participants.forEach(participant => {
+      if (!messageCount[participant.id]) {
+        messageCount[participant.id] = {
+          count: 0,
+          lastMessageDate: null
+        };
+        console.log(`Participant ${participant.id} ajouté au groupe ${groupName}`);
+      }
+
+      // Ajouter le participant à la liste des utilisateurs s'il n'existe pas
+      if (!users.includes(participant.id)) {
+        users.push(participant.id);
+        console.log(`Utilisateur ${participant.id} ajouté à user.json`);
+      }
+    });
+
+    // Sauvegarder les données de comptage des messages pour le groupe
+    saveMessageCount(groupName, messageCount);
+    console.log(`Données de comptage des messages pour ${groupName} sauvegardées`);
+  }
+
+  // Sauvegarder la liste mise à jour des utilisateurs dans user.json
+  fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+  console.log("Liste des utilisateurs mise à jour dans user.json");
+  console.log("Initialisation des membres des groupes terminée.");
+}
+
+// Fonction pour récupérer les membres d'un groupe par son ID et les afficher triés par dernier message envoyé
+async function getGroupMembersById(PelBot, groupId) {
+  const group = managedGroups[groupId];
+  if (!group) {
+    return `Groupe avec l'ID ${groupId} non trouvé.`;
+  }
+
+  const groupName = group.name;
+  const messageCount = loadMessageCount(groupName);
+
+  // Trier les membres par la date du dernier message envoyé
+  const sortedMembers = Object.entries(messageCount).sort((a, b) => {
+    const dateA = new Date(a[1].lastMessageDate);
+    const dateB = new Date(b[1].lastMessageDate);
+    return dateB - dateA;
+  });
+
+  // Construire le message à afficher
+  let memberList = `Membres du groupe ${decodeURIComponent(groupName)} (ID: ${groupId}) triés par dernier message envoyé :\n\n`;
+  const mentions = [];
+  sortedMembers.forEach(([memberId, data]) => {
+    const formattedDate = moments(data.lastMessageDate).format('Le D MMMM YYYY à HH[h]mm');    
+    memberList += `ID: @${memberId.split('@')[0]}\nNombre de messages: ${data.count}\nDernier message: ${formattedDate}\n\n`;
+    mentions.push(memberId);
+  });
+
+  return { memberList, mentions };
+}
+
+
 
 const {
   imageToWebp,
@@ -47,6 +205,8 @@ const { color } = require("./lib/color");
 const store = makeInMemoryStore({
   logger: pino().child({ level: "silent", stream: "store" }),
 });
+
+
 
 async function startPelBot() {
   console.log(
@@ -274,7 +434,7 @@ async function startPelBot() {
             PelBottext = `
 Bienvenue @${WAuserName.split("@")[0]},
 
-Je suis *PelBot* un bot développé par Pelpav, Bienvenue sur${metadata.subject}.
+Je suis *PelBot* un bot développé par Pelpav, Bienvenue sur ${metadata.subject}.
 
 *Description du groupe :*
 ${metadata.desc}
@@ -458,7 +618,7 @@ Tu vas pas nous manquer !
 
 
   // Gestion de la reconnexion automatique
-  PelBot.ev.on('connection.update', (update) => {
+  PelBot.ev.on('connection.update', async (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === 'close') {
       const shouldReconnect = (lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode !== 428);
@@ -468,6 +628,7 @@ Tu vas pas nous manquer !
       }
     } else if (connection === 'open') {
       console.log('Connexion établie avec succès.');
+      await initializeGroupMembers(PelBot); // Appeler la fonction ici
     }
   });
   // auto status seen ...
@@ -1079,8 +1240,8 @@ Tu vas pas nous manquer !
   return PelBot;
 }
 
- // Redémarrer le bot chaque heure (1 * 60 * 60 * 1000 millisecondes)
- setInterval(() => {
+// Redémarrer le bot chaque heure (1 * 60 * 60 * 1000 millisecondes)
+setInterval(() => {
   console.log(chalk.yellowBright('Redémarrage du bot...'));
   startPelBot();
 }, 1 * 60 * 60 * 1000);
