@@ -473,6 +473,25 @@ let currentPoll = {
   active: false
 };
 
+const quizzTemplate = [
+  '*⚜️ `🔰Mangas Zone🔰` 🚄⚡*',
+  '*⛩️𝓢𝓮𝓬𝓽𝓲𝓸𝓷 𝓠𝓾𝓲𝔃𝔃⛩️*',
+  '*🖼️ : Identifications Images Multithème*',
+  '* 👨🏻‍🏫 : Kyõraku Shunsui ⚔️💀🌸',
+  '* 🕥 : 22h00\' GMT*',
+  '* 🧑‍🧑‍🧒‍🧒 : M - Z*',
+  '*🧾 `Participants` 🧾*',
+  '* 🧶',
+  '* 🧶',
+  '* 🧶',
+  '* 🧶',
+  '* 🧶',
+  '*🎁 `Winner: ??? ` 🎁*',
+  '*⏺️ `Que les oppai soient avec vous!!!`*'
+];
+
+
+
 
 //
 module.exports = { PelBot } = async (PelBot, m, chatUpdate, store) => {
@@ -797,11 +816,9 @@ module.exports = { PelBot } = async (PelBot, m, chatUpdate, store) => {
 
 
     //
-    for (let anju of kaiaudio) {
-      if (budy === anju) {
-        result = fs.readFileSync(`./Assets/audio/${anju}.mp3`)
-        PelBot.sendMessage(m.chat, { audio: result, mimetype: 'audio/mp4', ptt: true }, { quoted: m })
-      }
+    if (kaiaudio.includes(budy)) {
+      result = fs.readFileSync(`./Assets/audio/${budy}.mp3`)
+      PelBot.sendMessage(m.chat, { audio: result, mimetype: 'audio/mp4', ptt: true }, { quoted: m })
     }
 
 
@@ -1019,6 +1036,8 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       hello: `Bonjour ${pushname}, je suis ${BotName}. Mon préfixe actuel est "${prefix}". Comment puis-je vous aider ?`,
       kai: `Mon patron est perdu dans un autre Multivers, et j'ai perdu la connexion avec lui...`,
       runtime: `Salut ${pushname}\n${nowtime}\n\nMon temps d'exécution : ${runtime(process.uptime())}\n\nLe préfixe est : *${prefix}*\n\nHeure : ${kaitime}\n\nDate : ${kaidate}\n\nAujourd'hui, c'est ${currentDay}`,
+      chovy: `Parle pas mal de Chovy ${pushname} KOREEE !`,
+      anos: `J'espère que tu veux dire que Anos est le plus fort ${pushname} !`,
       konichiwa: `Konichiwa ${pushname}, je suis ${BotName}. Comment puis-je vous aider ?`,
       sasha: 'Rien que pour toi...🫶🏻',
       ping: `Salut ${pushname}, Pong ${latensie.toFixed(4)} ms`,
@@ -1031,10 +1050,12 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
     const smallinput = budy.toLowerCase();
 
-    for (const key in responses) {
-      if (smallinput.includes(key)) {
-        reply(responses[key]);
-        break;
+    if (!isCreator) {
+      for (const key in responses) {
+        if (smallinput.includes(key)) {
+          reply(responses[key]);
+          break;
+        }
       }
     }
 
@@ -1330,8 +1351,31 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         PelBot.sendMessage(from, { react: { text: "🏆", key: m.key } });
 
         const groupId = args[0] ? args[0] : m.chat;
-        const group = managedGroups[groupId];
-        if (!group) return reply('Groupe non trouvé');
+        const group = managedGroups[groupId] || managedGroups[Object.keys(managedGroups).find(key => managedGroups[key].name === encodeURIComponent(groupId))];
+        if (!group) {
+          if (groupId === m.chat) {
+            const groupMetadata = await PelBot.groupMetadata(m.chat);
+            const groupName = encodeURIComponent(groupMetadata.subject);
+            const messageCount = loadMessageCount(groupName);
+
+            // Trier les membres par le nombre de messages envoyés
+            const sortedMembers = Object.entries(messageCount)
+              .sort((a, b) => b[1].count - a[1].count)
+              .slice(0, 5); // Prendre les 10 premiers
+
+            // Construire le message à afficher
+            let memberList = `Top 5 des membres du groupe ${decodeURIComponent(groupName)} par nombre de messages envoyés :\n\n`;
+            const mentions = [];
+            sortedMembers.forEach(([memberId, data], index) => {
+              memberList += `${index + 1}. @${memberId.split('@')[0]} - ${data.count} messages\n`;
+              mentions.push(memberId);
+            });
+
+            return PelBot.sendMessage(m.chat, { text: memberList, mentions }, { quoted: m });
+          } else {
+            return reply('Groupe non trouvé');
+          }
+        }
 
         const groupName = group.name;
         const messageCount = loadMessageCount(groupName);
@@ -1360,8 +1404,31 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         PelBot.sendMessage(from, { react: { text: "🏆", key: m.key } });
 
         const groupId = args[0] ? args[0] : m.chat;
-        const group = managedGroups[groupId];
-        if (!group) return reply('Groupe non trouvé');
+        const group = managedGroups[groupId] || managedGroups[Object.keys(managedGroups).find(key => managedGroups[key].name === encodeURIComponent(groupId))];
+        if (!group) {
+          if (groupId === m.chat) {
+            const groupMetadata = await PelBot.groupMetadata(m.chat);
+            const groupName = encodeURIComponent(groupMetadata.subject);
+            const messageCount = loadMessageCount(groupName);
+
+            // Trier les membres par le nombre de messages envoyés
+            const sortedMembers = Object.entries(messageCount)
+              .sort((a, b) => a[1].count - b[1].count) // Trier par ordre croissant
+              .slice(0, 20); // Prendre les 10 premiers
+
+            // Construire le message à afficher
+            let memberList = `Top 20 des membres du groupe ${decodeURIComponent(groupName)} les moins actifs :\n\n`;
+            const mentions = [];
+            sortedMembers.forEach(([memberId, data], index) => {
+              memberList += `${index + 1}. @${memberId.split('@')[0]} - ${data.count} messages\n`;
+              mentions.push(memberId);
+            });
+
+            return PelBot.sendMessage(m.chat, { text: memberList, mentions }, { quoted: m });
+          } else {
+            return reply('Groupe non trouvé');
+          }
+        }
 
         const groupName = group.name;
         const messageCount = loadMessageCount(groupName);
@@ -1382,6 +1449,82 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         PelBot.sendMessage(m.chat, { text: memberList, mentions }, { quoted: m });
       }
         break;
+
+
+      // ... existing code ...
+
+      case 'quizz': {
+        const quizzFilePath = './storage/quizz/quizz.json';
+        let quizzData = {};
+
+        // Charger les données des quizz depuis le fichier JSON
+        if (fs.existsSync(quizzFilePath)) {
+          quizzData = JSON.parse(fs.readFileSync(quizzFilePath, 'utf8'));
+        } else {
+          fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData));
+        }
+
+        const subCommand = args[0]?.toLowerCase();
+        const quizzName = args[1];
+        const quizzValue = args.slice(2).join(' ');
+
+        switch (subCommand) {
+          case 'create':
+            if (!quizzName) return reply('Veuillez fournir une mention pour le quizz.');
+            quizzData[quizzName] = { name: null, hour: '', mention: quizzName, status: 'inactive', startTime: null };
+            fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+            reply(`Quizz créé avec succès pour ${quizzName}.`);
+            break;
+
+          case 'name':
+            if (!quizzName || !quizzValue) return reply('Veuillez fournir un nom de quizz et une valeur.');
+            if (!quizzData[quizzName]) return reply(`Le quizz "${quizzName}" n'existe pas.`);
+            quizzData[quizzName].name = quizzValue;
+            fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+            reply(`Nom du quizz "${quizzName}" mis à jour avec succès.`);
+            break;
+
+          case 'hour':
+            if (!quizzName || !quizzValue) return reply('Veuillez fournir un nom de quizz et une heure.');
+            if (!quizzData[quizzName]) return reply(`Le quizz "${quizzName}" n'existe pas.`);
+            quizzData[quizzName].hour = quizzValue;
+            fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+            reply(`Heure du quizz "${quizzName}" mise à jour avec succès.`);
+            break;
+
+          case 'start':
+            if (!quizzName) return reply('Veuillez fournir un nom de quizz.');
+            if (!quizzData[quizzName]) return reply(`Le quizz "${quizzName}" n'existe pas.`);
+            quizzData[quizzName].status = 'active';
+            quizzData[quizzName].startTime = new Date().toISOString();
+            fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+            reply(`Le quizz "${quizzName}" a commencé.`);
+            break;
+
+          case 'stop':
+            if (!quizzName) return reply('Veuillez fournir un nom de quizz.');
+            if (!quizzData[quizzName]) return reply(`Le quizz "${quizzName}" n'existe pas.`);
+            quizzData[quizzName].status = 'inactive';
+            quizzData[quizzName].startTime = null;
+            fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+            reply(`Le quizz "${quizzName}" est terminé.`);
+            break;
+
+          case 'show':
+            if (!quizzName) return reply('Veuillez fournir un nom de quizz.');
+            if (!quizzData[quizzName]) return reply(`Le quizz "${quizzName}" n'existe pas.`);
+            const quizz = quizzData[quizzName];
+            const quizzStatus = quizzTemplate.map(line => line.replace('Kyõraku Shunsui', quizz.mention).replace('22h00\' GMT', quizz.hour)).join('\n');
+            reply(`${quizzStatus}\n\nStatut: ${quizz.status}\nHeure de début: ${quizz.startTime ? new Date(quizz.startTime).toLocaleString('fr-FR') : 'Non commencé'}`);
+            break;
+
+          default:
+            reply('Commande de quizz non reconnue. Utilisez "quizz create", "quizz name", "quizz hour", "quizz start", "quizz stop" ou "quizz show".');
+        }
+        break;
+      }
+
+      // ... existing code ...
 
 
       case 'listgroups':
