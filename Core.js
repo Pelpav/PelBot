@@ -1355,7 +1355,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
         PelBot.sendMessage(from, { react: { text: "📊", key: m.key } });
 
-        let targetUser = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : null;
+        let targetUser = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : m.sender;
         if (!targetUser) return reply('Veuillez mentionner un utilisateur ou répondre à un message.');
 
         const groupId = m.chat;
