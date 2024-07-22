@@ -1,50 +1,62 @@
 {
   "1": {
-    "name": "%F0%9F%94%B2MANGAS%20%F0%9F%80%84%20ZONE%20%F0%9F%94%B2",
-    "id": 1
+    "name": "Crypto%20Winners%20%F0%9F%8C%9D%F0%9F%A4%9A%F0%9F%8F%BE",
+    "id": 1,
+    "whatsappId": "120363314432019551@g.us"
   },
   "2": {
     "name": "%F0%9F%94%B2MANGAS%F0%9F%80%84ZONE%F0%9F%94%B2%20COMMUNITY",
-    "id": 2
+    "id": 2,
+    "whatsappId": "120363163294455677@g.us"
   },
   "3": {
-    "name": "%F0%9F%A7%91%F0%9F%8F%BE%E2%80%8D%F0%9F%92%BBCodes_Wars%20%F0%9F%92%A0%201ere%20Edition%5BMangasZone%20Quiz%5D",
-    "id": 3
+    "name": "LOS%20DIABLOS%F0%9F%98%88",
+    "id": 3,
+    "whatsappId": "120363148125968361@g.us"
   },
   "4": {
-    "name": "Crypto%20Winners%20%F0%9F%8C%9D%F0%9F%A4%9A%F0%9F%8F%BE",
-    "id": 4
+    "name": "Tests%20BOT",
+    "id": 4,
+    "whatsappId": "120363293832225852@g.us"
   },
   "5": {
-    "name": "Discussions%20%F0%9F%92%AC",
-    "id": 5
+    "name": "test",
+    "id": 5,
+    "whatsappId": "120363301223615893@g.us"
   },
   "6": {
-    "name": "LOS%20DIABLOS%F0%9F%98%88%20%E3%82%83LDS%E3%82%83",
-    "id": 6
+    "name": "Discussions%20%F0%9F%92%AC",
+    "id": 6,
+    "whatsappId": "120363297942893177@g.us"
   },
   "7": {
-    "name": "LOS%20DIABLOS%F0%9F%98%88",
-    "id": 7
+    "name": "TestBOT",
+    "id": 7,
+    "whatsappId": "120363315370574972@g.us"
   },
   "8": {
-    "name": "Section%20COSPLAY%20ZONE%20%F0%9F%8E%AD%E2%80%BC%EF%B8%8F",
-    "id": 8
+    "name": "%F0%9F%A7%91%F0%9F%8F%BE%E2%80%8D%F0%9F%92%BBCodes_Wars%20%F0%9F%92%A0%201ere%20Edition%5BMangasZone%20Quiz%5D",
+    "id": 8,
+    "whatsappId": "120363312731456912@g.us"
   },
   "9": {
-    "name": "Section%20informatique%20%F0%9F%91%A8%E2%80%8D%F0%9F%92%BB",
-    "id": 9
+    "name": "Section%20COSPLAY%20ZONE%20%F0%9F%8E%AD%E2%80%BC%EF%B8%8F",
+    "id": 9,
+    "whatsappId": "120363045237150952@g.us"
   },
   "10": {
-    "name": "TestBOT",
-    "id": 10
+    "name": "Section%20informatique%20%F0%9F%91%A8%E2%80%8D%F0%9F%92%BB",
+    "id": 10,
+    "whatsappId": "120363042773152118@g.us"
   },
   "11": {
-    "name": "Tests%20BOT",
-    "id": 11
+    "name": "LOS%20DIABLOS%F0%9F%98%88%20%E3%82%83LDS%E3%82%83",
+    "id": 11,
+    "whatsappId": "22375098444-1620341978@g.us"
   },
   "12": {
-    "name": "test",
-    "id": 12
+    "name": "%F0%9F%94%B2MANGAS%20%F0%9F%80%84%20ZONE%20%F0%9F%94%B2",
+    "id": 12,
+    "whatsappId": "120363160747680368@g.us"
   }
 }

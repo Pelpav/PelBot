@@ -112,7 +112,8 @@ async function initializeGroupMembers(PelBot) {
       const newGroupId = getNewGroupId();
       managedGroups[newGroupId] = {
         name: groupName,
-        id: newGroupId
+        id: newGroupId,
+        whatsappId: groupId
       };
       saveManagedGroups(managedGroups);
       console.log(`Groupe ${groupName} ajouté avec l'ID ${newGroupId}`);

@@ -370,18 +370,20 @@ async function getGroupMembersById(PelBot, groupId) {
   const messageCount = loadMessageCount(groupName);
 
   // Trier les membres par la date du dernier message envoyé
-  const sortedMembers = Object.entries(messageCount).sort((a, b) => {
-    const dateA = new Date(a[1].lastMessageDate);
-    const dateB = new Date(b[1].lastMessageDate);
-    return dateB - dateA;
-  });
+  const sortedMembers = Object.entries(messageCount)
+    .filter(([_, data]) => data.count > 0) // Filtrer les membres avec un nombre de messages > 0
+    .sort((a, b) => {
+      const dateA = new Date(a[1].lastMessageDate);
+      const dateB = new Date(b[1].lastMessageDate);
+      return dateB - dateA;
+    });
 
   // Construire le message à afficher
   let memberList = `Membres du groupe ${decodeURIComponent(groupName)} (ID: ${groupId}) triés par dernier message envoyé :\n\n`;
   const mentions = [];
   sortedMembers.forEach(([memberId, data]) => {
-    const formattedDate = moments(data.lastMessageDate).format('Le D MMMM YYYY à HH[h]mm');    
-    memberList += `ID: @${memberId.split('@')[0]}\nNombre de messages: ${data.count}\nDernier message: ${formattedDate}\n\n`;
+    const formattedDate = moments(data.lastMessageDate).format('Le D MMMM YYYY à HH[h]mm');
+    memberList += `Nom : @${memberId.split('@')[0]} : ${data.count}\nDernier message: ${formattedDate}\n\n`;
     mentions.push(memberId);
   });
 
@@ -473,7 +475,7 @@ let currentPoll = {
 
 
 //
-module.exports = {PelBot} = async (PelBot, m, chatUpdate, store) => {
+module.exports = { PelBot } = async (PelBot, m, chatUpdate, store) => {
   try {
     var body = (m.mtype === 'conversation') ? m.message.conversation : (m.mtype == 'imageMessage') ? m.message.imageMessage.caption : (m.mtype == 'videoMessage') ? m.message.videoMessage.caption : (m.mtype == 'extendedTextMessage') ? m.message.extendedTextMessage.text : (m.mtype == 'buttonsResponseMessage') ? m.message.buttonsResponseMessage.selectedButtonId : (m.mtype == 'listResponseMessage') ? m.message.listResponseMessage.singleSelectreply.selectedRowId : (m.mtype == 'templateButtonreplyMessage') ? m.message.templateButtonreplyMessage.selectedId : (m.mtype === 'messageContextInfo') ? (m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectreply.selectedRowId || m.text) : ''
     var budy = (typeof m.text == 'string' ? m.text : '')
@@ -1274,6 +1276,113 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       }
         break;
 
+      case 'mess': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly);
+
+        PelBot.sendMessage(from, { react: { text: "📊", key: m.key } });
+
+        let targetUser = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : null;
+        if (!targetUser) return reply('Veuillez mentionner un utilisateur ou répondre à un message.');
+
+        const groupId = m.chat;
+        const groupName = await getEncodedGroupName(PelBot, groupId);
+        const messageCount = loadMessageCount(groupName);
+
+        if (!messageCount[targetUser] || messageCount[targetUser].count == 0) {
+          return PelBot.sendMessage(m.chat, { text: `L'utilisateur @${targetUser.split('@')[0]} n'a envoyé aucun message dans ce groupe.`, mentions: [targetUser] }, { quoted: m });
+        }
+
+        const userMessageCount = messageCount[targetUser].count;
+        PelBot.sendMessage(m.chat, { text: `L'utilisateur @${targetUser.split('@')[0]} a envoyé ${userMessageCount} messages dans ce groupe.`, mentions: [targetUser] }, { quoted: m });
+      }
+        break;
+
+
+      case 'mess': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly);
+
+        PelBot.sendMessage(from, { react: { text: "📊", key: m.key } });
+
+        let targetUser = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : null;
+        if (!targetUser) return reply('Veuillez mentionner un utilisateur ou répondre à un message.');
+
+        const groupId = m.chat;
+        const groupName = await getEncodedGroupName(PelBot, groupId);
+        const messageCount = loadMessageCount(groupName);
+
+        if (!messageCount[targetUser]) {
+          return PelBot.sendMessage(m.chat, { text: `L'utilisateur @${targetUser.split('@')[0]} n'a envoyé aucun message dans ce groupe.`, mentions: [targetUser] }, { quoted: m });
+        }
+
+        const userMessageCount = messageCount[targetUser].count;
+        PelBot.sendMessage(m.chat, { text: `L'utilisateur @${targetUser.split('@')[0]} a envoyé ${userMessageCount} messages dans ce groupe.`, mentions: [targetUser] }, { quoted: m });
+      }
+        break;
+
+      case 'baltop': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+
+        PelBot.sendMessage(from, { react: { text: "🏆", key: m.key } });
+
+        const groupId = args[0] ? args[0] : m.chat;
+        const group = managedGroups[groupId];
+        if (!group) return reply('Groupe non trouvé');
+
+        const groupName = group.name;
+        const messageCount = loadMessageCount(groupName);
+
+        // Trier les membres par le nombre de messages envoyés
+        const sortedMembers = Object.entries(messageCount)
+          .sort((a, b) => b[1].count - a[1].count)
+          .slice(0, 5); // Prendre les 10 premiers
+
+        // Construire le message à afficher
+        let memberList = `Top 5 des membres du groupe ${decodeURIComponent(groupName)} par nombre de messages envoyés :\n\n`;
+        const mentions = [];
+        sortedMembers.forEach(([memberId, data], index) => {
+          memberList += `${index + 1}. @${memberId.split('@')[0]} - ${data.count} messages\n`;
+          mentions.push(memberId);
+        });
+
+        PelBot.sendMessage(m.chat, { text: memberList, mentions }, { quoted: m });
+      }
+        break;
+
+      case 'baldown': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+
+        PelBot.sendMessage(from, { react: { text: "🏆", key: m.key } });
+
+        const groupId = args[0] ? args[0] : m.chat;
+        const group = managedGroups[groupId];
+        if (!group) return reply('Groupe non trouvé');
+
+        const groupName = group.name;
+        const messageCount = loadMessageCount(groupName);
+
+        // Trier les membres par le nombre de messages envoyés
+        const sortedMembers = Object.entries(messageCount)
+          .sort((a, b) => a[1].count - b[1].count) // Trier par ordre croissant
+          .slice(0, 20); // Prendre les 10 premiers
+
+        // Construire le message à afficher
+        let memberList = `Top 20 des membres du groupe ${decodeURIComponent(groupName)} les moins actifs :\n\n`;
+        const mentions = [];
+        sortedMembers.forEach(([memberId, data], index) => {
+          memberList += `${index + 1}. @${memberId.split('@')[0]} - ${data.count} messages\n`;
+          mentions.push(memberId);
+        });
+
+        PelBot.sendMessage(m.chat, { text: memberList, mentions }, { quoted: m });
+      }
+        break;
+
 
       case 'listgroups':
         if (!isCreator) return reply(mess.owner)
@@ -1285,31 +1394,25 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
         let groupList = 'Groupes gérés :\n\n';
         for (let groupId in managedGroups) {
-          groupList += `${decodeURIComponent(managedGroups[groupId].name)}\nID : ${managedGroups[groupId].id}\n\n`;
+          groupList += `Nom : ${decodeURIComponent(managedGroups[groupId].name)}\nID : ${managedGroups[groupId].id}\n\n`;
         }
         reply(groupList);
         break;
 
-        case 'groupmembers':
-          if (!isCreator) return reply(mess.owner)
-          if (isBan) return reply(mess.banned);
-          if (isBanChat) return reply(mess.bangc);
-  
-          const groupId = args[0];
-          if (!groupId) {
-            return reply('Veuillez fournir un ID de groupe.');
-          }
-  
-          const { memberList, mentions } = await getGroupMembersById(PelBot, groupId);
-  
-          // Filtrer les membres avec un count > 0
-          const filteredMembers = memberList.filter(member => member.count > 0);
-          const filteredMentions = mentions.filter((mention, index) => memberList[index].count > 0);
-  
-          const filteredMemberList = filteredMembers.map(member => member.name).join('\n');
-  
-          await PelBot.sendMessage(m.chat, { text: filteredMemberList, mentions: filteredMentions }, { quoted: m });
-          break;
+      case 'groupmembers':
+        if (!isCreator) return reply(mess.owner)
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+
+        const groupId = args[0];
+        if (!groupId) {
+          return reply('Veuillez fournir un ID de groupe.');
+        }
+
+        const { memberList, mentions } = await getGroupMembersById(PelBot, groupId);
+        await PelBot.sendMessage(m.chat, { text: memberList, mentions }, { quoted: m });
+        break;
+
 
 
       case 'poll':
