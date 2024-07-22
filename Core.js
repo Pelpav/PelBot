@@ -143,6 +143,11 @@ if (global.db)
     ...(global.db || {}),
   };
 
+function generateNextQuizzId(quizzData) {
+  const ids = Object.keys(quizzData).map(id => parseInt(id.replace('Q', '')));
+  const nextId = ids.length ? Math.max(...ids) + 1 : 1;
+  return `Q${nextId.toString().padStart(2, '0')}`;
+}
 
 
 //
@@ -473,24 +478,17 @@ let currentPoll = {
   active: false
 };
 
-const quizzTemplate = [
-  '*⚜️ `🔰Mangas Zone🔰` 🚄⚡*',
-  '*⛩️𝓢𝓮𝓬𝓽𝓲𝓸𝓷 𝓠𝓾𝓲𝔃𝔃⛩️*',
-  '*🖼️ : Identifications Images Multithème*',
-  '* 👨🏻‍🏫 : Kyõraku Shunsui ⚔️💀🌸',
-  '* 🕥 : 22h00\' GMT*',
-  '* 🧑‍🧑‍🧒‍🧒 : M - Z*',
-  '*🧾 `Participants` 🧾*',
-  '* 🧶',
-  '* 🧶',
-  '* 🧶',
-  '* 🧶',
-  '* 🧶',
-  '*🎁 `Winner: ??? ` 🎁*',
-  '*⏺️ `Que les oppai soient avec vous!!!`*'
-];
 
-
+function updateQuizzPoints(quizzData, quizzId, participantId, points) {
+  if (!quizzData[quizzId].participants) {
+    quizzData[quizzId].participants = {};
+  }
+  if (!quizzData[quizzId].participants[participantId]) {
+    quizzData[quizzId].participants[participantId] = 0;
+  }
+  quizzData[quizzId].participants[participantId] += points;
+  fs.writeFileSync('./storage/quizz/quizz.json', JSON.stringify(quizzData, null, 2));
+}
 
 
 //
@@ -605,8 +603,61 @@ module.exports = { PelBot } = async (PelBot, m, chatUpdate, store) => {
       // Sauvegarder les données de comptage des messages pour le groupe
       saveMessageCount(groupName, messageCount);
     }
+    const quizzFilePath = './storage/quizz/quizz.json';
+    let quizzData = {};
+    if (fs.existsSync(quizzFilePath)) {
+      quizzData = JSON.parse(fs.readFileSync(quizzFilePath, 'utf8'));
+    }
+
+    // Vérifier si un quizz est actif
+    const activeQuizz = Object.values(quizzData).find(quizz => quizz.status === 'active');
+    if (activeQuizz && m.quoted && (m.text === '✅' || m.text === '🎯' || m.text === '♻️' || m.text === '🟥')) {
+
+      if (m.sender !== activeQuizz.modo) {
+        return reply('Chien laisse ça');
+      }
+      const points = m.text === '✅' ? 1 : m.text === '🎯' ? 3 : m.text === '♻️' ? 2 : -1; // Ajout de -1 pour 🟥
+      const participantId = m.quoted.sender;
+      // Construire la liste des participants
+      let participantsList = '';
+      if (activeQuizz.participants) {
+        participantsList = Object.entries(activeQuizz.participants)
+          .map(([participantId, points]) => `* ♠️ @${participantId.split('@')[0]} : ${points} points`)
+          .join('\n');
+      } else {
+        participantsList = 'Aucun participant pour le moment.';
+      }
+
+      updateQuizzPoints(quizzData, activeQuizz.id, participantId, points);
 
 
+
+      const MessagePoints = `@${participantId.split('@')[0]}: ${points > 0 ? '+' : '-'}${Math.abs(points)}`;
+
+      PelBot.sendMessage(m.chat, { text: MessagePoints, mentions: [participantId] }, { quoted: m });
+
+      const statusQ = `*🔰Mangas Zone🔰*
+
+*⛩️𝓢𝓮𝓬𝓽𝓲𝓸𝓷 𝓠𝓾𝓲𝔃𝔃⛩️*
+
+🔰 *Quizz:* ${activeQuizz.id}
+  
+📛 *${activeQuizz.name}*
+  
+🕵️‍♂️ *Mσԃσ:* ${activeQuizz.modo ? `@${activeQuizz.modo.split('@')[0]}` : 'Non attribué'}
+  
+🕒 *Heure de début:* ${activeQuizz.startTime ? moments(activeQuizz.startTime).format('Le D MMMM YYYY à HH[h]mm').substring(12) : 'Non commencé'}
+  
+🕒 *Heure de fin:* ${activeQuizz.endTime ? moments(activeQuizz.endTime).format('Le D MMMM YYYY à HH[h]mm').substring(12) : 'Non terminé'}
+  
+📦 *Statut:* ${activeQuizz.status}
+  
+             *♦️𝐏𝐚𝐫𝐭𝐢𝐜𝐢𝐩𝐚𝐧𝐭𝐬♦️*
+
+${participantsList}
+             `;
+      PelBot.sendMessage(m.chat, { text: statusQ, mentions: [activeQuizz.modo, ...Object.keys(activeQuizz.participants || {})] }, { quoted: m });
+    }
 
     if (!isCreator) {
       if (m.message && m.isGroup) {
@@ -1453,7 +1504,16 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
       // ... existing code ...
 
+      // ... existing code ...
+
+      // ... existing code ...
+
+      // ... existing code ...
+
+      case 'quiz':
       case 'quizz': {
+        if (isBanChat) return reply(mess.bangc);
+        // if (!isCreator) return reply(mess.owner)
         const quizzFilePath = './storage/quizz/quizz.json';
         let quizzData = {};
 
@@ -1465,64 +1525,204 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         }
 
         const subCommand = args[0]?.toLowerCase();
-        const quizzName = args[1];
-        const quizzValue = args.slice(2).join(' ');
+        const quizzName = args.slice(1).join(' ');
 
         switch (subCommand) {
           case 'create':
-            if (!quizzName) return reply('Veuillez fournir une mention pour le quizz.');
-            quizzData[quizzName] = { name: null, hour: '', mention: quizzName, status: 'inactive', startTime: null };
+            if (!isCreator) return reply(mess.owner)
+            // Vérifier si un quizz est déjà en cours
+            const activeQuizz = Object.values(quizzData).find(quizz => quizz.status === 'active' || quizz.status === 'prévu');
+            if (activeQuizz) return reply(`Un quizz est déjà en cours ou prévu : "${activeQuizz.name}". Veuillez terminer ce quizz avant d'en créer un nouveau.`);
+
+            if (!quizzName) return reply('Veuillez fournir un nom pour le quizz.');
+
+            // Générer un identifiant unique pour le quizz
+            const quizzId = generateNextQuizzId(quizzData);
+
+            quizzData[quizzId] = { id: quizzId, name: quizzName, status: 'prévu', startTime: null, endTime: null, modo: null };
             fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
-            reply(`Quizz créé avec succès pour ${quizzName}.`);
+            reply(`Quizz "${quizzName}" créé et prévu avec succès. Identifiant : ${quizzId}`);
             break;
+
 
           case 'name':
-            if (!quizzName || !quizzValue) return reply('Veuillez fournir un nom de quizz et une valeur.');
-            if (!quizzData[quizzName]) return reply(`Le quizz "${quizzName}" n'existe pas.`);
-            quizzData[quizzName].name = quizzValue;
-            fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
-            reply(`Nom du quizz "${quizzName}" mis à jour avec succès.`);
-            break;
-
           case 'hour':
-            if (!quizzName || !quizzValue) return reply('Veuillez fournir un nom de quizz et une heure.');
-            if (!quizzData[quizzName]) return reply(`Le quizz "${quizzName}" n'existe pas.`);
-            quizzData[quizzName].hour = quizzValue;
-            fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
-            reply(`Heure du quizz "${quizzName}" mise à jour avec succès.`);
-            break;
-
+          case 'time':
           case 'start':
-            if (!quizzName) return reply('Veuillez fournir un nom de quizz.');
-            if (!quizzData[quizzName]) return reply(`Le quizz "${quizzName}" n'existe pas.`);
-            quizzData[quizzName].status = 'active';
-            quizzData[quizzName].startTime = new Date().toISOString();
-            fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
-            reply(`Le quizz "${quizzName}" a commencé.`);
-            break;
-
           case 'stop':
-            if (!quizzName) return reply('Veuillez fournir un nom de quizz.');
-            if (!quizzData[quizzName]) return reply(`Le quizz "${quizzName}" n'existe pas.`);
-            quizzData[quizzName].status = 'inactive';
-            quizzData[quizzName].startTime = null;
-            fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
-            reply(`Le quizz "${quizzName}" est terminé.`);
-            break;
-
           case 'show':
-            if (!quizzName) return reply('Veuillez fournir un nom de quizz.');
-            if (!quizzData[quizzName]) return reply(`Le quizz "${quizzName}" n'existe pas.`);
-            const quizz = quizzData[quizzName];
-            const quizzStatus = quizzTemplate.map(line => line.replace('Kyõraku Shunsui', quizz.mention).replace('22h00\' GMT', quizz.hour)).join('\n');
-            reply(`${quizzStatus}\n\nStatut: ${quizz.status}\nHeure de début: ${quizz.startTime ? new Date(quizz.startTime).toLocaleString('fr-FR') : 'Non commencé'}`);
+          case 'showtagall':
+          case 'modo':
+            let currentQuizz;
+            if (quizzData[quizzName]) {
+              currentQuizz = quizzData[quizzName];
+            } else {
+              currentQuizz = Object.values(quizzData).find(quizz => quizz.status === 'active' || quizz.status === 'prévu');
+            }
+            if (!currentQuizz) return reply('Aucun quizz actif ou prévu trouvé.');
+
+            if (!isCreator && m.sender !== currentQuizz.modo) return reply('Seul le créateur ou le modérateur peut utiliser cette commande.');
+            // Utiliser le quizz actif ou prévu
+
+
+            switch (subCommand) {
+              case 'name':
+                if (!quizzName) return reply('Veuillez fournir un nouveau nom pour le quizz.');
+                currentQuizz.name = quizzName;
+                fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+                reply(`Nom du quizz mis à jour avec succès.`);
+                break;
+
+              case 'modo':
+                if (!m.mentionedJid[0]) return reply('Veuillez mentionner un utilisateur pour le définir comme modérateur.');
+                currentQuizz.modo = m.mentionedJid[0];
+                fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+                reply(`Modérateur du quizz "${currentQuizz.name}" mis à jour avec succès.`);
+                break;
+
+              case 'hour':
+                if (!quizzName) return reply('Veuillez fournir une heure pour le quizz.');
+                currentQuizz.hour = quizzName;
+                fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+                reply(`Heure du quizz mise à jour avec succès.`);
+                break;
+
+              case 'time':
+                const time = args[1];
+                if (!time) return reply('Veuillez fournir une heure pour le quizz au format HH:mm.');
+                const [hours, minutes] = time.split(':');
+                if (isNaN(hours) || isNaN(minutes)) return reply('Format d\'heure invalide. Utilisez HH:mm.');
+                const startTime = new Date();
+                startTime.setHours(hours);
+                startTime.setMinutes(minutes);
+                currentQuizz.startTime = startTime.toISOString();
+                fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+                reply(`Heure de début du quizz mise à jour avec succès à ${time}.`);
+                break;
+
+              case 'start':
+                currentQuizz.status = 'active';
+                currentQuizz.startTime = new Date().toISOString();
+                fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+                reply(`Le quizz "${currentQuizz.name}" a commencé.`);
+                break;
+
+              case 'stop':
+                currentQuizz.status = 'terminé';
+                currentQuizz.endTime = new Date().toISOString();
+                fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
+                reply(`Le quizz "${currentQuizz.name}" est terminé.`);
+                break;
+
+              case 'showtagall': {
+                let quizzIdToShow = args[1];
+                if (!quizzIdToShow) {
+                  quizzIdToShow = Object.keys(quizzData).find(key => quizzData[key].status === 'active' || quizzData[key].status === 'prévu');
+                  if (!quizzIdToShow) return reply('Aucun quizz actif trouvé.');
+                } else {
+                  quizzIdToShow = Object.keys(quizzData).find(key => quizzData[key].id === quizzIdToShow);
+                  if (!quizzIdToShow) return reply('Quizz avec cet ID non trouvé.');
+                }
+                const quizzToShow = quizzData[quizzIdToShow];
+                if (!quizzToShow) return reply('Quizz non trouvé.');
+
+                let participantsList = '';
+                if (quizzToShow.participants) {
+                  participantsList = Object.entries(quizzToShow.participants)
+                    .map(([participantId, points]) => `* ♠️ @${participantId.split('@')[0]} : ${points} points`)
+                    .join('\n');
+                } else {
+                  participantsList = 'Aucun participant pour le moment.';
+                }
+
+                const quizzStatus = `*🔰Mangas Zone🔰*
+  
+*⛩️𝓢𝓮𝓬𝓽𝓲𝓸𝓷 𝓠𝓾𝓲𝔃𝔃⛩️*
+  
+🔰 *Quizz:* ${quizzToShow.id}
+  
+📛 *${quizzToShow.name}*
+  
+🕵️‍♂️ *Mσԃσ:* ${quizzToShow.modo ? `@${quizzToShow.modo.split('@')[0]}` : 'Non attribué'}
+  
+🕒 *Heure de début:* ${quizzToShow.startTime ? moments(quizzToShow.startTime).format('Le D MMMM YYYY à HH[h]mm').substring(12) : 'Non commencé'}
+  
+🕒 *Heure de fin:* ${quizzToShow.endTime ? moments(quizzToShow.endTime).format('Le D MMMM YYYY à HH[h]mm').substring(12) : 'Non terminé'}
+  
+📦 *Statut:* ${quizzToShow.status}
+  
+               *♦️𝐏𝐚𝐫𝐭𝐢𝐜𝐢𝐩𝐚𝐧𝐭𝐬♦️*
+  
+    ${participantsList}
+                  `;
+
+                const groupMetadata = await PelBot.groupMetadata(m.chat);
+                const allMembers = groupMetadata.participants.map(participant => participant.id);
+
+                PelBot.sendMessage(m.chat, { text: quizzStatus, mentions: allMembers }, { quoted: m });
+                break;
+              }
+
+              case 'show':
+                let quizzIdToShow = args[1];
+                if (!quizzIdToShow) {
+                  quizzIdToShow = Object.keys(quizzData).find(key => quizzData[key].status === 'active' || quizzData[key].status === 'prévu');
+                  if (!quizzIdToShow) return reply('Aucun quizz actif trouvé.');
+                } else {
+                  quizzIdToShow = Object.keys(quizzData).find(key => quizzData[key].id === quizzIdToShow);
+                  if (!quizzIdToShow) return reply('Quizz avec cet ID non trouvé.');
+                }
+                const quizzToShow = quizzData[quizzIdToShow];
+                if (!quizzToShow) return reply('Quizz non trouvé.');
+
+                let participantsList = '';
+                if (quizzToShow.participants) {
+                  participantsList = Object.entries(quizzToShow.participants)
+                    .map(([participantId, points]) => `* ♠️ @${participantId.split('@')[0]} : ${points} points`)
+                    .join('\n');
+                } else {
+                  participantsList = 'Aucun participant pour le moment.';
+                }
+
+                const quizzStatus = `*🔰Mangas Zone🔰*
+
+*⛩️𝓢𝓮𝓬𝓽𝓲𝓸𝓷 𝓠𝓾𝓲𝔃𝔃⛩️*
+
+🔰 *Quizz:* ${quizzToShow.id}
+
+📛 *${quizzToShow.name}*
+
+🕵️‍♂️ *Mσԃσ:* ${quizzToShow.modo ? `@${quizzToShow.modo.split('@')[0]}` : 'Non attribué'}
+
+🕒 *Heure de début:* ${quizzToShow.startTime ? moments(quizzToShow.startTime).format('Le D MMMM YYYY à HH[h]mm').substring(12) : 'Non commencé'}
+
+🕒 *Heure de fin:* ${quizzToShow.endTime ? moments(quizzToShow.endTime).format('Le D MMMM YYYY à HH[h]mm').substring(12) : 'Non terminé'}
+
+📦 *Statut:* ${quizzToShow.status}
+
+             *♦️𝐏𝐚𝐫𝐭𝐢𝐜𝐢𝐩𝐚𝐧𝐭𝐬♦️*
+
+  ${participantsList}
+                `;
+                PelBot.sendMessage(m.chat, { text: quizzStatus, mentions: [quizzToShow.modo, ...Object.keys(quizzToShow.participants || {})] }, { quoted: m });
+                break;
+
+              default:
+                reply('Commande de quizz non reconnue. Utilisez "quizz create", "quizz name", "quizz time", "quizz modo", "quizz start", "quizz stop" ou "quizz show".');
+            }
             break;
 
           default:
-            reply('Commande de quizz non reconnue. Utilisez "quizz create", "quizz name", "quizz hour", "quizz start", "quizz stop" ou "quizz show".');
+            reply('Commande de quizz non reconnue. Utilisez "quizz create", "quizz name", "quizz time", "quizz modo", "quizz start", "quizz stop" ou "quizz show".');
         }
         break;
       }
+
+      // ... existing code ...
+
+      // ... existing code ...
+
+      // ... existing code ...
 
       // ... existing code ...
 
