@@ -42,7 +42,6 @@ const { isLimit, limitAdd, getLimit, giveLimit, kurangBalance, getBalance, isGam
 const githubstalk = require('./lib/githubstalk');
 let { covid } = require('./lib/covid.js');
 const { Gempa } = require("./lib/gempa.js");
-
 const messageCountFilePath = './storage/group/messageCount.json';
 let messageCount = {};
 
@@ -557,6 +556,7 @@ module.exports = { PelBot } = async (PelBot, m, chatUpdate, store) => {
     }; */
 
 
+
     const sender = m.isGroup ? (m.key.participant ? m.key.participant : m.participant) : m.key.remoteJid
     const senderNumber = sender.split('@')[0]
 
@@ -616,8 +616,15 @@ module.exports = { PelBot } = async (PelBot, m, chatUpdate, store) => {
       if (m.sender !== activeQuizz.modo) {
         return reply('Chien laisse ça');
       }
-      const points = m.text === '✅' ? 1 : m.text === '🎯' ? 3 : m.text === '♻️' ? 2 : -1; // Ajout de -1 pour 🟥
+
       const participantId = m.quoted.sender;
+
+      // Empêcher le modérateur de s'attribuer des points
+      if (participantId === activeQuizz.modo) {
+        return reply('Tu combats les joueurs ?');
+      }
+
+      const points = m.text === '✅' ? 1 : m.text === '🎯' ? 3 : m.text === '♻️' ? 2 : -1; // Ajout de -1 pour 🟥
       // Construire la liste des participants
       let participantsList = '';
       if (activeQuizz.participants) {
@@ -630,33 +637,10 @@ module.exports = { PelBot } = async (PelBot, m, chatUpdate, store) => {
 
       updateQuizzPoints(quizzData, activeQuizz.id, participantId, points);
 
-
-
       const MessagePoints = `@${participantId.split('@')[0]}: ${points > 0 ? '+' : '-'}${Math.abs(points)}`;
 
       PelBot.sendMessage(m.chat, { text: MessagePoints, mentions: [participantId] }, { quoted: m });
 
-      const statusQ = `*🔰Mangas Zone🔰*
-
-*⛩️𝓢𝓮𝓬𝓽𝓲𝓸𝓷 𝓠𝓾𝓲𝔃𝔃⛩️*
-
-🔰 *Quizz:* ${activeQuizz.id}
-  
-📛 *${activeQuizz.name}*
-  
-🕵️‍♂️ *Mσԃσ:* ${activeQuizz.modo ? `@${activeQuizz.modo.split('@')[0]}` : 'Non attribué'}
-  
-🕒 *Heure de début:* ${activeQuizz.startTime ? moments(activeQuizz.startTime).format('Le D MMMM YYYY à HH[h]mm').substring(12) : 'Non commencé'}
-  
-🕒 *Heure de fin:* ${activeQuizz.endTime ? moments(activeQuizz.endTime).format('Le D MMMM YYYY à HH[h]mm').substring(12) : 'Non terminé'}
-  
-📦 *Statut:* ${activeQuizz.status}
-  
-             *♦️𝐏𝐚𝐫𝐭𝐢𝐜𝐢𝐩𝐚𝐧𝐭𝐬♦️*
-
-${participantsList}
-             `;
-      PelBot.sendMessage(m.chat, { text: statusQ, mentions: [activeQuizz.modo, ...Object.keys(activeQuizz.participants || {})] }, { quoted: m });
     }
 
     if (!isCreator) {
@@ -746,40 +730,26 @@ ${participantsList}
       }
     }
 
-    const forbiddenWords = ["mot1", "mot2", "mot3"];
-
-    // Assurez-vous que cette partie du code est placée là où vous gérez les messages entrants
-
-    // Fonction pour vérifier si le message contient des mots interdits
-    function containsForbiddenWord(message) {
-      return forbiddenWords.some(word => message.includes(word));
-    }
-
-    // Vérifier si le message contient des mots interdits
-    if (m.message && containsForbiddenWord(m.body.toLowerCase())) {
-      // Supprimer le message
-      await PelBot.sendMessage(m.chat, { delete: m.key });
-
-      // Taguer la personne qui a envoyé le message
-      const senderTag = m.sender ? `@${m.sender.split("@")[0]}` : '';
-
-      // Construire le message d'alerte
-      const alertMessage = senderTag ?
-        `${senderTag} ⚠️ Le message a été supprimé car il contenait des mots interdits.` :
-        `⚠️ Le message a été supprimé car il contenait des mots interdits.`;
-
-      // Construire l'objet de message
-      const messageObject = {
-        extendedTextMessage: {
-          text: alertMessage
-        }
-      };
-
-      // Envoyer l'alerte
-      await PelBot.sendMessage(m.chat, messageObject);
-    }
-
-
+    // if (!isCmd && m.message && m.message.extendedTextMessage && m.message.extendedTextMessage.contextInfo && m.message.extendedTextMessage.contextInfo.mentionedJid) {
+    //   const mentionedJidList = m.message.extendedTextMessage.contextInfo.mentionedJid;
+    //   console.log('Mentioned JID List:', mentionedJidList);
+  
+    //   if (mentionedJidList.includes(botNumber)) {
+    //     console.log('Le bot est mentionné dans le message.');
+    //     try {
+    //       const response = await sendMessageToGpt4Free(m.body);
+    //       console.log('Réponse de gpt4free-js:', response);
+    //       PelBot.sendMessage(m.chat, { text: response }, { quoted: m });
+    //     } catch (error) {
+    //       console.error('Erreur lors de l\'envoi du message à gpt4free-js:', error);
+    //       PelBot.sendMessage(m.chat, { text: 'Erreur lors de l\'envoi du message.' }, { quoted: m });
+    //     }
+    //   } else {
+    //     console.log('Le bot n\'est pas mentionné dans le message.');
+    //   }
+    // } else {
+    //   console.log('Le message n\'est pas une commande ou ne contient pas de mention.');
+    // }
 
 
 
@@ -1084,31 +1054,30 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
 
     const responses = {
-      hello: `Bonjour ${pushname}, je suis ${BotName}. Mon préfixe actuel est "${prefix}". Comment puis-je vous aider ?`,
-      kai: `Mon patron est perdu dans un autre Multivers, et j'ai perdu la connexion avec lui...`,
-      runtime: `Salut ${pushname}\n${nowtime}\n\nMon temps d'exécution : ${runtime(process.uptime())}\n\nLe préfixe est : *${prefix}*\n\nHeure : ${kaitime}\n\nDate : ${kaidate}\n\nAujourd'hui, c'est ${currentDay}`,
+      hello: `Bonjour ça va ?`,
+      christian: `Mon patron est perdu dans un autre Multivers, et j'ai perdu la connexion avec lui...`,
       chovy: `Parle pas mal de Chovy ${pushname} KOREEE !`,
       anos: `J'espère que tu veux dire que Anos est le plus fort ${pushname} !`,
-      konichiwa: `Konichiwa ${pushname}, je suis ${BotName}. Comment puis-je vous aider ?`,
-      sasha: 'Rien que pour toi...🫶🏻',
-      ping: `Salut ${pushname}, Pong ${latensie.toFixed(4)} ms`,
-      'good morning': `Bonjour à toi aussi ${pushname} ☺️. Passe une excellente journée 😇.`,
-      ohayo: `Bonjour à toi aussi ${pushname} ☺️. Passe une excellente journée 😇.`,
-      'good afternoon': `Bonjour à toi aussi ${pushname} ✨. Je te souhaite un agréable après-midi 😇🤞🏻.`,
+      bonjour: `Bonjour à toi aussi ${pushname} ☺️. Passe une excellente journée 😇.`,
+      ohayo: `Salut ça va ? 😇.`,
+      salut: `Salut ça va ? 😇.`,
+      bonsoir: `Bonsoir à toi aussi ${pushname} ✨. Je te souhaite un agréable après-midi 😇🤞🏻.`,
       konnichiwa: `Bonjour à toi aussi ${pushname} ✨. Je te souhaite un agréable après-midi 😇🤞🏻.`,
-      'good night': `Bonne nuit à toi aussi ${pushname} 😇. Fais de beaux rêves.`,
+      'je vais bien et toi ?': `Je vais bien aussi ${pushname} 😇. Quoi de neuf ?.`,
+      'oui et toi ?': `Je vais bien aussi ${pushname} 😇. Quoi de neuf ?.`,
+      'bonne nuit': `Bonne nuit à toi aussi ${pushname} 😇. Fais de beaux rêves.`,
     };
 
     const smallinput = budy.toLowerCase();
 
-    if (!isCreator) {
-      for (const key in responses) {
-        if (smallinput.includes(key)) {
-          reply(responses[key]);
-          break;
-        }
+    // if (!isCreator) {
+    for (const key in responses) {
+      if (smallinput.includes(key)) {
+        reply(responses[key]);
+        break;
       }
     }
+    // }
 
 
 
@@ -1376,6 +1345,9 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       case 'baltop': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly);
+        if (!isBotAdmins) return reply(mess.botadmin);
+        if (!isAdmins && !isCreator) return reply(mess.useradmin)
 
         PelBot.sendMessage(from, { react: { text: "🏆", key: m.key } });
 
@@ -1429,6 +1401,9 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
       case 'baldown': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly);
+        if (!isBotAdmins) return reply(mess.botadmin);
+        if (!isAdmins && !isCreator) return reply(mess.useradmin)
 
         PelBot.sendMessage(from, { react: { text: "🏆", key: m.key } });
 
@@ -1480,14 +1455,6 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         break;
 
 
-      // ... existing code ...
-
-      // ... existing code ...
-
-      // ... existing code ...
-
-      // ... existing code ...
-
       case 'quiz':
       case 'quizz': {
         if (isBanChat) return reply(mess.bangc);
@@ -1526,10 +1493,15 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
           case 'name':
           case 'hour':
           case 'time':
+          case 'heure':
           case 'start':
           case 'stop':
+          case 'end':
           case 'show':
+          case 'tableau':
           case 'showtagall':
+          case 'tableauall':
+          case 'showall':
           case 'modo':
             let currentQuizz;
             if (quizzData[quizzName]) {
@@ -1566,6 +1538,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
                 break;
 
               case 'time':
+              case 'heure':
                 const time = args[1];
                 if (!time) return reply('Veuillez fournir une heure pour le quizz au format HH:mm.');
                 const [hours, minutes] = time.split(':');
@@ -1579,6 +1552,10 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
                 break;
 
               case 'start':
+                if (currentQuizz.status === 'active') {
+                  reply('Quizz déjà commencé.');
+                  break;
+                }
                 currentQuizz.status = 'active';
                 currentQuizz.startTime = new Date().toISOString();
                 fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
@@ -1586,13 +1563,16 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
                 break;
 
               case 'stop':
+              case 'end':
                 currentQuizz.status = 'terminé';
                 currentQuizz.endTime = new Date().toISOString();
                 fs.writeFileSync(quizzFilePath, JSON.stringify(quizzData, null, 2));
                 reply(`Le quizz "${currentQuizz.name}" est terminé.`);
                 break;
 
-              case 'showtagall': {
+              case 'showtagall':
+              case 'tableauall':
+              case 'showall': {
                 let quizzIdToShow = args[1];
                 if (!quizzIdToShow) {
                   quizzIdToShow = Object.keys(quizzData).find(key => quizzData[key].status === 'active' || quizzData[key].status === 'prévu');
@@ -1642,6 +1622,7 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
               }
 
               case 'show':
+              case 'tableau':
                 let quizzIdToShow = args[1];
                 if (!quizzIdToShow) {
                   quizzIdToShow = Object.keys(quizzData).find(key => quizzData[key].status === 'active' || quizzData[key].status === 'prévu');
@@ -1696,13 +1677,6 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         break;
       }
 
-      // ... existing code ...
-
-      // ... existing code ...
-
-      // ... existing code ...
-
-      // ... existing code ...
 
 
       case 'listgroups':

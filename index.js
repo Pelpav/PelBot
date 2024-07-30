@@ -174,7 +174,7 @@ async function getGroupMembersById(PelBot, groupId) {
   let memberList = `Membres du groupe ${decodeURIComponent(groupName)} (ID: ${groupId}) triés par dernier message envoyé :\n\n`;
   const mentions = [];
   sortedMembers.forEach(([memberId, data]) => {
-    const formattedDate = moments(data.lastMessageDate).format('Le D MMMM YYYY à HH[h]mm');    
+    const formattedDate = moments(data.lastMessageDate).format('Le D MMMM YYYY à HH[h]mm');
     memberList += `ID: @${memberId.split('@')[0]}\nNombre de messages: ${data.count}\nDernier message: ${formattedDate}\n\n`;
     mentions.push(memberId);
   });
@@ -292,6 +292,9 @@ async function startPelBot() {
      })
  */
 
+  // Stocker l'état précédent des groupes
+  let previousGroupStates = {};
+
   PelBot.ev.on('groups.update', async pea => {
     //console.log(pea)
     // Get Profile Picture Group
@@ -301,26 +304,39 @@ async function startPelBot() {
       ppgc = 'https://images2.alphacoders.com/882/882819.jpg'
     }
     let wm_fatih = { url: ppgc }
-    if (pea[0].announce == true) {
-      //PelBot.send5ButImg(pea[0].id, `Grop has been *Closed!* Only *Admins* can send Messages!`, `PelBot Bot`, wm_fatih, [])
 
-      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'Le groupe a été *Fermé !* Seuls les  *Admins* peuvent envoyer des Messages !' })
-    } else if (pea[0].announce == false) {
-      // PelBot.send5ButImg(pea[0].id, `Grop has been *Opened!* Now *Everyone* can send Messages!`, `PelBot Bot`, wm_fatih, [])
-      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'Le groupe a été *Ouvert !* Maintenant,  *Tout le monde* peut envoyer des messages!' })
-    } else if (pea[0].restrict == true) {
-      //PelBot.send5ButImg(pea[0].id, `Group Info modification has been *Restricted*, Now only *Admins* can edit Group Info !`, `PelBot Bot`, wm_fatih, [])
-      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'La modification des informations du groupe a été *Restreinte*, Seuls les *Admins* peuvent modifier les informations du groupe !' })
-    } else if (pea[0].restrict == false) {
-      //PelBot.send5ButImg(pea[0].id, `La modification des informations du groupe a été *Dérestrictive*, Maintenant, seulement *Tout le monde* peut modifier les informations du groupe !`, `PelBot Bot`, wm_fatih, [])
-      PelBot.sendMessage(m.chat, { image: wm_fatih, caption: 'La modification des informations du groupe a été *Dérestrictive*, Maintenant, seulement *Tout le monde* peut modifier les informations du groupe !' })
-    } else {
-      //PelBot.send5ButImg(pea[0].id, `Group Subject has been uhanged To:\n\n*${pea[0].subject}*`, `PelBot Bot`, wm_fatih, [])
-      PelBottextddfq = `Le nom du groupe a été mis à jour en :\n\n*${pea[0].subject}*`
+    // Vérifier si l'état du groupe a changé
+    let previousState = previousGroupStates[pea[0].id] || {};
+    let currentState = {
+      announce: pea[0].announce,
+      restrict: pea[0].restrict,
+      subject: pea[0].subject
+    };
+
+    // if (previousState.announce !== currentState.announce) {
+    //   if (currentState.announce == true) {
+    //     PelBot.sendMessage(pea[0].id, { image: wm_fatih, caption: 'Le groupe a été *Fermé !* Seuls les  *Admins* peuvent envoyer des Messages !' })
+    //   } else if (currentState.announce == false) {
+    //     PelBot.sendMessage(pea[0].id, { image: wm_fatih, caption: 'Le groupe a été *Ouvert !* Maintenant,  *Tout le monde* peut envoyer des messages!' })
+    //   }
+    // }
+
+    if (previousState.restrict !== currentState.restrict) {
+      if (currentState.restrict == true) {
+        PelBot.sendMessage(pea[0].id, { image: wm_fatih, caption: 'La modification des informations du groupe a été *Restreinte*, Seuls les *Admins* peuvent modifier les informations du groupe !' })
+      } else if (currentState.restrict == false) {
+        PelBot.sendMessage(pea[0].id, { image: wm_fatih, caption: 'La modification des informations du groupe a été *Dérestrictive*, Maintenant, seulement *Tout le monde* peut modifier les informations du groupe !' })
+      }
+    }
+
+    if (previousState.subject !== currentState.subject) {
+      PelBottextddfq = `Le nom du groupe a été mis à jour en :\n\n*${currentState.subject}*`
       PelBot.sendMessage(pea[0].id, { image: wm_fatih, caption: PelBottextddfq })
     }
-  })
 
+    // Mettre à jour l'état précédent du groupe
+    previousGroupStates[pea[0].id] = currentState;
+  });
 
 
   function pickRandom(list) {
@@ -598,7 +614,7 @@ Tu vas pas nous manquer !
         console.log(
           "Connexion remplacée, une nouvelle session a été ouverte, veuillez fermer la session actuelle en premier"
         );
-        process.exit();
+        startPelBot(); // Redémarrer le bot
       } else if (reason === DisconnectReason.loggedOut) {
         console.log(`Appareil déconnecté, veuillez supprimer la session et scanner à nouveau.`);
         process.exit();
@@ -1241,13 +1257,12 @@ Tu vas pas nous manquer !
   return PelBot;
 }
 
-// Redémarrer le bot chaque heure (1 * 60 * 60 * 1000 millisecondes)
-setInterval(() => {
-  console.log(chalk.yellowBright('Redémarrage du bot...'));
-  startPelBot();
-}, 1 * 60 * 60 * 1000);
+// Redémarrer le bot chaque minute (1 * 60 * 1000 millisecondes)
+// setInterval(() => {
+//   console.log(chalk.yellowBright('Redémarrage du bot...'));
+//   startPelBot();
+// }, 1 * 60 * 1000);
 
-startPelBot();
 
 process.on('uncaughtException', function (err) {
   let e = String(err)
@@ -1259,6 +1274,8 @@ process.on('uncaughtException', function (err) {
   if (e.includes("Timed Out")) return
   if (e.includes("Value not found")) return
   console.log('Caught exception: ', err)
+  // Redémarrer le bot après une vraie erreur
+  startPelBot();
 })
 
 let file = require.resolve(__filename);

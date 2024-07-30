@@ -67,6 +67,7 @@
         "google-it": "^1.6.2",
         "google-tts-api": "^2.0.2",
         "got": "^11.8.3",
+        "gpt4free-js": "^1.0.0",
         "hmtai": "^3.2.1",
         "human-readable": "^0.2.1",
         "hxz-api": "^1.0.1",
