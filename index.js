@@ -207,9 +207,23 @@ const store = makeInMemoryStore({
   logger: pino().child({ level: "silent", stream: "store" }),
 });
 
+let isBotActive = true; // Variable pour suivre l'état du bot
 
+// Fonction pour vérifier l'état de la connexion
+function checkBotActivity() {
+  if (!isBotActive) {
+    console.log(chalk.yellowBright('Le bot semble inactif, redémarrage...'));
+    startPelBot();
+  }
+  isBotActive = false; // Réinitialiser l'état pour la prochaine vérification
+}
+
+// Appeler checkBotActivity toutes les 10 minutes (10 * 60 * 1000 millisecondes)
+setInterval(checkBotActivity, 1 * 60 * 1000);
 
 async function startPelBot() {
+  console.log(chalk.green("Démarrage de PelBot..."));
+
   console.log(
     color(
       figlet.textSync("PelBot MD", {
@@ -223,8 +237,9 @@ async function startPelBot() {
       "green"
     )
   );
-  console.log(color('\nHello, I am PELPAV, the main Developer of this bot.\n\nThanks for using: PelBot.', 'aqua'))
-  console.log(color('\nYou can follow me on GitHub: Pelpav', 'aqua'))
+  console.log(color('\nHello, I am PELPAV, the main Developer of this bot.\n\nThanks for using: PelBot.', 'aqua'));
+  console.log(color('\nYou can follow me on GitHub: Pelpav', 'aqua'));
+
 
   const { state, saveCreds } = await useMultiFileAuthState("./PelBot-SESSION");
   const PelBot = PelBotConnect({
@@ -614,7 +629,7 @@ Tu vas pas nous manquer !
         console.log(
           "Connexion remplacée, une nouvelle session a été ouverte, veuillez fermer la session actuelle en premier"
         );
-        startPelBot(); // Redémarrer le bot
+        process.exit();
       } else if (reason === DisconnectReason.loggedOut) {
         console.log(`Appareil déconnecté, veuillez supprimer la session et scanner à nouveau.`);
         process.exit();
@@ -1257,12 +1272,13 @@ Tu vas pas nous manquer !
   return PelBot;
 }
 
-// Redémarrer le bot chaque minute (1 * 60 * 1000 millisecondes)
+startPelBot();
+
+/// Redémarrer le bot chaque 10 minutes (10 * 60 * 1000 millisecondes)
 // setInterval(() => {
 //   console.log(chalk.yellowBright('Redémarrage du bot...'));
 //   startPelBot();
-// }, 1 * 60 * 1000);
-
+// }, 10 * 60 * 1000);
 
 process.on('uncaughtException', function (err) {
   let e = String(err)
@@ -1274,8 +1290,8 @@ process.on('uncaughtException', function (err) {
   if (e.includes("Timed Out")) return
   if (e.includes("Value not found")) return
   console.log('Caught exception: ', err)
-  // Redémarrer le bot après une vraie erreur
-  startPelBot();
+  console.log(chalk.yellowBright('Redémarrage du bot suite à une erreur...'));
+  startPelBot(); // Redémarrer le bot en cas d'erreur
 })
 
 let file = require.resolve(__filename);
