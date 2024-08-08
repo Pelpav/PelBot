@@ -75,8 +75,6 @@ if (time2 < "05:00:00") {
 }
 
 
-
-
 //
 const timestampe = speed();
 const latensie = speed() - timestampe
@@ -533,8 +531,9 @@ module.exports = { PelBot } = async (PelBot, m, chatUpdate, store) => {
     const AntiLinkAll = m.isGroup ? ntilinkall.includes(from) : false
     const antiWame = m.isGroup ? ntwame.includes(from) : false
     const antiVirtex = m.isGroup ? ntvirtex.includes(from) : false
-    const AntiNsfw = m.isGroup ? ntnsfw.includes(from) : false
-    autoreadsw = true
+    const nsfwDataPath = './storage/nsfw.json';
+    let nsfwData = JSON.parse(fs.readFileSync(nsfwDataPath, 'utf8'));
+    const AntiNsfw = m.isGroup ? nsfwData[from] : false; autoreadsw = true
     const content = JSON.stringify(m.message)
     const q = args.join(' ')
 
@@ -733,7 +732,7 @@ module.exports = { PelBot } = async (PelBot, m, chatUpdate, store) => {
     // if (!isCmd && m.message && m.message.extendedTextMessage && m.message.extendedTextMessage.contextInfo && m.message.extendedTextMessage.contextInfo.mentionedJid) {
     //   const mentionedJidList = m.message.extendedTextMessage.contextInfo.mentionedJid;
     //   console.log('Mentioned JID List:', mentionedJidList);
-  
+
     //   if (mentionedJidList.includes(botNumber)) {
     //     console.log('Le bot est mentionné dans le message.');
     //     try {
@@ -1708,6 +1707,75 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         await PelBot.sendMessage(m.chat, { text: memberList, mentions }, { quoted: m });
         break;
 
+      case 'groups': {
+        const fs = require('fs');
+        const path = './storage/group/';
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!isCreator) return reply(mess.botowner)
+
+        // Fonction pour charger les groupes depuis les fichiers JSON
+        function loadGroups() {
+          const groupFiles = fs.readdirSync(path).filter(file => file.endsWith('.json'));
+          const groups = groupFiles.map((file, index) => {
+            const groupId = file.replace('.json', '');
+            const groupName = decodeURIComponent(groupId); // Décoder le nom du groupe
+            return {
+              id: index + 1,
+              groupId: groupId,
+              name: groupName // Utiliser le nom décodé du fichier comme nom du groupe
+            };
+          });
+          return groups;
+        }
+
+        // Fonction pour charger les membres d'un groupe depuis le fichier JSON
+        function loadGroupMembers(groupId) {
+          const filePath = `${path}${groupId}.json`;
+          if (fs.existsSync(filePath)) {
+            const groupData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            return Object.keys(groupData);
+          } else {
+            return [];
+          }
+        }
+
+        // Récupérer la liste des groupes
+        const groupList = loadGroups();
+        // Si un ID de groupe est fourni, retourner les membres du groupe ou envoyer un message
+        if (args[0]) {
+          const groupId = parseInt(args[0]);
+          const group = groupList.find(g => g.id === groupId);
+          if (group) {
+            const members = loadGroupMembers(group.groupId);
+            if (args[1] === '-m' && args[2]) {
+              const message = args.slice(2).join(' ');
+              members.forEach(member => {
+                PelBot.sendMessage(member, { text: message });
+              });
+              return reply(`Message envoyé à tous les membres du groupe ${group.name}.`);
+            } else {
+              let memberList = `Membres du groupe ${group.name} :\n\n`;
+              members.forEach((member, index) => {
+                memberList += `${index + 1}. ${member}\n`;
+              });
+              return reply(memberList);
+            }
+          } else {
+            return reply('Groupe non trouvé.');
+          }
+        }
+
+        // Construire le message de réponse pour la liste des groupes
+        let responseMessage = 'Liste des groupes :\n\n';
+        groupList.forEach(group => {
+          responseMessage += `ID: ${group.id}\nNom: ${group.name}\n\n`;
+        });
+
+        // Envoyer le message de réponse
+        reply(responseMessage);
+      }
+        break;
 
 
       case 'poll':
@@ -3315,6 +3383,15 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
       //
       case 'nsfw': {
+        const fs = require('fs');
+        const nsfwDataPath = './storage/nsfw.json';
+        let nsfwData = {};
+
+        // Lire le fichier nsfw.json s'il existe
+        if (fs.existsSync(nsfwDataPath)) {
+          nsfwData = JSON.parse(fs.readFileSync(nsfwDataPath, 'utf8'));
+        }
+
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
         if (!m.isGroup) return reply(mess.grouponly);
@@ -3323,25 +3400,33 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         PelBot.sendMessage(from, { react: { text: "⚠️", key: m.key } });
 
         if (args[0] === "on") {
-          if (AntiNsfw) return reply('Already activated');
+          if (nsfwData[from]) return reply('Already activated');
           ntnsfw.push(from);
+          nsfwData[from] = true; // Ajout du groupe dans nsfw.json
           reply('Enabled NSFW Commands!');
         } else if (args[0] === "off") {
-          if (!AntiNsfw) return reply('Already deactivated');
+          if (!nsfwData[from]) return reply('Already deactivated');
           let off = ntnsfw.indexOf(from);
           ntnsfw.splice(off, 1);
+          delete nsfwData[from]; // Suppression du groupe de nsfw.json
           reply('Disabled NSFW Commands!');
         } else {
           reply(`NSFW(not safe for work) feature has been enabled in this group, which means anyone here can accesss Adult commands!\n\nPlease use *'${prefix}nsfw on*' to enable NSFW commands or *'${prefix}nsfw off'* to disable them.`);
         }
+
+        // Sauvegarde des données mises à jour
+        fs.writeFileSync(nsfwDataPath, JSON.stringify(nsfwData, null, 2));
       }
         break;
+
+        const AntiNsfw = m.isGroup ? nsfwData[from] : false
+        autoreadsw = true
 
 
       case 'nsfwmenu':
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
-        if (!AntiNsfw) return reply(mess.nonsfw);
+        // if (!AntiNsfw) return reply(mess.nonsfw);
         if (!m.isGroup) return reply(mess.grouponly);
         PelBot.sendMessage(from, { react: { text: "⚠️", key: m.key } })
 
@@ -3882,12 +3967,12 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
         PelBot.sendMessage(from, { react: { text: "🫡", key: m.key } })
 
         if (!m.quoted) return reply('Please mention a message baka!')
-          let { chat, fromMe, id, participant } = m.quoted
-  
-          // Empêcher la suppression d'un message du bot ou de l'owner
-          if (participant === PelBot.user.id || participant === global.owner) {
-            return reply('Chien je fais pas !')
-          }
+        let { chat, fromMe, id, participant } = m.quoted
+
+        // Empêcher la suppression d'un message du bot ou de l'owner
+        if (participant === PelBot.user.id || participant === global.owner) {
+          return reply('Chien je fais pas !')
+        }
 
         const key = {
           remoteJid: m.chat,
@@ -6935,87 +7020,87 @@ _Click the button below to download_`
         PelBot.sendMessage(from, { react: { text: "🌝", key: m.key } })
 
         const dare = [
-          "eat 2 tablespoons of rice without any side dishes, if it's dragging you can drink",
-          "spill people who make you pause",
-          "call crush/pickle now and send ss",
-          "drop only emote every time you type on gc/pc for 1 day.",
-          "say Welcome to Who Wants To Be a Millionaire! to all the groups you have",
-          "call ex saying miss",
-          "sing the chorus of the last song you played",
-          "vn your ex/crush/girlfriend, says hi (name), wants to call, just a moment. I miss🥺👉🏼👈🏼",
-          "Bang on the table (which is at home) until you get scolded for being noisy",
-          "Tell random people - I was just told I was your twin first, we separated, then I had plastic surgery. And this is the most ciyusss_ thing",
-          "mention ex's name",
-          "make 1 rhyme for the members!",
-          "send ur whatsapp chat list",
-          "chat random people with gheto language then ss here",
-          "tell your own version of embarrassing things",
-          "tag the person you hate",
-          "Pretending to be possessed, for example: possessed by dog, possessed by grasshoppers, possessed by refrigerator, etc.",
-          "change name to *I AM DONKEY* for 24 hours",
-          "shout *ma chuda ma chuda ma chuda* in front of your house",
-          "snap/post boyfriend photo/crush",
-          "tell me your boyfriend type!",
-          "say *i hv crush on you, do you want to be my girlfriend?* to the opposite sex, the last time you chatted (submit on wa/tele), wait for him to reply, if you have, drop here",
-          "record ur voice that read *titar ke age do titar, titar ke piche do titar*",
-          "prank chat ex and say *i love u, please come back.* without saying dare!",
-          "chat to contact wa in the order according to your battery %, then tell him *i am lucky to hv you!*",
-          "change the name to *I am a child of randi* for 5 hours",
-          "type in bengali 24 hours",
-          "Use selmon bhoi photo for 3 days",
-          "drop a song quote then tag a suitable member for that quote",
-          "send voice note saying can i call u baby?",
-          "ss recent call whatsapp",
-          "Say *YOU ARE SO BEAUTIFUL DON'T LIE* to guys!",
-          "pop to a group member, and say fuck you",
-          "Act like a chicken in front of ur parents",
-          "Pick up a random book and read one page out loud in vn n send it here",
-          "Open your front door and howl like a wolf for 10 seconds",
-          "Take an embarrassing selfie and paste it on your profile picture",
-          "Let the group choose a word and a well known song. You have to sing that song and send it in voice note",
-          "Walk on your elbows and knees for as long as you can",
-          "sing national anthem in voice note",
-          "break;dance for 30 seconds in the sitting room😂",
-          "Tell the saddest story you know",
-          "make a twerk dance video and put it on status for 5mins",
-          "Eat a raw piece of garlic",
-          "Show the last five people you texted and what the messages said",
-          "put your full name on status for 5hrs",
-          "make a short dance video without any filter just with a music and put it on ur status for 5hrs",
-          "call ur bestie, bitch",
-          "put your photo without filter on ur status for 10mins",
-          "say i love oli london in voice note🤣🤣",
-          "Send a message to your ex and say I still like you",
-          "call Crush/girlfriend/bestie now and screenshot here",
-          "pop to one of the group member personal chat and Say you ugly bustard",
-          "say YOU ARE BEAUTIFUL/HANDSOME to one of person who is in top of ur pinlist or the first person on ur chatlist",
-          "send voice notes and say, can i call u baby, if u r boy tag girl/if girl tag boy",
-          "write i love you (random grup member name, who is online) in personal chat, (if u r boy write girl name/if girl write boy name) take a snap of the pic and send it here",
-          "use any bollywood actor photo as ur pfp for 3 days",
-          "put your crush photo on status with caption, this is my crush",
-          "change name to I AM GAY for 5 hours",
-          "chat to any contact in whatsapp and say i will be ur bf/gf for 5hours",
-          "send voice note says i hv crush on you, want to be my girlfriend/boyfriend or not? to any random person from the grup(if u girl choose boy, if boy choose girl",
-          "slap ur butt hardly send the sound of slap through voice note😂",
-          "state ur gf/bf type and send the photo here with caption, ugliest girl/boy in the world",
-          "shout bravooooooooo and send here through voice note",
-          "snap your face then send it here",
-          "Send your photo with a caption, i am lesbian",
-          "shout using harsh words and send it here through vn",
-          "shout you bastard in front of your mom/papa",
-          "change the name to i am idiot for 24 hours",
-          "slap urself firmly and send the sound of slap through voice note😂",
-          "say i love the bot owner Pelpav through voice note",
-          "send your gf/bf pic here",
-          "make any tiktok dance challenge video and put it on status, u can delete it after 5hrs",
-          "break;up with your best friend for 5hrs without telling him/her that its a dare",
-          "tell one of your frnd that u love him/her and wanna marry him/her, without telling him/her that its a dare",
-          "say i love depak kalal through voice note",
-          "write i am feeling horny and put it on status, u can delete it only after 5hrs",
-          "write i am lesbian and put it on status, u can delete only after 5hrs",
-          "kiss your mommy or papa and say i love you😌",
-          "put your father name on status for 5hrs",
-          "send abusive words in any grup, excepting this grup, and send screenshot proof here"
+          "mangez 2 cuillères à soupe de riz sans accompagnement, si c'est difficile, vous pouvez boire",
+          "révélez la personne qui vous fait hésiter",
+          "appelez votre crush/petit(e) ami(e) maintenant et envoyez une capture d'écran",
+          "ne postez que des émoticônes chaque fois que vous tapez sur gc/pc pendant 1 jour.",
+          "dites Bienvenue à Qui veut gagner des millions ! à tous les groupes que vous avez",
+          "appelez votre ex en disant qu'il/elle vous manque",
+          "chantez le refrain de la dernière chanson que vous avez écoutée",
+          "envoyez un message vocal à votre ex/crush/petit(e) ami(e), en disant salut (nom), veux-tu appeler, juste un moment. Tu me manques🥺👉🏼👈🏼",
+          "frappez sur la table (qui est à la maison) jusqu'à ce que vous vous fassiez gronder pour le bruit",
+          "dites à des gens au hasard - On m'a dit que j'étais votre jumeau d'abord, nous nous sommes séparés, puis j'ai subi une chirurgie plastique. Et c'est la chose la plus ciyusss_",
+          "mentionnez le nom de votre ex",
+          "faites une rime pour les membres !",
+          "envoyez votre liste de discussions WhatsApp",
+          "discutez avec des gens au hasard en langage ghetto puis envoyez une capture d'écran ici",
+          "racontez des choses embarrassantes de votre propre version",
+          "taguez la personne que vous détestez",
+          "faites semblant d'être possédé, par exemple : possédé par un chien, possédé par des sauterelles, possédé par un réfrigérateur, etc.",
+          "changez de nom pour *JE SUIS UN ÂNE* pendant 24 heures",
+          "criez *ma chuda ma chuda ma chuda* devant votre maison",
+          "postez une photo de votre petit(e) ami(e)/crush",
+          "dites-moi votre type de petit(e) ami(e) !",
+          "dites *j'ai un crush sur toi, veux-tu être ma petite amie ?* au sexe opposé, la dernière fois que vous avez discuté (soumettez sur wa/tele), attendez sa réponse, si vous avez, postez ici",
+          "enregistrez votre voix en lisant *titar ke age do titar, titar ke piche do titar*",
+          "faites une blague à votre ex et dites *je t'aime, reviens s'il te plaît.* sans dire que c'est un défi !",
+          "discutez avec un contact wa dans l'ordre selon votre pourcentage de batterie, puis dites-lui *je suis chanceux de t'avoir !*",
+          "changez de nom pour *Je suis un enfant de randi* pendant 5 heures",
+          "écrivez en bengali pendant 24 heures",
+          "utilisez une photo de selmon bhoi pendant 3 jours",
+          "postez une citation de chanson puis taguez un membre approprié pour cette citation",
+          "envoyez une note vocale en disant puis-je t'appeler bébé ?",
+          "envoyez une capture d'écran de vos appels récents sur WhatsApp",
+          "dites *TU ES SI BELLE NE MENS PAS* aux gars !",
+          "insultez un membre du groupe et dites va te faire foutre",
+          "faites semblant d'être un poulet devant vos parents",
+          "prenez un livre au hasard et lisez une page à haute voix en note vocale et envoyez-la ici",
+          "ouvrez votre porte d'entrée et hurlez comme un loup pendant 10 secondes",
+          "prenez un selfie embarrassant et mettez-le en photo de profil",
+          "laissez le groupe choisir un mot et une chanson bien connue. Vous devez chanter cette chanson et l'envoyer en note vocale",
+          "marchez sur vos coudes et genoux aussi longtemps que vous le pouvez",
+          "chantez l'hymne national en note vocale",
+          "faites une danse break de 30 secondes dans le salon😂",
+          "racontez l'histoire la plus triste que vous connaissez",
+          "faites une vidéo de danse twerk et mettez-la en statut pendant 5 minutes",
+          "mangez un morceau d'ail cru",
+          "montrez les cinq dernières personnes à qui vous avez envoyé des messages et ce qu'ils disaient",
+          "mettez votre nom complet en statut pendant 5 heures",
+          "faites une courte vidéo de danse sans aucun filtre juste avec une musique et mettez-la en statut pendant 5 heures",
+          "appelez votre meilleur(e) ami(e), salope",
+          "mettez votre photo sans filtre en statut pendant 10 minutes",
+          "dites j'aime oli london en note vocale🤣🤣",
+          "envoyez un message à votre ex et dites je t'aime toujours",
+          "appelez votre crush/petit(e) ami(e)/meilleur(e) ami(e) maintenant et envoyez une capture d'écran ici",
+          "insultez un membre du groupe en message personnel et dites tu es moche",
+          "dites TU ES BEAU/BELLE à la première personne de votre liste de discussions",
+          "envoyez une note vocale en disant, puis-je t'appeler bébé, si vous êtes un garçon taguez une fille/si vous êtes une fille taguez un garçon",
+          "écrivez j'aime (nom d'un membre du groupe au hasard, qui est en ligne) en message personnel, (si vous êtes un garçon écrivez le nom d'une fille/si vous êtes une fille écrivez le nom d'un garçon) prenez une capture d'écran et envoyez-la ici",
+          "utilisez une photo d'un acteur de Bollywood comme photo de profil pendant 3 jours",
+          "mettez la photo de votre crush en statut avec la légende, c'est mon crush",
+          "changez de nom pour JE SUIS GAY pendant 5 heures",
+          "discutez avec un contact sur WhatsApp et dites je serai ton petit(e) ami(e) pendant 5 heures",
+          "envoyez une note vocale en disant j'ai un crush sur toi, veux-tu être ma petite amie/petit ami ou non ? à une personne au hasard du groupe (si vous êtes une fille choisissez un garçon, si vous êtes un garçon choisissez une fille)",
+          "frappez-vous fort les fesses et envoyez le son de la claque par note vocale😂",
+          "déclarez votre type de petit(e) ami(e) et envoyez la photo ici avec la légende, la fille/le garçon le/la plus moche du monde",
+          "criez bravooooooooo et envoyez-le ici par note vocale",
+          "prenez une photo de votre visage puis envoyez-la ici",
+          "envoyez votre photo avec la légende, je suis lesbienne",
+          "criez des mots grossiers et envoyez-les ici par note vocale",
+          "criez espèce de bâtard devant votre mère/père",
+          "changez de nom pour je suis idiot pendant 24 heures",
+          "frappez-vous fermement et envoyez le son de la claque par note vocale😂",
+          "dites j'aime le propriétaire du bot Pelpav par note vocale",
+          "envoyez la photo de votre petit(e) ami(e) ici",
+          "faites une vidéo de défi de danse TikTok et mettez-la en statut, vous pouvez la supprimer après 5 heures",
+          "rompez avec votre meilleur(e) ami(e) pendant 5 heures sans lui dire que c'est un défi",
+          "dites à un(e) de vos ami(e)s que vous l'aimez et que vous voulez l'épouser, sans lui dire que c'est un défi",
+          "dites j'aime depak kalal par note vocale",
+          "écrivez je me sens excité et mettez-le en statut, vous pouvez le supprimer seulement après 5 heures",
+          "écrivez je suis lesbienne et mettez-le en statut, vous pouvez le supprimer seulement après 5 heures",
+          "embrassez votre maman ou papa et dites je t'aime😌",
+          "mettez le nom de votre père en statut pendant 5 heures",
+          "envoyez des mots abusifs dans n'importe quel groupe, sauf celui-ci, et envoyez une capture d'écran ici"
         ]
         const PelBotdareww = dare[Math.floor(Math.random() * dare.length)]
         buffer = await getBuffer(`https://images4.alphacoders.com/101/1016619.jpg`)
@@ -7877,6 +7962,34 @@ _Click the button below to download_`
 
 
       //
+
+
+      case 'couple': {
+        if (isBan) return reply(mess.banned);
+        if (isBanChat) return reply(mess.bangc);
+        if (!m.isGroup) return reply(mess.grouponly);
+        PelBot.sendMessage(from, { react: { text: "💕", key: m.key } }); // Envoyer une réaction de feuille d'érable
+
+        const groupMetadata = await PelBot.groupMetadata(m.chat);
+        const participants = groupMetadata.participants.map(p => p.id);
+
+        if (participants.length < 2) {
+          return reply("Il n'y a pas assez de membres dans le groupe pour former un couple.");
+        }
+
+        // Sélectionner deux membres au hasard
+        const member1 = participants[Math.floor(Math.random() * participants.length)];
+        let member2;
+        do {
+          member2 = participants[Math.floor(Math.random() * participants.length)];
+        } while (member1 === member2);
+
+        let message = `💖 Couple 💖 \n\n`;
+        message += `@${member1.split('@')[0]} 💘 @${member2.split('@')[0]}`;
+        PelBot.sendMessage(m.chat, { text: message, mentions: [member1, member2] }, { quoted: m });
+      }
+        break;
+
       case 'anime': {
         if (isBan) return reply(mess.banned); // Vous êtes banni d'utiliser des commandes!
         if (isBanChat) return reply(mess.bangc); // Ce groupe est banni d'utiliser des commandes!

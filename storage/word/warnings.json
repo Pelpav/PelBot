@@ -30,9 +30,10 @@
       ]
     },
     "22378845758@s.whatsapp.net": {
-      "count": 1,
+      "count": 2,
       "reasons": [
-        "Acharnement sur Chovy"
+        "Acharnement sur Chovy",
+        "Mot interdit \"hentai\""
       ]
     },
     "22396174642@s.whatsapp.net": {
@@ -45,8 +46,9 @@
       ]
     },
     "22383593562@s.whatsapp.net": {
-      "count": 2,
+      "count": 3,
       "reasons": [
+        "Mot interdit \"hentai\"",
         "Mot interdit \"hentai\"",
         "Mot interdit \"hentai\""
       ]
@@ -70,6 +72,13 @@
       "count": 1,
       "reasons": [
         "Mot interdit \"chien\""
+      ]
+    },
+    "22382470628@s.whatsapp.net": {
+      "count": 2,
+      "reasons": [
+        "Mot interdit \"hentai\"",
+        "Mot interdit \"hentai\""
       ]
     }
   }

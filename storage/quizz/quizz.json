@@ -1,10 +1,24 @@
 {
   "Q01": {
     "id": "Q01",
-    "name": "*▉ 🎯 `QUIZ SUR VOS VERSES` 🎯* ▉",
-    "status": "prévu",
-    "startTime": "2024-08-05T21:00:25.546Z",
-    "endTime": null,
-    "modo": "22363966105@s.whatsapp.net"
+    "name": "Quizz Multivers 30Q",
+    "status": "terminé",
+    "startTime": "2024-08-06T13:16:05.063Z",
+    "endTime": "2024-08-06T15:34:22.009Z",
+    "modo": "22363198446@s.whatsapp.net",
+    "participants": {
+      "22363966105@s.whatsapp.net": 27,
+      "22396987309@s.whatsapp.net": 2,
+      "22370224995@s.whatsapp.net": 9,
+      "22372619239@s.whatsapp.net": 2,
+      "22378845758@s.whatsapp.net": 11,
+      "22382008800@s.whatsapp.net": 19,
+      "22396174642@s.whatsapp.net": 3,
+      "22383593562@s.whatsapp.net": 5,
+      "22382470628@s.whatsapp.net": 2,
+      "22390735219@s.whatsapp.net": 4,
+      "22391682330@s.whatsapp.net": 1,
+      "22393350501@s.whatsapp.net": 1
+    }
   }
 }

@@ -62,5 +62,20 @@
   "13": {
     "name": "Section%20Quizz%20",
     "id": 13
+  },
+  "14": {
+    "name": "PelBot%20NSFW",
+    "id": 14,
+    "whatsappId": "120363302855956979@g.us"
+  },
+  "15": {
+    "name": "Le%20March%C3%A9%20De%20L'%C3%A9lectronique%F0%9F%96%A5%EF%B8%8F%F0%9F%92%BB%F0%9F%96%B1%EF%B8%8F%F0%9F%AA%9B%F0%9F%AA%9B",
+    "id": 15,
+    "whatsappId": "120363303827020270@g.us"
+  },
+  "16": {
+    "name": "BKO--Vente%20d'ordinateur%20et%20consorts%F0%9F%96%A5%EF%B8%8F%F0%9F%92%BB%F0%9F%92%BB%F0%9F%96%A5%EF%B8%8F%E2%8C%A8%EF%B8%8F%E2%8C%A8%EF%B8%8F%F0%9F%96%B1%EF%B8%8F%F0%9F%96%B1%EF%B8%8F",
+    "id": 16,
+    "whatsappId": "120363292097341956@g.us"
   }
 }
