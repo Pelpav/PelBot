@@ -4036,38 +4036,8 @@ Ecris *surrender* pour abandonner et admettre ta défaite`
 
 
 
-      // case 'nsfw': {
-      // if (isBan) return reply(mess.banned);	 			
-      // if (isBanChat) return reply(mess.bangc);
-      // if (!m.isGroup) return reply(mess.grouponly);
-      // if (!isBotAdmins) return reply(mess.botadmin);
-      // if (!isAdmins && !isCreator) return reply(mess.useradmin)
-      // PelBot.sendMessage(from, { react: { text: "🫡" , key: m.key }})
-      // if (args[0] === "on") {
-      // if (AntiNsfw) return reply('Already activated')
-      // ntnsfw.push(from)
-      // reply('Enabled NSFW Commands!')
-      // var groupe = await PelBot.groupMetadata(from)
-      // var members = groupe['participants']
-      // var mems = []
-      // members.map(async adm => {
-      // mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
-      // })
-      // PelBot.sendMessage(from, {text: `\`\`\`「 Notice 」\`\`\`\n\nNSFW(not safe for work) feature has been enabled in this group, which means anyone here can accesss Adult commands!`, contextInfo: { mentionedJid : mems }}, {quoted:m})
-      // } else if (args[0] === "off") {
-      // if (!AntiNsfw) return reply('Already deactivated')
-      // let off = ntnsfw.indexOf(from)
-      // ntnsfw.splice(off, 1)
-      // reply('Disabled NSFW Commands!')
-      // } else {
-      // let buttonsntnsfw = [
-      // { buttonId: `${prefix}nsfw on`, buttonText: { displayText: 'On' }, type: 1 },
-      // { buttonId: `${prefix}nsfw off`, buttonText: { displayText: 'Off' }, type: 1 }
-      // ]
-      // await PelBot.sendButtonText(m.chat, buttonsntnsfw, `Please click the button below\n\nOn to enable\nOff to disable`, `${global.BotName}`, m)
-      // }
-      // }
-      // break;
+     
+
 
 
       //-----------------------------------------------------------------------------------------------------------------------------------//
@@ -6685,14 +6655,6 @@ _Click the button below to download_`
 
 
 
-      case 'nsfwPelBot':
-        if (isBan) return reply(mess.banned);
-        if (isBanChat) return reply(mess.bangc);
-        reply(mess.wait)
-        nye = `http://api.lolhuman.xyz/api/gimage?apikey=${lolkey}&query=${command}`
-        PelBot.sendMessage(from, { image: { url: nye }, caption: "Master..." }, { quoted: m })
-        break;
-
       case 'mediafire': case 'mediafiredl': {
         if (isBan) return reply(mess.banned);
         if (isBanChat) return reply(mess.bangc);
@@ -6712,162 +6674,7 @@ _Click the button below to download_`
         break;
 
 
-      // case 'masturbation': case 'jahy': case 'hentai': case 'glasses': case 'gangbang': case 'foot': 
-      // case 'femdom': case 'cum': case 'ero': case 'cuckold': case 'blowjob': case 'bdsm': 
-      // case 'ahegao': case 'ass': case 'orgy': case 'panties': case 'pussy': case 'thighs': case 'yuri': case 'tentacles':
-      // // if (isBan) return reply(mess.banned);	 			
-      // // if (isBanChat) return reply(mess.bangc);
-      // // if (!m.isGroup) return reply(mess.grouponly);
-      // // if (!AntiNsfw) return reply(mess.nonsfw)
-      // // try{
-      // // reply(mess.waiting)
-
-
-
-      // // buffer = `https://fantox-apis.vercel.app/${command}`
-      // // PelBot.sendMessage(from, {image:{url:buffer}, caption:"Here you go!"}, {quoted:m})
-
-
-      // // // NoHorny = await fetchJson(`https://fantox-apis.vercel.app/${command}`)
-      // // // YesHorny = await getBuffer(NoHorny.result)
-      // // // PelBot.sendMessage(from, {image:YesHorny},{quoted:m})
-      // // // } catch (e) {error("Error")}	
-      // // break;
-
-      // case 'spank':
-      //   if (isBan) return reply(mess.banned);	 			
-      //   if (isBanChat) return reply(mess.bangc);
-      //   if (!m.isGroup) return reply(mess.grouponly);
-      //   if (!AntiNsfw) return reply(mess.nonsfw)
-      // reply(mess.waiting)
-      // spankd = await axios.get(`https://nekos.life/api/v2/img/spank`)                                   
-      // let spbuff = await getBuffer(spankd.data.url)
-      // let spgif = await GIFBufferToVideoBuffer(spbuff)   
-      //       await PelBot.sendMessage(m.chat,{video: spgif, gifPlayback:true},{ quoted:m }).catch(err => {
-      //                   return reply('Error!')
-      //                                   })
-      // break;
-
-
-      // case 'blowjobgif': case 'bj' :
-      //   if (isBan) return reply(mess.banned);	 			
-      //   if (isBanChat) return reply(mess.bangc);
-      //   if (!m.isGroup) return reply(mess.grouponly);
-      //   if (!AntiNsfw) return reply(mess.nonsfw)
-      // reply(mess.waiting)
-      // bjd = await axios.get(`https://api.waifu.pics/nsfw/blowjob`)         
-      // let bjf = await getBuffer(bjd.data.url)
-      // let bjif = await GIFBufferToVideoBuffer(bjf)   
-      //       await PelBot.sendMessage(m.chat,{video: bjif, gifPlayback:true},{ quoted:m }).catch(err => {
-      //                   return reply('error..')
-      //                                   })
-      // break;
-
-
-      // case 'hentaivid': case 'hentaivideo': {
-      //   if (isBan) return reply(mess.banned);	 			
-      //   if (isBanChat) return reply(mess.bangc);
-      //   if (!m.isGroup) return reply(mess.grouponly);
-      //   if (!AntiNsfw) return reply(mess.nonsfw)
-      // reply(mess.waiting)
-      // anu = await hentai()
-      // result912 = anu[Math.floor(Math.random(), anu.length)]
-      // PelBot.sendMessage(m.chat, { video: { url: result912.video_1 }, caption: `Title : ${result912.title}\nCategory : ${result912.category}\n$Mimetype : ${result912.type}\nViews : ${result912.views_count}\nShares : ${result912.share_count}\nSource : ${result912.link}\nMedia Url : ${result912.video_1}` }, { quoted: m })
-      // }
-      // break;
-
-
-      // case 'trap' :
-      //   if (isBan) return reply(mess.banned);	 			
-      //   if (isBanChat) return reply(mess.bangc);
-      //   if (!m.isGroup) return reply(mess.grouponly);
-      //   if (!AntiNsfw) return reply(mess.nonsfw)
-      // reply(mess.waiting)
-      // waifudd = await axios.get(`https://waifu.pics/api/nsfw/${command}`)       
-      // /* let trapbot = [
-      //   {buttonId: `${prefix}trap`, buttonText: {displayText: `>>`}, type: 1},
-      //   ] */
-      // let button2Messages = {
-      //  image: {url:waifudd.data.url},
-      //  caption:  `Here it is...`,
-      // /* buttons: trapbot,
-      // headerType: 1 */
-      // }     
-      //           await PelBot.sendMessage(m.chat, button2Messages, { quoted:m }).catch(err => {
-      //                   return('Error!')
-      //               })
-      // break;
-
-
-      // case 'hentai-neko' :
-      // case 'hneko' :
-      //   if (isBan) return reply(mess.banned);	 			
-      //   if (isBanChat) return reply(mess.bangc);
-      //   if (!m.isGroup) return reply(mess.grouponly);
-      //   if (!AntiNsfw) return reply(mess.nonsfw)
-      // reply(mess.waiting)
-      //   waifudd = await axios.get(`https://waifu.pics/api/nsfw/neko`)
-      // /* let hnekobot = [
-      //   {buttonId: `${prefix + command}`, buttonText: {displayText: `>>`}, type: 1},
-      //   ] */
-      // let button3Messages = {
-      //  image: {url:waifudd.data.url},
-      //  caption:  `Nyaah...`,
-      // /* buttons: hnekobot,
-      // headerType: 1 */
-      // }      
-      //           await PelBot.sendMessage(m.chat, button3Messages, { quoted:m }).catch(err => {
-      //                   return('Error!')
-      //               })
-      // break;
-
-
-      // case 'hentai-waifu' :
-      // case 'hwaifu' :
-      //   if (isBan) return reply(mess.banned);	 			
-      //   if (isBanChat) return reply(mess.bangc);
-      //   if (!m.isGroup) return reply(mess.grouponly);
-      //   if (!AntiNsfw) return reply(mess.nonsfw)
-      // reply(mess.waiting)
-      //   waifudd = await axios.get(`https://waifu.pics/api/nsfw/waifu`)         
-      // /* let nwaifubot = [
-      //   {buttonId: `${prefix + command}`, buttonText: {displayText: `>>`}, type: 1},
-      //   ] */
-      // let button4Messages = {
-      //  image: {url:waifudd.data.url},
-      //  caption:  `Here it is...`,
-      // /* buttons: nwaifubot,
-      // headerType: 1 */
-      // }      
-      //           await PelBot.sendMessage(m.chat, button4Messages, { quoted:m }).catch(err => {
-      //                   return('Error!')
-      //               })
-      // break;
-
-
-      // case 'gasm':
-      //   if (isBan) return reply(mess.banned);	 			
-      //   if (isBanChat) return reply(mess.bangc);
-      //   if (!m.isGroup) return reply(mess.grouponly);
-      //   if (!AntiNsfw) return reply(mess.nonsfw)
-      // reply(mess.waiting)						
-      // waifudd = await axios.get(`https://nekos.life/api/v2/img/${command}`)
-      //                      /*    var wbuttsss = [
-      //       {buttonId: `${prefix}gasm`, buttonText: {displayText: `>>`}, type: 1},
-      //       ] */
-      //     let buttonsssMessages = {
-      //      image: {url:waifudd.data.url},
-      //      caption:  `Here it is...`,
-      //    /* footer: `${global.BotName}`,
-      //     buttons: wbuttsss,
-      //     headerType: 4 */
-      //     }     
-      //           await PelBot.sendMessage(m.chat, buttonsssMessages,{ quoted:m }).catch(err => {
-      //                   return('Error!')
-      //               })
-      // break;  
-
-
+     
 
       // /* ████ ✪ ███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ [ Anime Mode ] ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓███ ✪ ███ */
 
@@ -7752,7 +7559,6 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
   ⌯     ${prefix}revoke
   ⌯     ${prefix}tagall
   ⌯     ${prefix}hidetag
-  ⌯     ${prefix}nsfw
   ⌯     ${prefix}nsnfwmenu
 
 
@@ -7980,33 +7786,7 @@ Hemlo, I am "PelBot" a WhatsApp bot create and recode by Pelpav to do everything
   ⌯     ${prefix}report
   ⌯     ${prefix}afk
   ⌯     ${prefix}darkjoke
-  
-
-  〢━━━ ⚠️ *NSFW* ⚠️ ━━━〢
- 
- 
-  ⌯   🍁 Type *${prefix}nsfw* then enable 
-  ⌯       NSFW (Admin only!)
-  ⌯    
-  ⌯   🍁 Then type *${prefix}nsfwmenu* for
-  ⌯       all NSFW commands.
-  ⌯    
-  ⌯   『  *${global.BotName}*  』
-  ⌯       Developed By: *Pelpav*
-  ⌯    
-  ⌯   🍁 To use any of these
-  ⌯       commands type.
-  ⌯    
-  ⌯   *${prefix}<Command name>*.
-  ⌯    
-  ⌯   🍁 To get Support Group link
-  ⌯     type *${prefix}support*.
-  ⌯    
-  ⌯    
-  ⌯   🍁 Type *${prefix}help* to get
-  ⌯       full command list.
-  ┬│▸
-  ╰────────────···▸`
+  `
         let buttonMessage = {
           video: fs.readFileSync('./system/PelBot_3.mp4'), gifPlayback: true,
           caption: helpmenu,
